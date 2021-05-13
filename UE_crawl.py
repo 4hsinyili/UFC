@@ -178,15 +178,15 @@ class UEDinerListCrawler():
         title = str(diner_div.xpath('.//h3/text()')[0])
         try:
             diner_div.xpath(".//img[@src='https://d4p17acsd5wyj.cloudfront.net/eatsfeed/other_icons/top_eats.png']")[0]
-            UE_choice = True
+            UE_choice = 1
         except Exception:
-            UE_choice = False
+            UE_choice = 0
         if diner_div.xpath(".//span[contains(.,'費用')]/text()") == []:
-            deliver_fee = ''
+            deliver_fee = 0
         else:
             deliver_fee = diner_div.xpath(".//span[contains(.,'費用')]/text()")[0]
         if diner_div.xpath(".//div[contains(.,'分鐘')]/text()") == []:
-            deliver_time = ''
+            deliver_time = 0
         else:
             deliver_time = diner_div.xpath(".//*[contains(.,'分鐘')]/text()")[0]
         diner = {
@@ -263,11 +263,15 @@ class UEDinerDetailCrawler():
 
     def get_other_info(self, UE_API_response, diner):
         diner['deliver_time'] = UE_API_response['etaRange']
+        if not diner['deliver_time']:
+            diner['deliver_time'] = 0
         diner['deliver_fee'] = UE_API_response['fareBadge']
+        if not diner['deliver_fee']:
+            diner['deliver_fee'] = 0
         diner['budget'] = len(UE_API_response['priceBucket'])
         try:
             diner['rating'] = UE_API_response['rating']['ratingValue']
-            diner['view_count'] = UE_API_response['rating']['reviewCount']
+            diner['view_count'] = int(UE_API_response['rating']['reviewCount'])
         except Exception:
             diner['rating'] = 0
             diner['view_count'] = 0
@@ -287,15 +291,11 @@ class UEDinerDetailCrawler():
         for section in sections:
             section_uuid = section['uuid']
             section_title = section['title']
-            menu[section_uuid] = {
-                'section_title': section_title,
-                'subsection': {}}
+            menu[('section', section_uuid, section_title)] = {}
             for subsection_id in section['subsectionUuids']:
                 items_uuid = subsections_map[subsection_id]['itemUuids']
                 subsection_title = subsections_map[subsection_id]['title']
-                menu[section['uuid']]['subsection'][subsection_id] = {
-                    'subsection_title': subsection_title,
-                    'items': {}}
+                menu[('section', section_uuid, section_title)][('subsection', subsection_id, subsection_title)] = []
                 for item_uuid in items_uuid:
                     keys = items_map[section_uuid][item_uuid].keys()
                     if 'description' in keys:
@@ -306,13 +306,13 @@ class UEDinerDetailCrawler():
                     item_price = items_map[section_uuid][item_uuid]['price'] // 100
                     item_title = items_map[section_uuid][item_uuid]['title']
                     item_image_url = items_map[section_uuid][item_uuid]['imageUrl']
-                    items_dict = menu[section['uuid']]['subsection'][subsection_id]['items']
-                    items_dict[item_uuid] = {
+                    items_list = menu[('section', section_uuid, section_title)][('subsection', subsection_id, subsection_title)]
+                    items_list.append({
                         'item_title': item_title,
                         'item_price': item_price,
                         'item_image_url': item_image_url,
                         'item_description': item_description,
-                        }
+                        })
         diner['menu'] = menu
         return diner
 
