@@ -284,18 +284,17 @@ class UEDinerDetailCrawler():
         return diner
 
     def get_diner_menu(self, UE_API_response, diner):
-        menu = {}
+        menu = []
         sections = UE_API_response['sections']
         subsections_map = UE_API_response['subsectionsMap']
         items_map = UE_API_response['sectionEntitiesMap']
         for section in sections:
             section_uuid = section['uuid']
             section_title = section['title']
-            menu[('section', section_uuid, section_title)] = {}
             for subsection_id in section['subsectionUuids']:
                 items_uuid = subsections_map[subsection_id]['itemUuids']
                 subsection_title = subsections_map[subsection_id]['title']
-                menu[('section', section_uuid, section_title)][('subsection', subsection_id, subsection_title)] = []
+                items_list = []
                 for item_uuid in items_uuid:
                     keys = items_map[section_uuid][item_uuid].keys()
                     if 'description' in keys:
@@ -306,13 +305,19 @@ class UEDinerDetailCrawler():
                     item_price = items_map[section_uuid][item_uuid]['price'] // 100
                     item_title = items_map[section_uuid][item_uuid]['title']
                     item_image_url = items_map[section_uuid][item_uuid]['imageUrl']
-                    items_list = menu[('section', section_uuid, section_title)][('subsection', subsection_id, subsection_title)]
                     items_list.append({
                         'item_title': item_title,
                         'item_price': item_price,
                         'item_image_url': item_image_url,
                         'item_description': item_description,
                         })
+                menu.append({
+                    'section_id': section_uuid,
+                    'section_title': section_title,
+                    'subsection_id': subsection_id,
+                    'subsection_title': subsection_title,
+                    'items': items_list
+                })
         diner['menu'] = menu
         return diner
 

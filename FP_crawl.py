@@ -194,18 +194,17 @@ class FPDinerDetailCrawler():
         return diner
 
     def get_diner_menu(self, FP_API_response, diner):
-        menu = {}
+        menu = []
         sections = FP_API_response['menus']
         for section in sections:
             section_uuid = section['id']
             section_title = section['name']
-            menu[('section', section_uuid, section_title)] = {}
             subsections = section['menu_categories']
             for subsection in subsections:
                 subsection_id = subsection['id']
                 subsection_title = subsection['name']
-                menu[('section', section_uuid, section_title)][('subsection', subsection_id, subsection_title)] = []
                 items = subsection['products']
+                items_list = []
                 for item in items:
                     item_uuid = item['id']
                     item_description = item['description']
@@ -216,7 +215,6 @@ class FPDinerDetailCrawler():
                         item_image_url = raw_image[0]['image_url']
                     else:
                         item_image_url = ''
-                    items_list = menu[('section', section_uuid, section_title)][('subsection', subsection_id, subsection_title)]
                     items_list.append({
                         'item_uuid': item_uuid,
                         'item_title': item_title,
@@ -224,6 +222,13 @@ class FPDinerDetailCrawler():
                         'item_image_url': item_image_url,
                         'item_description': item_description,
                     })
+                menu.append({
+                    'section_id': section_uuid,
+                    'section_title': section_title,
+                    'subsection_id': subsection_id,
+                    'subsection_title': subsection_title,
+                    'items': items_list
+                })
         diner['menu'] = menu
         return diner
 
