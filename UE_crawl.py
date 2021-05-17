@@ -341,8 +341,7 @@ class UEDinerDetailCrawler():
         except Exception:
             diner['rating'] = 0
             diner['view_count'] = 0
-        # food_characteristics = [i['name'] for i in FP_API_response['food_characteristics']]
-        # cuisines = [i['name'] for i in FP_API_response['cuisines']]
+        diner['image'] = UE_API_response['heroImageUrls'][-2]
         diner['tags'] = UE_API_response['cuisineList']
         location_infos = UE_API_response['location']
         diner['address'] = location_infos['streetAddress']

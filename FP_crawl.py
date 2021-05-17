@@ -256,6 +256,7 @@ class FPDinerDetailCrawler():
         diner['budget'] = FP_API_response['budget']
         diner['rating'] = FP_API_response['rating']
         diner['view_count'] = FP_API_response['review_number']
+        diner['image'] = FP_API_response['hero_image']
         food_characteristics = [
             i['name'] for i in FP_API_response['food_characteristics']
         ]
