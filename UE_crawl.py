@@ -390,7 +390,7 @@ class UEDinerDetailCrawler():
         except Exception:
             diner['rating'] = 0
             diner['view_count'] = 0
-        diner['image'] = UE_API_response['heroImageUrls'][-2]
+        diner['image'] = UE_API_response['heroImageUrls'][-2]['url']
         diner['tags'] = UE_API_response['cuisineList']
         location_infos = UE_API_response['location']
         diner['address'] = location_infos['streetAddress']
