@@ -211,7 +211,8 @@ class GMCrawler():
                     index = raw_dates.index(raw_date)
                     print(index, names[index], raw_date)
                     date = today
-                dates.append(date)
+                date_time = datetime.combine(date, datetime.min.time())
+                dates.append(date_time)
         except Exception:
             error_log = {'error': 'parse review date wrong', 'diner': diner}
             return False, error_log
