@@ -249,7 +249,10 @@ class GMCrawler():
                 selector, diner = self.get_info(diner)
                 diner, error_log = self.get_reviews(selector, diner)
                 diners.append(diner)
-                error_logs.append(error_log)
+                if error_log == {}:
+                    pass
+                else:
+                    error_logs.append(error_log)
             else:
                 print('error while try to get ', target['name'], "'s link.")
                 error_log = {'error': "error while try to get link", 'diner': target}
