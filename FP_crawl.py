@@ -335,3 +335,38 @@ class FPDinerDetailCrawler():
         record = {'time': datetime.now(), 'data': diners, 'error_logs': error_logs}
         db[collection].insert_one(record)
         return diners, error_logs
+
+    def chunks(self, lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), n):
+            yield lst[i:i + n]
+
+    def slice_and_save(self, diners_size_bytes, diners, db, collection):
+        chunk_size = diners_size_bytes // 12000000
+        data_generator = self.chunks(diners, chunk_size)
+        record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
+        db['test_upsert'].update_one({'time': now}, {'$set': record}, upsert=True)
+        for data in data_generator:
+            db[collection].update_one({
+                '_id': _id,
+                '$push':{
+                    'data': {
+                        '$each': data
+                    }
+                }})
+
+    def main(self, db, collection, data_range):
+        now = datetime.now()
+        _id = now.strftime('%Y-%m-%d %H:%M:%S')
+        diners, error_logs = self.get_diners_details(data_range=data_range)
+        diners_size_bytes = sys.getsizeof(diners)
+        if diners_size_bytes > 12000000:
+            try:
+                self.slice_and_save(diners_size_bytes, diners, db, collection)
+            except Exception:
+                print('slice and save wrong')
+                return diners, error_logs
+        else:
+            record = {'time': now, 'data': diners, 'error_logs': error_logs}
+            db[collection].insert_one(record)
+        return diners, error_logs
