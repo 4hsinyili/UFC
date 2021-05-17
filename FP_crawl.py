@@ -157,9 +157,11 @@ class FPDinerDetailCrawler():
             {'$group': {
                 '_id': '$data',
                 'time': {'$last': '$time'}
-            }}
+            }}, {
+                '$limit': 1
+                }
         ]
-        result = db[diners_info_collection].aggregate(pipeline=pipeline)
+        result = db[diners_info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         result = list(result)[0]['_id']
         return result
 

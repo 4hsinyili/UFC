@@ -283,8 +283,10 @@ class UEDinerDetailCrawler():
                     '$last': '$time'
                 }
             }
-        }]
-        result = db[info_collection].aggregate(pipeline=pipeline)
+        }, {
+            '$limit': 1
+            }]
+        result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         result = list(result)[0]['_id']
         return result
 
