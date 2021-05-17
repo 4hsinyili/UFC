@@ -99,7 +99,8 @@ class FPDinerListCrawler():
         limit = 20000
         offset = 0
         try:
-            url = f"""https://disco.deliveryhero.io/listing/api/v1/pandora/vendors?latitude={target['gps'][0]}&longitude={target['gps'][1]}&language_id=6&include=characteristics&dynamic_pricing=0&configuration=Original&country=tw&customer_id=&customer_hash=&budgets=&cuisine=&sort=&food_characteristic=&use_free_delivery_label=false&vertical=restaurants&limit={limit}&offset={offset}&customer_type=regular"""
+            url = f"""https://disco.deliveryhero.io/listing/api/v1/pandora/vendors?latitude={target['gps'][0]}&longitude={target['gps'][1]}&language_id=6&include=characteristics&dynamic_pricing=0&configuration=Original&country=tw&customer_id=&\
+                customer_hash=&budgets=&cuisine=&sort=&food_characteristic=&use_free_delivery_label=false&vertical=restaurants&limit={limit}&offset={offset}&customer_type=regular"""
             print(url)
         except Exception:
             error_log = {'error': 'target value wrong'}
@@ -136,7 +137,7 @@ class FPDinerListCrawler():
             print('parse vendors_api response wrong')
             return False, error_log
         return diners_info, error_log
-    
+
     def main(self, target, db, collection):
         diners_info, error_log = self.get_diners_info_from_FP_API(target)
         # print(diners_info, error_log)
@@ -205,7 +206,6 @@ class FPDinerDetailCrawler():
             error_log = {'error': 'fee_api wrong', 'diner': diner_code}
             return False, error_log
         return FP_API_response, error_log
-
 
     def get_diners_details(self, data_range=0):
         if data_range == 0:
