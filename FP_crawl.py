@@ -365,3 +365,17 @@ class FPDinerDetailCrawler():
             record = {'time': now, 'data': diners, 'error_logs': error_logs}
             db[collection].insert_one(record)
         return diners, error_logs
+
+
+if __name__ == '__main__':
+    start = time.time()
+    d_list_crawler = FPDinerListCrawler()
+    d_list_crawler.main(target, db=db, collection='fp_temp')
+    stop = time.time()
+    print(stop - start)
+
+    d_detail_crawler = FPDinerDetailCrawler('fp_temp')
+    start = time.time()
+    diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=0)
+    stop = time.time()
+    print(stop - start)
