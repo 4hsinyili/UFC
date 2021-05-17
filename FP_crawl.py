@@ -88,7 +88,9 @@ class FPDinerListCrawler():
     def chrome_close(self, driver):
         driver.close()
 
-    def get_diners_info_from_FP_API(self):
+    def get_diners_info_from_FP_API(self, target):
+        print('a')
+        error_log = {}
         headers = {
             'User-Agent':
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
@@ -96,32 +98,54 @@ class FPDinerListCrawler():
         }
         limit = 20000
         offset = 0
-        url = f"""https://disco.deliveryhero.io/listing/api/v1/pandora/vendors?\
-latitude=25.0411163&longitude=121.5663248&language_id=6&\
-include=characteristics&dynamic_pricing=0&configuration=Original&country=tw&\
-customer_id=&customer_hash=&budgets=&cuisine=&sort=&food_characteristic=&\
-use_free_delivery_label=false&vertical=restaurants&limit={limit}&offset={offset}&customer_type=regular"""
-        r = requests.get(url, headers=headers)
-        FP_API_response = json.loads(r.content)
-        diners = FP_API_response['data']['items']
-        diners_info = []
-        for diner in diners:
-            link = diner['redirection_url']
-            title = diner['name']
-            uuid = diner['code']
-            FP_choice = int(diner['is_best_in_city'])
-            deliver_fee = diner['minimum_delivery_fee']
-            deliver_time = diner['minimum_delivery_time']
-            result = {
-                'title': title,
-                'link': link,
-                'deliver_fee': deliver_fee,
-                'deliver_time': deliver_time,
-                'FP_choice': FP_choice,
-                'uuid': uuid
-            }
-            diners_info.append(result)
-        return diners_info
+        try:
+            url = f"""https://disco.deliveryhero.io/listing/api/v1/pandora/vendors?latitude={target['gps'][0]}&longitude={target['gps'][1]}&language_id=6&include=characteristics&dynamic_pricing=0&configuration=Original&country=tw&customer_id=&customer_hash=&budgets=&cuisine=&sort=&food_characteristic=&use_free_delivery_label=false&vertical=restaurants&limit={limit}&offset={offset}&customer_type=regular"""
+            print(url)
+        except Exception:
+            error_log = {'error': 'target value wrong'}
+            print('target value wrong')
+            return False, error_log
+        try:
+            r = requests.get(url, headers=headers)
+        except Exception:
+            error_log = {'error': 'vendors_api wrong'}
+            print('vendors_api wrong')
+            return False, error_log
+        try:
+            FP_API_response = json.loads(r.content)
+            diners = FP_API_response['data']['items']
+            diners_info = []
+            for diner in diners:
+                link = diner['redirection_url']
+                title = diner['name']
+                uuid = diner['code']
+                FP_choice = int(diner['is_best_in_city'])
+                deliver_fee = diner['minimum_delivery_fee']
+                deliver_time = diner['minimum_delivery_time']
+                result = {
+                    'title': title,
+                    'link': link,
+                    'deliver_fee': deliver_fee,
+                    'deliver_time': deliver_time,
+                    'FP_choice': FP_choice,
+                    'uuid': uuid
+                }
+                diners_info.append(result)
+        except Exception:
+            error_log = {'error': 'parse vendors_api response wrong'}
+            print('parse vendors_api response wrong')
+            return False, error_log
+        return diners_info, error_log
+    
+    def main(self, target, db, collection):
+        diners_info, error_log = self.get_diners_info_from_FP_API(target)
+        # print(diners_info, error_log)
+        if diners_info:
+            record = {'time': datetime.now(), 'data': diners_info}
+            db[collection].insert_one(record)
+        else:
+            # print(diners_info)
+            print(error_log['error'])
 
 
 class FPDinerDetailCrawler():
@@ -141,45 +165,91 @@ class FPDinerDetailCrawler():
         return result
 
     def get_diner_detail_from_FP_API(self, diner):
-        diner_code = diner['uuid']
-        order_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        order_gps = target['gps']
-        headers = {
-            'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
-            'x-disco-client-id': 'web'
-        }
-        vendor_url = f"""https://tw.fd-api.com/api/v5/vendors/{diner_code}?include=menus&language_id=6&dynamic_pricing=0&opening_type=delivery&order_time={order_time}%2B0800&latitude={order_gps[0]}&longitude={order_gps[1]}"""
-        vendor_response = requests.get(vendor_url, headers=headers)
-        FP_API_response = json.loads(vendor_response.content)['data']
-        fee_url = f'https://tw.fd-api.com/api/v5/vendors/{diner_code}/delivery-fee?&latitude={order_gps[0]}&longitude={order_gps[1]}&order_time=now&basket_size=0&basket_currency=$&dynamic_pricing=0'
-        fee_response = requests.get(fee_url, headers=headers)
-        FP_API_response['deliver_fee'] = json.loads(
-            fee_response.content)['fee']
-        diner = self.clean_FP_API_response(FP_API_response, diner)
-        time.sleep(random.randint(2, 6))
-        return diner
+        error_log = {}
+        try:
+            diner_code = diner['uuid']
+            order_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+            order_gps = target['gps']
+        except Exception:
+            error_log = {'error': 'diner_info wrong', 'diner': diner}
+            return False, error_log
+        try:
+            headers = {
+                'User-Agent':
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
+                'x-disco-client-id': 'web'
+            }
+            vendor_url = f"""https://tw.fd-api.com/api/v5/vendors/{diner_code}?include=menus&language_id=6&dynamic_pricing=0&opening_type=delivery&order_time={order_time}%2B0800&latitude={order_gps[0]}&longitude={order_gps[1]}"""
+            vendor_response = requests.get(vendor_url, headers=headers)
+            FP_API_response = json.loads(vendor_response.content)['data']
+        except Exception:
+            error_log = {'error': 'vendor_api wrong', 'diner': diner['uuid']}
+            return False, error_log
+        try:
+            if FP_API_response['is_active']:
+                FP_API_response, error_log = self.get_diner_fee(FP_API_response, diner_code, order_gps, headers)
+        except Exception:
+            print(Exception)
+        diner, error_log = self.clean_FP_API_response(FP_API_response, diner)
+        time.sleep(0.5)
+        return diner, error_log
+
+    def get_diner_fee(self, FP_API_response, diner_code, order_gps, headers):
+        time.sleep(0.5)
+        error_log = {}
+        try:
+            fee_url = f'https://tw.fd-api.com/api/v5/vendors/{diner_code}/delivery-fee?&latitude={order_gps[0]}&longitude={order_gps[1]}&order_time=now&basket_size=0&basket_currency=$&dynamic_pricing=0'
+            fee_response = requests.get(fee_url, headers=headers)
+            FP_API_response['deliver_fee'] = json.loads(fee_response.content)['fee']
+        except Exception:
+            error_log = {'error': 'fee_api wrong', 'diner': diner_code}
+            return False, error_log
+        return FP_API_response, error_log
+
 
     def get_diners_details(self, data_range=0):
         if data_range == 0:
             diners_info = self.diners_info
         else:
             diners_info = self.diners_info[:data_range]
-        diners = [
-            self.get_diner_detail_from_FP_API(diner) for diner in diners_info
-        ]
-        return diners
+        diners = []
+        error_logs = []
+        loop_count = 0
+        for diner in diners_info:
+            diner, error_log = self.get_diner_detail_from_FP_API(diner)
+            if diner:
+                diners.append(diner)
+            if error_log == {}:
+                pass
+            else:
+                error_logs.append(error_log)
+            loop_count += 1
+            if loop_count % 500 == 0:
+                time.sleep(random.randint(10, 30))
+        return diners, error_logs
 
     def clean_FP_API_response(self, FP_API_response, diner):
-        diner = self.get_diner_menu(FP_API_response, diner)
-        diner = self.get_open_hours(FP_API_response, diner)
-        diner = self.get_other_info(FP_API_response, diner)
-        return diner
+        error_log = {}
+        try:
+            diner = self.get_diner_menu(FP_API_response, diner)
+        except Exception:
+            error_log = {'error': 'get menu wrong', 'diner': diner['uuid']}
+            return False, error_log
+        try:
+            diner = self.get_open_hours(FP_API_response, diner)
+        except Exception:
+            error_log = {'error': 'get open hours wrong', 'diner': diner['uuid']}
+            return False, error_log
+        try:
+            diner = self.get_other_info(FP_API_response, diner)
+        except Exception:
+            error_log = {'error': 'get other info wrong', 'diner': diner['uuid']}
+            return False, error_log
+        return diner, error_log
 
     def get_other_info(self, FP_API_response, diner):
         diner['deliver_time'] = FP_API_response['minimum_delivery_time']
-        diner['deliver_fee'] = FP_API_response['delivery_conditions'][0][
-            'delivery_fee']
+        diner['deliver_fee'] = FP_API_response['deliver_fee']
         diner['budget'] = FP_API_response['budget']
         diner['rating'] = FP_API_response['rating']
         diner['view_count'] = FP_API_response['review_number']
@@ -255,3 +325,9 @@ class FPDinerDetailCrawler():
                 open_hours.append(open_hour)
         diner['open_hours'] = open_hours
         return diner
+
+    def main(self, db, collection, data_range):
+        diners, error_logs = self.get_diners_details(data_range=data_range)
+        record = {'time': datetime.now(), 'data': diners, 'error_logs': error_logs}
+        db[collection].insert_one(record)
+        return diners, error_logs
