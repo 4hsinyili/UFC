@@ -90,7 +90,6 @@ class FPDinerListCrawler():
         driver.close()
 
     def get_diners_info_from_FP_API(self, target):
-        print('a')
         error_log = {}
         headers = {
             'User-Agent':
@@ -102,7 +101,6 @@ class FPDinerListCrawler():
         try:
             url = f"""https://disco.deliveryhero.io/listing/api/v1/pandora/vendors?latitude={target['gps'][0]}&longitude={target['gps'][1]}&language_id=6&include=characteristics&dynamic_pricing=0&configuration=Original&country=tw&customer_id=&\
                 customer_hash=&budgets=&cuisine=&sort=&food_characteristic=&use_free_delivery_label=false&vertical=restaurants&limit={limit}&offset={offset}&customer_type=regular"""
-            print(url)
         except Exception:
             error_log = {'error': 'target value wrong'}
             print('target value wrong')
