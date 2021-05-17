@@ -104,8 +104,7 @@ class GMCrawler():
         try:
             driver.get('https://www.google.com.tw/maps')
             driver.find_element_by_xpath(
-                '//input[@id="searchboxinput"]').send_keys(target['address'] + 
-                target['name'])
+                '//input[@id="searchboxinput"]').send_keys(target['address'] + target['name'])
             driver.find_element_by_xpath(
                 '//button[@id="searchbox-searchbutton"]').click()
             time.sleep(4)
