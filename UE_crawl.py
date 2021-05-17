@@ -379,16 +379,16 @@ class UEDinerDetailCrawler():
         return diner, error_log
 
     def get_other_info(self, UE_API_response, diner):
-        diner['deliver_time'] = UE_API_response['etaRange']
-        if not diner['deliver_time']:
-            diner['deliver_time'] = 0
-        diner['deliver_fee'] = UE_API_response['fareBadge']
-        if not diner['deliver_fee']:
+        try:
+            diner['deliver_time'] = UE_API_response['etaRange']['text']
+            diner['deliver_fee'] = int(UE_API_response['fareBadge']['text'].split('TWD')[0])
+        except Exception:
+            diner['deliver_time'] = ''
             diner['deliver_fee'] = 0
         diner['budget'] = len(UE_API_response['priceBucket'])
         try:
             diner['rating'] = UE_API_response['rating']['ratingValue']
-            diner['view_count'] = int(UE_API_response['rating']['reviewCount'])
+            diner['view_count'] = int(UE_API_response['rating']['reviewCount'].replace('+', ''))
         except Exception:
             diner['rating'] = 0
             diner['view_count'] = 0
