@@ -190,10 +190,13 @@ class FPDinerDetailCrawler():
             if FP_API_response['is_active']:
                 FP_API_response, error_log = self.get_diner_fee(FP_API_response, diner_code, order_gps, headers)
         except Exception:
-            print(Exception)
-        diner, error_log = self.clean_FP_API_response(FP_API_response, diner)
-        time.sleep(0.5)
-        return diner, error_log
+            FP_API_response['deliver_fee'] = 0
+        if FP_API_response:
+            diner, error_log = self.clean_FP_API_response(FP_API_response, diner)
+            time.sleep(0.5)
+            return diner, error_log
+        else:
+            return False, error_log
 
     def get_diner_fee(self, FP_API_response, diner_code, order_gps, headers):
         time.sleep(0.5)
