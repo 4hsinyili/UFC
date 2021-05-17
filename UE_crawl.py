@@ -545,3 +545,17 @@ class UEDinerDetailCrawler():
             record = {'time': now, 'data': diners, 'error_logs': error_logs}
             db[collection].insert_one(record)
         return diners, error_logs
+
+
+if __name__ == '__main__':
+    start = time.time()
+    d_list_crawler = UEDinerListCrawler(driver_path=driver_path, headless=True, auto_close=True, inspect=False)
+    d_list_crawler.main(target, db=db, html_collection='html', responses_collection='response', info_collection='ue_temp')
+    stop = time.time()
+    print(stop - start)
+
+    start = time.time()
+    d_detail_crawler = UEDinerDetailCrawler('ue_temp')
+    diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=0)
+    stop = time.time()
+    print(stop - start)
