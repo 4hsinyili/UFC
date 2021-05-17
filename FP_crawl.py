@@ -334,8 +334,7 @@ class FPDinerDetailCrawler():
         for i in range(0, len(lst), n):
             yield lst[i:i + n]
 
-    def slice_and_save(self, diners_size_bytes, diners, _id, now, error_logs, db, collection):
-        chunk_size = diners_size_bytes // 12000000
+    def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
         data_generator = self.chunks(diners, chunk_size)
         record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
         db['test_upsert'].update_one({'time': now}, {'$set': record}, upsert=True)
@@ -352,16 +351,11 @@ class FPDinerDetailCrawler():
         now = datetime.now()
         _id = now.strftime('%Y-%m-%d %H:%M:%S')
         diners, error_logs = self.get_diners_details(data_range=data_range)
-        diners_size_bytes = sys.getsizeof(diners)
-        if diners_size_bytes > 12000000:
-            try:
-                self.slice_and_save(diners_size_bytes, diners, _id, now, error_logs, db, collection)
-            except Exception:
-                print('slice and save wrong')
-                return diners, error_logs
-        else:
+        try:
             record = {'time': now, 'data': diners, 'error_logs': error_logs}
             db[collection].insert_one(record)
+        except Exception:
+            self.slice_and_save(4, diners, _id, now, error_logs, db, collection)
         return diners, error_logs
 
 
