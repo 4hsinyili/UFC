@@ -245,8 +245,8 @@ class GMCrawler():
             # start = time.time()
             diner, error_log = self.get_link(target)
             if diner:
-                selector, diner = self.get_info()
-                diner, error_log = self.get_reviews(selector)
+                selector, diner = self.get_info(diner)
+                diner, error_log = self.get_reviews(selector, diner)
                 diners.append(diner)
                 error_logs.append(error_log)
             else:
