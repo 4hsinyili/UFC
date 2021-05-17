@@ -27,7 +27,6 @@ import requests
 
 # for file handling
 import os
-import sys
 # import pickle
 import json
 
