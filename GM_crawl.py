@@ -40,7 +40,7 @@ import time
 # from geopy.distance import distance
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-# import pprint
+import pprint
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -277,6 +277,8 @@ class GMCrawler():
         }
         db[collection].insert_one(record)
         return diners, error_logs
+
+
 class GMChecker():
     def __init__(self, db, collection, pipeline):
         self.db = db
