@@ -1,4 +1,4 @@
-import UE_crawl
+from Crawlers import UE_crawl
 import env
 from pymongo import MongoClient
 import time

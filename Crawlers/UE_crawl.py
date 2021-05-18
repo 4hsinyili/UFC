@@ -564,7 +564,7 @@ if __name__ == '__main__':
     # time.sleep(5)
     start = time.time()
     d_detail_crawler = UEDinerDetailCrawler('ue_list')
-    diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=20)
+    diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=0)
     stop = time.time()
     print(stop - start)
     time.sleep(1)
