@@ -540,12 +540,6 @@ class UEDinerDetailCrawler():
         return diners, error_logs
 
 
-if __name__ == '__main__':
-    start = time.time()
-    d_list_crawler = UEDinerListCrawler(driver_path=driver_path, headless=True, auto_close=True, inspect=False)
-    d_list_crawler.main(target, db=db, html_collection='html', responses_collection='response', info_collection='ue_temp')
-    stop = time.time()
-    print(stop - start)
 class UEChecker():
     def __init__(self, db, collection, pipeline):
         self.db = db
@@ -561,8 +555,28 @@ class UEChecker():
         return result
 
 
+if __name__ == '__main__':
+    # start = time.time()
+    # d_list_crawler = UEDinerListCrawler(driver_path=driver_path, headless=True, auto_close=True, inspect=False)
+    # d_list_crawler.main(target, db=db, html_collection='ue_html', responses_collection='ue_responses', info_collection='ue_list')
+    # stop = time.time()
+    # print(stop - start)
+    # time.sleep(5)
     start = time.time()
-    d_detail_crawler = UEDinerDetailCrawler('ue_temp')
-    diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=0)
+    d_detail_crawler = UEDinerDetailCrawler('ue_list')
+    diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=20)
     stop = time.time()
     print(stop - start)
+    time.sleep(1)
+    # pipeline = [
+    #     {'$sort': {'time': -1}},
+    #     {'$group': {
+    #         '_id': '$data',
+    #         'time': {'$last': '$time'}
+    #     }}, {
+    #         '$limit': 1
+    #     }
+    # ]
+    # checker = UEChecker(db, 'ue_detail', pipeline)
+    # last_record = checker.get_last_record()
+    # pprint.pprint(last_record[1][0])

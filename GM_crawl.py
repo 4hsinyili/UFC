@@ -292,3 +292,28 @@ class GMChecker():
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         result = list(result)[0]['_id']
         return result
+
+
+if __name__ == '__main__':
+    # start = time.time()
+    # link_crawler = GMCrawler(driver_path=driver_path,
+    #                          headless=True,
+    #                          auto_close=True,
+    #                          inspect=False)
+    # diners, error_logs = link_crawler.main(targets,
+    #                                        db=db,
+    #                                        collection='gm_reviews')
+    # stop = time.time()
+    # print(stop - start)
+    pipeline = [
+        {'$sort': {'time': -1}},
+        {'$group': {
+            '_id': '$data',
+            'time': {'$last': '$time'}
+        }}, {
+            '$limit': 1
+        }
+    ]
+    checker = GMChecker(db, 'gm_reviews', pipeline)
+    last_record = checker.get_last_record()
+    pprint.pprint(last_record[0])

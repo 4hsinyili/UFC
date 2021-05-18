@@ -378,14 +378,27 @@ class FPChecker():
 
 
 if __name__ == '__main__':
-    start = time.time()
-    d_list_crawler = FPDinerListCrawler()
-    d_list_crawler.main(target, db=db, collection='fp_temp')
-    stop = time.time()
-    print(stop - start)
+    # start = time.time()
+    # d_list_crawler = FPDinerListCrawler()
+    # d_list_crawler.main(target, db=db, collection='fp_list')
+    # stop = time.time()
+    # print(stop - start)
+    # time.sleep(5)
+    # d_detail_crawler = FPDinerDetailCrawler('fp_list')
+    # start = time.time()
+    # diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=10)
+    # stop = time.time()
+    # print(stop - start)
 
-    d_detail_crawler = FPDinerDetailCrawler('fp_temp')
-    start = time.time()
-    diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=0)
-    stop = time.time()
-    print(stop - start)
+    pipeline = [
+        {'$sort': {'time': -1}},
+        {'$group': {
+            '_id': '$data',
+            'time': {'$last': '$time'}
+        }}, {
+            '$limit': 1
+        }
+    ]
+    checker = FPChecker(db, 'fp_detail', pipeline)
+    last_record = checker.get_last_record()
+    print(last_record[0])
