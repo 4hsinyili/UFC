@@ -23,6 +23,6 @@ pipeline = [
     }
 ]
 
-result = db['ue_detail'].aggregate(pipeline=pipeline, allowDiskUse=True)
+result = db['gm_reviews'].aggregate(pipeline=pipeline, allowDiskUse=True)
 result = list(result)[0]['_id']
-pprint.pprint(result[1])
+pprint.pprint(result[0])

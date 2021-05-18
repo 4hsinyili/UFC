@@ -42,12 +42,7 @@ def get_diners_response(driver):
                 elif diners[0]['type'] == 'STORE':
                     diners = json.loads(
                         request.response.body)['data']['storesMap']
-                try:
-                    response = get_diner_response(diners)
-                    responses.extend(response)
-                except Exception:
-                    error_log = {'error': 'parse selenium response wrong'}
-                    return False, error_log
+                # clean functions
     except Exception:
         error_log = {'error': 'get selenium response wrong'}
         return False, error_log
