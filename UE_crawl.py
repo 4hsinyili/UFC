@@ -394,7 +394,7 @@ class UEDinerDetailCrawler():
         diner['tags'] = UE_API_response['cuisineList']
         location_infos = UE_API_response['location']
         diner['address'] = location_infos['streetAddress']
-        diner['gps'] = (location_infos['latitude'], location_infos['latitude'])
+        diner['gps'] = (location_infos['latitude'], location_infos['longitude'])
         return diner
 
     def get_diner_menu(self, UE_API_response, diner):
