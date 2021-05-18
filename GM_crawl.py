@@ -269,7 +269,7 @@ class GMCrawler():
                 error_logs.append(error_log)
             # stop = time.time()
             # print('each site: ', stop - start)
-        self.chrome_close()
+        self.chrome_close(self.driver)
         record = {
             'time': datetime.now(),
             'data': diners,
