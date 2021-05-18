@@ -23,7 +23,7 @@ target = {
 driver_path = env.driver_path
 
 ue_list_crawler = UE_crawl.UEDinerListCrawler(driver_path=driver_path, headless=False, auto_close=False, inspect=True)
-ue_list_crawler.main(target, db=db, html_collection='html', responses_collection='response', info_collection='ue_temp')
+ue_list_crawler.main(target, db=db, html_collection='html', responses_collection='response', info_collection='ue_demo')
 
 
 def get_diners_response(driver):
