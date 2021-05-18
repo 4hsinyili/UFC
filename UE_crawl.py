@@ -515,14 +515,13 @@ class UEDinerDetailCrawler():
         for i in range(0, len(lst), n):
             yield lst[i:i + n]
 
-    def slice_and_save(self, diners_size_bytes, diners, _id, now, error_logs, db, collection):
-        chunk_size = diners_size_bytes // 12000000
+    def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
         data_generator = self.chunks(diners, chunk_size)
         record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
-        db['test_upsert'].update_one({'time': now}, {'$set': record}, upsert=True)
+        db[collection].update_one({'_id': _id}, {'$set': record}, upsert=True)
         for data in data_generator:
             db[collection].update_one({
-                '_id': _id,
+                '_id': _id}, {
                 '$push': {
                     'data': {
                         '$each': data
