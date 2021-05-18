@@ -550,6 +550,20 @@ if __name__ == '__main__':
     d_list_crawler.main(target, db=db, html_collection='html', responses_collection='response', info_collection='ue_temp')
     stop = time.time()
     print(stop - start)
+class UEChecker():
+    def __init__(self, db, collection, pipeline):
+        self.db = db
+        self.collection = collection
+        self.pipeline = pipeline
+
+    def get_last_record(self):
+        db = self.db
+        collection = self.collection
+        pipeline = self.pipeline
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = list(result)[0]['_id']
+        return result
+
 
     start = time.time()
     d_detail_crawler = UEDinerDetailCrawler('ue_temp')

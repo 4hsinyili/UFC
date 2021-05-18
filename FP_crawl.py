@@ -362,6 +362,21 @@ class FPDinerDetailCrawler():
         return diners, error_logs
 
 
+class FPChecker():
+    def __init__(self, db, collection, pipeline):
+        self.db = db
+        self.collection = collection
+        self.pipeline = pipeline
+
+    def get_last_record(self):
+        db = self.db
+        collection = self.collection
+        pipeline = self.pipeline
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = list(result)[0]['_id']
+        return result
+
+
 if __name__ == '__main__':
     start = time.time()
     d_list_crawler = FPDinerListCrawler()
