@@ -138,6 +138,7 @@ class FPDinerListCrawler():
         return diners_info, error_log
 
     def main(self, target, db, collection):
+        self.chrome_close()
         diners_info, error_log = self.get_diners_info_from_FP_API(target)
         # print(diners_info, error_log)
         if diners_info:

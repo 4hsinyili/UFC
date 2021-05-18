@@ -265,6 +265,7 @@ class UEDinerListCrawler():
             db[info_collection].insert_one(record)
         else:
             print(error_log['error'])
+        self.chrome_close()
 
 
 class UEDinerDetailCrawler():
