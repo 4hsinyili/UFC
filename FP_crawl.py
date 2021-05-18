@@ -2,6 +2,7 @@
 # import pandas as pd
 
 # for db control
+# import collections
 from pymongo import MongoClient
 
 # for crawling from js-website

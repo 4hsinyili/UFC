@@ -104,7 +104,8 @@ class GMCrawler():
         try:
             driver.get('https://www.google.com.tw/maps')
             driver.find_element_by_xpath(
-                '//input[@id="searchboxinput"]').send_keys(target['address'] + target['name'])
+                '//input[@id="searchboxinput"]').send_keys(target['address'] +
+                                                           target['name'])
             driver.find_element_by_xpath(
                 '//button[@id="searchbox-searchbutton"]').click()
             time.sleep(4)
@@ -148,7 +149,10 @@ class GMCrawler():
             ).click()
             time.sleep(3.5)
         except Exception:
-            error_log = {'error': 'get place review page wrong', 'diner': diner}
+            error_log = {
+                'error': 'get place review page wrong',
+                'diner': diner
+            }
             return False, error_log
         try:
             pane = driver.find_element_by_xpath(
@@ -185,7 +189,9 @@ class GMCrawler():
             raw_rating = selector.xpath(
                 '//div[@aria-label="所有評論"]/div[position()=last()]/div[position()=last()-1]/div[@class="section-review mapsConsumerUiCommonRipple__ripple-container gm2-body-2"]//span[@class="section-review-stars"]/@aria-label'
             )
-            ratings = [int(i.replace(' ', '').split('顆星')[0]) for i in raw_rating]
+            ratings = [
+                int(i.replace(' ', '').split('顆星')[0]) for i in raw_rating
+            ]
             raw_dates = selector.xpath(
                 '//div[@aria-label="所有評論"]/div[position()=last()]/div[position()=last()-1]/div[@class="section-review mapsConsumerUiCommonRipple__ripple-container gm2-body-2"]//span[@class="section-review-publish-date"]/text()'
             )
@@ -221,9 +227,10 @@ class GMCrawler():
                 '//div[@aria-label="所有評論"]/div[position()=last()]/div[position()=last()-1]/div[@class="section-review mapsConsumerUiCommonRipple__ripple-container gm2-body-2"]//span[@class="section-review-text"]/text()'
             )
             content = [
-                i.replace("\n", '').replace('\u2028',
-                                            '').replace('\u2029',
-                                                        '').replace('\uFEFF', '')
+                i.replace("\n",
+                          '').replace('\u2028',
+                                      '').replace('\u2029',
+                                                  '').replace('\uFEFF', '')
                 for i in raw_content
             ]
         except Exception:
@@ -255,10 +262,18 @@ class GMCrawler():
                     error_logs.append(error_log)
             else:
                 print('error while try to get ', target['name'], "'s link.")
-                error_log = {'error': "error while try to get link", 'diner': target}
+                error_log = {
+                    'error': "error while try to get link",
+                    'diner': target
+                }
                 error_logs.append(error_log)
             # stop = time.time()
             # print('each site: ', stop - start)
-        record = {'time': datetime.now(), 'data': diners, 'error_logs': error_logs}
+        self.chrome_close()
+        record = {
+            'time': datetime.now(),
+            'data': diners,
+            'error_logs': error_logs
+        }
         db[collection].insert_one(record)
         return diners, error_logs
