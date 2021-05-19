@@ -6,8 +6,8 @@
 from pymongo import MongoClient
 
 # for crawling from js-website
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+# from selenium import webdriver
+# from selenium.webdriver.chrome.options import Options
 # from selenium.webdriver.common.keys import Keys
 # from selenium.webdriver.common.action_chains import ActionChains
 # from selenium.webdriver.support import expected_conditions as EC
@@ -65,29 +65,29 @@ driver_path = os.getenv('DEIVER_PATH')
 
 
 class FPDinerListCrawler():
-    def __init__(self,
-                 driver_path='',
-                 headless=True,
-                 auto_close=True,
-                 create_driver=False):
-        if create_driver:
-            self.driver = self.chrome_create(driver_path, headless, auto_close)
+    # def __init__(self,
+    #              driver_path='',
+    #              headless=True,
+    #              auto_close=True,
+    #              create_driver=False):
+    #     if create_driver:
+    #         self.driver = self.chrome_create(driver_path, headless, auto_close)
 
-    def chrome_create(self, driver_path, headless=False, auto_close=True):
-        chrome_options = Options()
-        if headless:
-            chrome_options.add_argument("--headless")
-        if not auto_close:
-            chrome_options.add_experimental_option("detach", True)
-        chrome_options.add_experimental_option(
-            'prefs', {'intl.accept_languages': 'en,en_US'})
-        driver = webdriver.Chrome(driver_path, options=chrome_options)
-        driver.delete_all_cookies()
-        driver.implicitly_wait(2)
-        return driver
+    # def chrome_create(self, driver_path, headless=False, auto_close=True):
+    #     chrome_options = Options()
+    #     if headless:
+    #         chrome_options.add_argument("--headless")
+    #     if not auto_close:
+    #         chrome_options.add_experimental_option("detach", True)
+    #     chrome_options.add_experimental_option(
+    #         'prefs', {'intl.accept_languages': 'en,en_US'})
+    #     driver = webdriver.Chrome(driver_path, options=chrome_options)
+    #     driver.delete_all_cookies()
+    #     driver.implicitly_wait(2)
+    #     return driver
 
-    def chrome_close(self, driver):
-        driver.close()
+    # def chrome_close(self, driver):
+    #     driver.close()
 
     def get_diners_info_from_FP_API(self, target):
         error_log = {}
