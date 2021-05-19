@@ -2,7 +2,7 @@
 # import pandas as pd
 
 # for db control
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 
 # for crawling from js-website
 from seleniumwire import webdriver
@@ -92,6 +92,9 @@ class UEDinerListCrawler():
 
     def send_location_to_UE(self, target, html_collection,
                             responses_collection):
+        now = datetime.now()
+        triggered_at = datetime.combine(now.date(), datetime.min.time())
+        triggered_at = triggered_at.replace(hour=now.hour)
         error_log = {}
         start = time.time()
         driver = self.driver
@@ -136,22 +139,22 @@ class UEDinerListCrawler():
             error_log = {'error': 'scroll wrong'}
             return False, False, error_log
         html = driver.page_source
-        self.save_html_to_mongo(html, error_log, html_collection)
+        self.save_html_to_mongo(html, error_log, html_collection, triggered_at)
         selector = etree.HTML(html)
         dict_response, error_log = self.get_diners_response(
             driver, responses_collection)
-        self.save_responses_to_mongo(error_log, responses_collection)
+        self.save_responses_to_mongo(error_log, responses_collection, triggered_at)
         # self.driver.close()
         stop = time.time()
         print(stop - start)
-        return selector, dict_response, error_log
+        return selector, dict_response, error_log, triggered_at
 
-    def save_html_to_mongo(self, html, error_log, collection):
-        record = {'time': datetime.now(), 'html': html, 'error_log': error_log}
+    def save_html_to_mongo(self, html, error_log, collection, triggered_at):
+        record = {'triggered_at': triggered_at, 'html': html, 'error_log': error_log}
         db[collection].insert_one(record)
 
-    def save_responses_to_mongo(self, error_log, collection):
-        record = {'time': datetime.now(), 'error_log': error_log}
+    def save_responses_to_mongo(self, error_log, collection, triggered_at):
+        record = {'triggered_at': triggered_at, 'error_log': error_log}
         db[collection].insert_one(record)
 
     def get_diners_response(self,
@@ -216,7 +219,7 @@ class UEDinerListCrawler():
         print(len(diner_divs))
         return diner_divs
 
-    def get_diner_info(self, diner_div):
+    def get_diner_info(self, diner_div, triggered_at):
         link = diner_div.xpath('.//a')[0].get('href')
         link = 'https://www.ubereats.com' + link
         title = str(diner_div.xpath('.//h3/text()')[0])
@@ -242,6 +245,7 @@ class UEDinerListCrawler():
             'deliver_fee': deliver_fee,
             'deliver_time': deliver_time,
             'UE_choice': UE_choice,
+            'triggered_at': triggered_at
         }
         return diner
 
@@ -252,17 +256,21 @@ class UEDinerListCrawler():
 
     def main(self, target, db, html_collection, responses_collection,
              info_collection):
-        selector, dict_response, error_log = self.send_location_to_UE(
+        selector, dict_response, error_log, triggered_at = self.send_location_to_UE(
             target,
             html_collection=html_collection,
             responses_collection=responses_collection)
         if (type(selector) != bool) and dict_response:
             diner_divs = self.get_diner_divs(selector)
-            diners_info = [self.get_diner_info(i) for i in diner_divs]
+            diners_info = [self.get_diner_info(i, triggered_at) for i in diner_divs]
             diners_info = self.combine_uuid_diners_info(
                 diners_info, dict_response)
-            record = {'time': datetime.now(), 'data': diners_info}
-            db[info_collection].insert_one(record)
+            records = [UpdateOne(
+                {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
+                {'$setOnInsert': record},
+                upsert=True
+            ) for record in diners_info]
+            db[info_collection].bulk_write(records)
         else:
             print(error_log['error'])
         self.chrome_close(self.driver)
@@ -273,22 +281,23 @@ class UEDinerDetailCrawler():
         self.diners_info = self.get_diners_info(info_collection)
 
     def get_diners_info(self, info_collection):
-        pipeline = [{
-            '$sort': {
-                'time': -1
-            }
-        }, {
-            '$group': {
-                '_id': '$data',
-                'time': {
-                    '$last': '$time'
-                }
-            }
-        }, {
-            '$limit': 1
-            }]
+        pipeline = [
+            {'$sort': {'triggered_at': -1}},
+            {'$group': {
+                '_id': {
+                    'title': '$title',
+                    'link': '$link',
+                    'deliver_fee': '$deliver_fee',
+                    'deliver_time': '$deliver_time',
+                    'UE_choice': '$UE_choice',
+                    'uuid': '$uuid',
+                    'triggered_at': '$triggered_at'
+                },
+                'triggered_at': {'$last': '$triggered_at'}
+            }}
+        ]
         result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = list(result)[0]['_id']
+        result = [i['_id'] for i in result]
         return result
 
     def get_diner_detail_from_UE_API(self, diner):
@@ -326,7 +335,7 @@ class UEDinerDetailCrawler():
         except Exception:
             error_log = {'error': 'store_api wrong', 'diner': diner}
             return False, error_log
-        diner = self.clean_UE_API_response(UE_API_response, diner)
+        diner, error_log = self.clean_UE_API_response(UE_API_response, diner)
         time.sleep(1)
         return diner, error_log
 
@@ -510,33 +519,40 @@ class UEDinerDetailCrawler():
         diner['open_hours'] = open_hours
         return diner
 
-    def chunks(self, lst, n):
-        """Yield successive n-sized chunks from lst."""
-        for i in range(0, len(lst), n):
-            yield lst[i:i + n]
+    # def chunks(self, lst, n):
+    #     """Yield successive n-sized chunks from lst."""
+    #     for i in range(0, len(lst), n):
+    #         yield lst[i:i + n]
 
-    def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
-        data_generator = self.chunks(diners, chunk_size)
-        record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
-        db[collection].update_one({'_id': _id}, {'$set': record}, upsert=True)
-        for data in data_generator:
-            db[collection].update_one({
-                '_id': _id}, {
-                '$push': {
-                    'data': {
-                        '$each': data
-                    }
-                }})
+    # def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
+    #     data_generator = self.chunks(diners, chunk_size)
+    #     record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
+    #     db[collection].update_one({'_id': _id}, {'$set': record}, upsert=True)
+    #     for data in data_generator:
+    #         db[collection].update_one({
+    #             '_id': _id}, {
+    #             '$push': {
+    #                 'data': {
+    #                     '$each': data
+    #                 }
+    #             }})
 
     def main(self, db, collection, data_range):
-        now = datetime.now()
-        _id = now.strftime('%Y-%m-%d %H:%M:%S')
         diners, error_logs = self.get_diners_details(data_range=data_range)
-        try:
-            record = {'time': now, 'data': diners, 'error_logs': error_logs}
-            db[collection].insert_one(record)
-        except Exception:
-            self.slice_and_save(4, diners, _id, now, error_logs, db, collection)
+        if error_logs == []:
+            pass
+        else:
+            db[collection].insert_one(error_logs)
+        if diners:
+            records = [UpdateOne(
+                {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
+                {'$setOnInsert': record},
+                upsert=True
+            ) for record in diners]
+            db[collection].bulk_write(records)
+        else:
+            # print(diners_info)
+            print(error_logs)
         return diners, error_logs
 
 
@@ -546,12 +562,12 @@ class UEChecker():
         self.collection = collection
         self.pipeline = pipeline
 
-    def get_last_record(self):
+    def get_last_records(self):
         db = self.db
         collection = self.collection
         pipeline = self.pipeline
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = list(result)[0]['_id']
+        result = [i['_id'] for i in result]
         return result
 
 
@@ -562,21 +578,40 @@ if __name__ == '__main__':
     # stop = time.time()
     # print(stop - start)
     # time.sleep(5)
+
     start = time.time()
     d_detail_crawler = UEDinerDetailCrawler('ue_list')
     diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=0)
     stop = time.time()
     print(stop - start)
     time.sleep(1)
-    # pipeline = [
-    #     {'$sort': {'time': -1}},
-    #     {'$group': {
-    #         '_id': '$data',
-    #         'time': {'$last': '$time'}
-    #     }}, {
-    #         '$limit': 1
-    #     }
-    # ]
-    # checker = UEChecker(db, 'ue_detail', pipeline)
-    # last_record = checker.get_last_record()
-    # pprint.pprint(last_record[1][0])
+
+    pipeline = [
+            {'$sort': {'triggered_at': -1}},
+            {'$group': {
+                '_id': {
+                    'title': '$title',
+                    'link': '$link',
+                    'deliver_fee': '$deliver_fee',
+                    'deliver_time': '$deliver_time',
+                    'UE_choice': '$UE_choice',
+                    'uuid': '$uuid',
+                    'triggered_at': '$triggered_at',
+                    'menu': '$menu',
+                    'triggered_at': '$triggered_at',
+                    'budget': '$budget',
+                    'rating': '$rating',
+                    'view_count': '$view_count',
+                    'image': '$image',
+                    'tags': '$tags',
+                    'address': '$address',
+                    'gps': '$gps',
+                    'open_hours': '$open_hours',
+                },
+                'triggered_at': {'$last': '$triggered_at'}
+            }}
+        ]
+    checker = UEChecker(db, 'ue_detail', pipeline)
+    last_records = checker.get_last_records()
+    print(len(last_records))
+    pprint.pprint(last_records[0])

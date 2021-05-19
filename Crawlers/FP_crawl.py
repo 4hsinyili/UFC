@@ -3,7 +3,7 @@
 
 # for db control
 # import collections
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 
 # for crawling from js-website
 # from selenium import webdriver
@@ -40,7 +40,7 @@ import random
 # import matplotlib.pyplot as plt
 # from geopy.distance import distance
 from datetime import datetime
-# import pprint
+import pprint
 
 from dotenv import load_dotenv
 
@@ -90,6 +90,9 @@ class FPDinerListCrawler():
     #     driver.close()
 
     def get_diners_info_from_FP_API(self, target):
+        now = datetime.now()
+        triggered_at = datetime.combine(now.date(), datetime.min.time())
+        triggered_at = triggered_at.replace(hour=now.hour)
         error_log = {}
         headers = {
             'User-Agent':
@@ -102,13 +105,13 @@ class FPDinerListCrawler():
             url = f"""https://disco.deliveryhero.io/listing/api/v1/pandora/vendors?latitude={target['gps'][0]}&longitude={target['gps'][1]}&language_id=6&include=characteristics&dynamic_pricing=0&configuration=Original&country=tw&customer_id=&\
                 customer_hash=&budgets=&cuisine=&sort=&food_characteristic=&use_free_delivery_label=false&vertical=restaurants&limit={limit}&offset={offset}&customer_type=regular"""
         except Exception:
-            error_log = {'error': 'target value wrong'}
+            error_log = {'error': 'target value wrong', 'triggered_at': triggered_at}
             print('target value wrong')
             return False, error_log
         try:
             r = requests.get(url, headers=headers)
         except Exception:
-            error_log = {'error': 'vendors_api wrong'}
+            error_log = {'error': 'vendors_api wrong', 'triggered_at': triggered_at}
             print('vendors_api wrong')
             return False, error_log
         try:
@@ -128,22 +131,31 @@ class FPDinerListCrawler():
                     'deliver_fee': deliver_fee,
                     'deliver_time': deliver_time,
                     'FP_choice': FP_choice,
-                    'uuid': uuid
+                    'uuid': uuid,
+                    'triggered_at': triggered_at
                 }
                 diners_info.append(result)
         except Exception:
-            error_log = {'error': 'parse vendors_api response wrong'}
+            error_log = {'error': 'parse vendors_api response wrong', 'triggered_at': triggered_at}
             print('parse vendors_api response wrong')
             return False, error_log
         return diners_info, error_log
 
     def main(self, target, db, collection):
-        self.chrome_close(self.driver)
+        # self.chrome_close(self.driver)
         diners_info, error_log = self.get_diners_info_from_FP_API(target)
-        # print(diners_info, error_log)
+        # print(len(diners_info))
+        if error_log == {}:
+            pass
+        else:
+            db[collection].insert_one(error_log)
         if diners_info:
-            record = {'time': datetime.now(), 'data': diners_info}
-            db[collection].insert_one(record)
+            records = [UpdateOne(
+                {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
+                {'$setOnInsert': record},
+                upsert=True
+            ) for record in diners_info]
+            db[collection].bulk_write(records)
         else:
             # print(diners_info)
             print(error_log['error'])
@@ -155,16 +167,22 @@ class FPDinerDetailCrawler():
 
     def get_diners_info(self, diners_info_collection):
         pipeline = [
-            {'$sort': {'time': -1}},
+            {'$sort': {'triggered_at': -1}},
             {'$group': {
-                '_id': '$data',
-                'time': {'$last': '$time'}
-            }}, {
-                '$limit': 1
-                }
+                '_id': {
+                    'title': '$title',
+                    'link': '$link',
+                    'deliver_fee': '$deliver_fee',
+                    'deliver_time': '$deliver_time',
+                    'FP_choice': '$FP_choice',
+                    'uuid': '$uuid',
+                    'triggered_at': '$triggered_at'
+                },
+                'triggered_at': {'$last': '$triggered_at'}
+            }}
         ]
         result = db[diners_info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = list(result)[0]['_id']
+        result = [i['_id'] for i in result]
         return result
 
     def get_diner_detail_from_FP_API(self, diner):
@@ -332,33 +350,40 @@ class FPDinerDetailCrawler():
         diner['open_hours'] = open_hours
         return diner
 
-    def chunks(self, lst, n):
-        """Yield successive n-sized chunks from lst."""
-        for i in range(0, len(lst), n):
-            yield lst[i:i + n]
+    # def chunks(self, lst, n):
+    #     """Yield successive n-sized chunks from lst."""
+    #     for i in range(0, len(lst), n):
+    #         yield lst[i:i + n]
 
-    def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
-        data_generator = self.chunks(diners, chunk_size)
-        record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
-        db[collection].update_one({'_id': _id}, {'$set': record}, upsert=True)
-        for data in data_generator:
-            db[collection].update_one({
-                '_id': _id}, {
-                '$push': {
-                    'data': {
-                        '$each': data
-                    }
-                }})
+    # def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
+    #     data_generator = self.chunks(diners, chunk_size)
+    #     record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
+    #     db[collection].update_one({'_id': _id}, {'$set': record}, upsert=True)
+    #     for data in data_generator:
+    #         db[collection].update_one({
+    #             '_id': _id}, {
+    #             '$push': {
+    #                 'data': {
+    #                     '$each': data
+    #                 }
+    #             }})
 
     def main(self, db, collection, data_range):
-        now = datetime.now()
-        _id = now.strftime('%Y-%m-%d %H:%M:%S')
         diners, error_logs = self.get_diners_details(data_range=data_range)
-        try:
-            record = {'time': now, 'data': diners, 'error_logs': error_logs}
-            db[collection].insert_one(record)
-        except Exception:
-            self.slice_and_save(4, diners, _id, now, error_logs, db, collection)
+        if error_logs == []:
+            pass
+        else:
+            db[collection].insert_one(error_logs)
+        if diners:
+            records = [UpdateOne(
+                {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
+                {'$setOnInsert': record},
+                upsert=True
+            ) for record in diners]
+            db[collection].bulk_write(records)
+        else:
+            # print(diners_info)
+            print(error_logs)
         return diners, error_logs
 
 
@@ -368,7 +393,7 @@ class FPChecker():
         self.collection = collection
         self.pipeline = pipeline
 
-    def get_last_record(self):
+    def get_last_records(self):
         db = self.db
         collection = self.collection
         pipeline = self.pipeline
@@ -383,22 +408,41 @@ if __name__ == '__main__':
     # d_list_crawler.main(target, db=db, collection='fp_list')
     # stop = time.time()
     # print(stop - start)
+
     # time.sleep(10)
+
     d_detail_crawler = FPDinerDetailCrawler('fp_list')
     start = time.time()
     diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=0)
     stop = time.time()
     print(stop - start)
 
-    # pipeline = [
-    #     {'$sort': {'time': -1}},
-    #     {'$group': {
-    #         '_id': '$data',
-    #         'time': {'$last': '$time'}
-    #     }}, {
-    #         '$limit': 1
-    #     }
-    # ]
-    # checker = FPChecker(db, 'fp_detail', pipeline)
-    # last_record = checker.get_last_record()
-    # print(last_record[0])
+    pipeline = [
+            {'$sort': {'triggered_at': -1}},
+            {'$group': {
+                '_id': {
+                    'title': '$title',
+                    'link': '$link',
+                    'deliver_fee': '$deliver_fee',
+                    'deliver_time': '$deliver_time',
+                    'FP_choice': '$FP_choice',
+                    'uuid': '$uuid',
+                    'triggered_at': '$triggered_at',
+                    'menu': '$menu',
+                    'triggered_at': '$triggered_at',
+                    'budget': '$budget',
+                    'rating': '$rating',
+                    'view_count': '$view_count',
+                    'image': '$image',
+                    'tags': '$tags',
+                    'address': '$address',
+                    'gps': '$gps',
+                    'open_hours': '$open_hours',
+                },
+                'triggered_at': {'$last': '$triggered_at'}
+            }}
+        ]
+    checker = FPChecker(db, 'fp_detail', pipeline)
+    last_records = checker.get_last_records()
+    print(len(last_records))
+    pprint.pprint(last_records[0])
