@@ -35,19 +35,6 @@ admin_client = MongoClient(MONGO_HOST,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 
-targets = [{
-    'name': '五之神製作所 台灣',
-    'address': '110台北市信義區忠孝東路四段553巷6弄6號',
-    'gps': (25.0424644, 121.5626151)
-}, {
-    'name': '一蘭 台灣台北別館',
-    'address': '110台北市信義區松壽路11號 B1F',
-    'gps': (25.0363184, 121.5629489)
-}, {
-    'name': '太陽蕃茄拉麵 誠品信義店',
-    'address': '110台北市信義區松高路11號B2',
-    'gps': (25.0363184, 121.5629489)
-}]
 db = admin_client['ufc_temp']
 driver_path = os.getenv("DRIVER_PATH")
 
@@ -82,11 +69,12 @@ class GMCrawler():
     def get_link(self, target, triggered_at):
         error_log = {}
         driver = self.driver
+        target = target['_id']
         try:
             driver.get('https://www.google.com.tw/maps')
             driver.find_element_by_xpath(
                 '//input[@id="searchboxinput"]').send_keys(target['address'] +
-                                                           target['name'])
+                                                           target['title'])
             driver.find_element_by_xpath(
                 '//button[@id="searchbox-searchbutton"]').click()
             time.sleep(4)
@@ -98,7 +86,7 @@ class GMCrawler():
             return False, error_log
         # print(driver.current_url)
         diner = {
-            'title': target['name'],
+            'title': target['title'],
             'address': target['address'],
             'link': driver.current_url,
             'triggered_at': triggered_at
@@ -243,7 +231,7 @@ class GMCrawler():
                 else:
                     error_logs.append(error_log)
             else:
-                print('error while try to get ', target['name'], "'s link.")
+                print('error while try to get ', target['title'], "'s link.")
                 error_log = {
                     'error': "error while try to get link",
                     'diner': target
@@ -296,25 +284,56 @@ class GMChecker():
 
 
 if __name__ == '__main__':
-    # start = time.time()
-    # link_crawler = GMCrawler(driver_path=driver_path,
-    #                          headless=True,
-    #                          auto_close=True,
-    #                          inspect=False)
-    # diners, error_logs = link_crawler.main(targets,
-    #                                        db=db,
-    #                                        collection='gm_reviews')
-    # stop = time.time()
-    # print(stop - start)
     pipeline = [
-        {'$sort': {'time': -1}},
+        {'$match': {'title': {"$exists": True}}},
+        {'$sort': {'triggered_at': -1}},
         {'$group': {
-            '_id': '$data',
-            'time': {'$last': '$time'}
-        }}, {
-            '$limit': 1
-        }
+            '_id': {
+                'title': '$title',
+                'address': '$address',
+            },
+            'triggered_at': {'$last': '$triggered_at'}
+        }}
+        ]
+    uechecker = UE_crawl.UEChecker(db, 'ue_detail', pipeline)
+    targets = uechecker.get_last_records(5)
+
+    start = time.time()
+    link_crawler = GMCrawler(driver_path=driver_path,
+                             headless=True,
+                             auto_close=True,
+                             inspect=False)
+    diners, error_logs = link_crawler.main(targets,
+                                           db=db,
+                                           collection='gm_detail')
+    stop = time.time()
+    print(stop - start)
+
+    time.sleep(5)
+
+    pipeline = [
+        {'$match': {'title': {"$exists": True}}},
+        {'$sort': {'triggered_at': -1}},
+        {'$group': {
+            '_id': {
+                'title': '$title',
+                'link': '$link',
+                'triggered_at': '$triggered_at',
+                'budget': '$budget',
+                'rating': '$rating',
+                'view_count': '$view_count',
+                'reviews': '$reviews',
+                'address': '$address'
+            },
+            'triggered_at': {'$last': '$triggered_at'}
+        }},
+        {'$sort': {'uuid': 1}}
     ]
-    checker = GMChecker(db, 'gm_reviews', pipeline)
-    last_record = checker.get_last_record()
-    pprint.pprint(last_record[0])
+    checker = GMChecker(db, 'gm_detail', pipeline)
+    last_records = checker.get_last_records()
+    loop_count = 0
+    for record in last_records:
+        if loop_count == 10:
+            break
+        print(record['_id']['title'])
+        loop_count += 1
