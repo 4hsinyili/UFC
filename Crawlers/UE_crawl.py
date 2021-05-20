@@ -1,7 +1,4 @@
-# for data handling
-# import pandas as pd
-
-# for db control
+#  for db control
 from pymongo import MongoClient, UpdateOne
 
 # for crawling from js-website
@@ -14,34 +11,25 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 # from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
-# for crawling from html only website
+# for crawling from API
 import requests
 
 # for html parsing
-# from bs4 import BeautifulSoup
 from lxml import etree
-
-# for powerful dict
-# from collections import defaultdict
-# from collections import OrderedDict
 
 # for file handling
 import os
-# import pickle
+from dotenv import load_dotenv
 import json
 
 # for timing and not to get caught
 import time
 import random
-
-# for plot
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# from geopy.distance import distance
 from datetime import datetime
+
+# for preview
 import pprint
 
-from dotenv import load_dotenv
 load_dotenv()
 
 MONGO_HOST = os.getenv("MONGO_HOST")
