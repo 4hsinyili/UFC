@@ -114,6 +114,7 @@ class FPDinerDetailCrawler():
 
     def get_diners_info(self, diners_info_collection):
         pipeline = [
+            {'$match': {'title': {"$exists": True}}},
             {'$sort': {'triggered_at': -1}},
             {'$group': {
                 '_id': {
@@ -354,6 +355,7 @@ if __name__ == '__main__':
     print(stop - start)
 
     pipeline = [
+            {'$match': {'title': {"$exists": True}}},
             {'$sort': {'triggered_at': -1}},
             {'$group': {
                 '_id': {
@@ -375,7 +377,8 @@ if __name__ == '__main__':
                     'open_hours': '$open_hours',
                 },
                 'triggered_at': {'$last': '$triggered_at'}
-            }}
+            }},
+            {'$sort': {'uuid': 1}}
         ]
     checker = FPChecker(db, 'fp_detail', pipeline)
     last_records = checker.get_last_records()
