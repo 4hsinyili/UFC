@@ -537,10 +537,12 @@ class UEChecker():
         self.collection = collection
         self.pipeline = pipeline
 
-    def get_last_records(self):
+    def get_last_records(self, limit=0):
         db = self.db
         collection = self.collection
         pipeline = self.pipeline
+        if limit > 0:
+            pipeline.append({'$limit': limit})
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         # result = [i['_id'] for i in result]
         return result
