@@ -507,24 +507,6 @@ class UEDinerDetailCrawler():
         diner['open_hours'] = open_hours
         return diner
 
-    # def chunks(self, lst, n):
-    #     """Yield successive n-sized chunks from lst."""
-    #     for i in range(0, len(lst), n):
-    #         yield lst[i:i + n]
-
-    # def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
-    #     data_generator = self.chunks(diners, chunk_size)
-    #     record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
-    #     db[collection].update_one({'_id': _id}, {'$set': record}, upsert=True)
-    #     for data in data_generator:
-    #         db[collection].update_one({
-    #             '_id': _id}, {
-    #             '$push': {
-    #                 'data': {
-    #                     '$each': data
-    #                 }
-    #             }})
-
     def main(self, db, collection, data_range):
         diners, error_logs = self.get_diners_details(data_range=data_range)
         triggered_at = diners[0]['triggered_at']

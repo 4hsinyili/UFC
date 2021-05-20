@@ -36,30 +36,6 @@ driver_path = os.getenv('DEIVER_PATH')
 
 
 class FPDinerListCrawler():
-    # def __init__(self,
-    #              driver_path='',
-    #              headless=True,
-    #              auto_close=True,
-    #              create_driver=False):
-    #     if create_driver:
-    #         self.driver = self.chrome_create(driver_path, headless, auto_close)
-
-    # def chrome_create(self, driver_path, headless=False, auto_close=True):
-    #     chrome_options = Options()
-    #     if headless:
-    #         chrome_options.add_argument("--headless")
-    #     if not auto_close:
-    #         chrome_options.add_experimental_option("detach", True)
-    #     chrome_options.add_experimental_option(
-    #         'prefs', {'intl.accept_languages': 'en,en_US'})
-    #     driver = webdriver.Chrome(driver_path, options=chrome_options)
-    #     driver.delete_all_cookies()
-    #     driver.implicitly_wait(2)
-    #     return driver
-
-    # def chrome_close(self, driver):
-    #     driver.close()
-
     def get_diners_info_from_FP_API(self, target):
         now = datetime.now()
         triggered_at = datetime.combine(now.date(), datetime.min.time())
@@ -321,24 +297,6 @@ class FPDinerDetailCrawler():
         diner['open_hours'] = open_hours
         return diner
 
-    # def chunks(self, lst, n):
-    #     """Yield successive n-sized chunks from lst."""
-    #     for i in range(0, len(lst), n):
-    #         yield lst[i:i + n]
-
-    # def slice_and_save(self, chunk_size, diners, _id, now, error_logs, db, collection):
-    #     data_generator = self.chunks(diners, chunk_size)
-    #     record = {'_id': _id, 'time': now, 'data': [], 'error_logs': error_logs}
-    #     db[collection].update_one({'_id': _id}, {'$set': record}, upsert=True)
-    #     for data in data_generator:
-    #         db[collection].update_one({
-    #             '_id': _id}, {
-    #             '$push': {
-    #                 'data': {
-    #                     '$each': data
-    #                 }
-    #             }})
-
     def main(self, db, collection, data_range):
         diners, error_logs = self.get_diners_details(data_range=data_range)
         triggered_at = diners[0]['triggered_at']
@@ -400,7 +358,6 @@ if __name__ == '__main__':
                     'uuid': '$uuid',
                     'triggered_at': '$triggered_at',
                     'menu': '$menu',
-                    'triggered_at': '$triggered_at',
                     'budget': '$budget',
                     'rating': '$rating',
                     'view_count': '$view_count',
