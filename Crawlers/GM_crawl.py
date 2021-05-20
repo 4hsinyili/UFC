@@ -223,6 +223,9 @@ class GMCrawler():
     def main(self, targets, db, collection):
         diners = []
         error_logs = []
+        now = datetime.now()
+        triggered_at = datetime.combine(now.date(), datetime.min.time())
+        triggered_at = triggered_at.replace(hour=now.hour)
         for target in targets:
             # start = time.time()
             diner, error_log = self.get_link(target, triggered_at)
