@@ -527,10 +527,11 @@ class UEDinerDetailCrawler():
 
     def main(self, db, collection, data_range):
         diners, error_logs = self.get_diners_details(data_range=data_range)
+        triggered_at = diners[0]['triggered_at']
         if error_logs == []:
             pass
         else:
-            db[collection].insert_one(error_logs)
+            db[collection].insert_one({'uuid': '', 'triggered_at': triggered_at, 'error_logs': error_logs})
         if diners:
             records = [UpdateOne(
                 {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
@@ -586,7 +587,6 @@ if __name__ == '__main__':
                     'uuid': '$uuid',
                     'triggered_at': '$triggered_at',
                     'menu': '$menu',
-                    'triggered_at': '$triggered_at',
                     'budget': '$budget',
                     'rating': '$rating',
                     'view_count': '$view_count',

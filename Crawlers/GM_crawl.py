@@ -79,7 +79,7 @@ class GMCrawler():
     def chrome_close(self, driver):
         driver.close()
 
-    def get_link(self, target):
+    def get_link(self, target, triggered_at):
         error_log = {}
         driver = self.driver
         try:
@@ -100,7 +100,8 @@ class GMCrawler():
         diner = {
             'title': target['name'],
             'address': target['address'],
-            'link': driver.current_url
+            'link': driver.current_url,
+            'triggered_at': triggered_at
         }
         return diner, error_log
 
@@ -232,7 +233,7 @@ class GMCrawler():
         error_logs = []
         for target in targets:
             # start = time.time()
-            diner, error_log = self.get_link(target)
+            diner, error_log = self.get_link(target, triggered_at)
             if diner:
                 selector, diner = self.get_info(diner)
                 diner, error_log = self.get_reviews(selector, diner)
@@ -257,6 +258,11 @@ class GMCrawler():
             'error_logs': error_logs
         }
         db[collection].insert_one(record)
+        print(error_logs)
+        if error_logs == []:
+            pass
+        else:
+            db[collection].insert_one({'link': '', 'triggered_at': triggered_at, 'error_logs': error_logs})
         return diners, error_logs
 
 
