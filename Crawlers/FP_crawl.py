@@ -305,11 +305,15 @@ class FPDinerDetailCrawler():
         else:
             db[collection].insert_one({'uuid': '', 'triggered_at': triggered_at, 'error_logs': error_logs})
         if diners:
-            records = [UpdateOne(
-                {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
-                {'$setOnInsert': record},
-                upsert=True
-            ) for record in diners]
+            records = []
+            for diner in diners:
+                if diner:
+                    record = UpdateOne(
+                        {'link': diner['link'], 'triggered_at': diner['triggered_at']},
+                        {'$setOnInsert': diner},
+                        upsert=True
+                        )
+                    records.append(record)
             db[collection].bulk_write(records)
         else:
             # print(diners_info)

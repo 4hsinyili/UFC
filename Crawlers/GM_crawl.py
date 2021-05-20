@@ -263,6 +263,20 @@ class GMCrawler():
             pass
         else:
             db[collection].insert_one({'link': '', 'triggered_at': triggered_at, 'error_logs': error_logs})
+        if diners:
+            records = []
+            for diner in diners:
+                if diner:
+                    record = UpdateOne(
+                        {'link': diner['link'], 'triggered_at': diner['triggered_at']},
+                        {'$setOnInsert': diner},
+                        upsert=True
+                        )
+                    records.append(record)
+            db[collection].bulk_write(records)
+        else:
+            # print(diners_info)
+            print(error_logs)
         return diners, error_logs
 
 
