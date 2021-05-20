@@ -109,7 +109,11 @@ class GMCrawler():
             view_count = view_button.xpath('./text()')[0]
             view_count = view_count.split('則評論')[0]
             view_count = view_count.replace(',', '').replace(' ', '')
-            budget = selector.xpath('//span[contains(., "$")]/text()')[0]
+            budget = selector.xpath('//span[contains(., "$")]/text()')
+            if budget == []:
+                budget = 0
+            else:
+                budget = len(budget[0])
         except Exception:
             error_log = {'error': 'get place info wrong', 'diner': diner}
             return False, error_log
