@@ -382,3 +382,9 @@ if __name__ == '__main__':
         ]
     checker = FPChecker(db, 'fp_detail', pipeline)
     last_records = checker.get_last_records()
+    loop_count = 0
+    for record in last_records:
+        if loop_count == 10:
+            break
+        print(record['_id']['title'])
+        loop_count += 1
