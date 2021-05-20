@@ -247,12 +247,6 @@ class GMCrawler():
             # stop = time.time()
             # print('each site: ', stop - start)
         self.chrome_close(self.driver)
-        record = {
-            'time': datetime.now(),
-            'data': diners,
-            'error_logs': error_logs
-        }
-        db[collection].insert_one(record)
         print(error_logs)
         if error_logs == []:
             pass
