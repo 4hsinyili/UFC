@@ -270,6 +270,7 @@ class UEDinerDetailCrawler():
 
     def get_diners_info(self, info_collection):
         pipeline = [
+            {'$match': {'title': {"$exists": True}}},
             {'$sort': {'triggered_at': -1}},
             {'$group': {
                 '_id': {
@@ -564,6 +565,7 @@ if __name__ == '__main__':
     time.sleep(1)
 
     pipeline = [
+            {'$match': {'title': {"$exists": True}}},
             {'$sort': {'triggered_at': -1}},
             {'$group': {
                 '_id': {
@@ -585,7 +587,8 @@ if __name__ == '__main__':
                     'open_hours': '$open_hours',
                 },
                 'triggered_at': {'$last': '$triggered_at'}
-            }}
+            }},
+            {'$sort': {'uuid': 1}}
         ]
     checker = UEChecker(db, 'ue_detail', pipeline)
     last_records = checker.get_last_records()
