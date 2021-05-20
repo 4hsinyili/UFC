@@ -557,12 +557,12 @@ if __name__ == '__main__':
     # print(stop - start)
     # time.sleep(5)
 
-    start = time.time()
-    d_detail_crawler = UEDinerDetailCrawler('ue_list')
-    diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=0)
-    stop = time.time()
-    print(stop - start)
-    time.sleep(1)
+    # start = time.time()
+    # d_detail_crawler = UEDinerDetailCrawler('ue_list')
+    # diners, error_logs = d_detail_crawler.main(db=db, collection='ue_detail', data_range=0)
+    # stop = time.time()
+    # print(stop - start)
+    # time.sleep(5)
 
     pipeline = [
             {'$match': {'title': {"$exists": True}}},
@@ -592,5 +592,9 @@ if __name__ == '__main__':
         ]
     checker = UEChecker(db, 'ue_detail', pipeline)
     last_records = checker.get_last_records()
-    print(len(last_records))
-    pprint.pprint(last_records[0])
+    loop_count = 0
+    for record in last_records:
+        if loop_count == 10:
+            break
+        print(record['_id']['title'])
+        loop_count += 1
