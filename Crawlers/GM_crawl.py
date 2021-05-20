@@ -275,12 +275,11 @@ class GMChecker():
         self.collection = collection
         self.pipeline = pipeline
 
-    def get_last_record(self):
+    def get_last_records(self):
         db = self.db
         collection = self.collection
         pipeline = self.pipeline
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = list(result)[0]['_id']
         return result
 
 
