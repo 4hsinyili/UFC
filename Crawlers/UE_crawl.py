@@ -285,7 +285,6 @@ class UEDinerDetailCrawler():
             }}
         ]
         result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = [i['_id'] for i in result]
         return result
 
     def get_diner_detail_from_UE_API(self, diner):
@@ -336,6 +335,7 @@ class UEDinerDetailCrawler():
         error_logs = []
         loop_count = 0
         for diner in diners_info:
+            diner = diner['_id']
             diner, error_log = self.get_diner_detail_from_UE_API(diner)
             if diner:
                 diners.append(diner)
@@ -555,7 +555,7 @@ class UEChecker():
         collection = self.collection
         pipeline = self.pipeline
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = [i['_id'] for i in result]
+        # result = [i['_id'] for i in result]
         return result
 
 

@@ -153,7 +153,6 @@ class FPDinerDetailCrawler():
             }}
         ]
         result = db[diners_info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = [i['_id'] for i in result]
         return result
 
     def get_diner_detail_from_FP_API(self, diner):
@@ -210,6 +209,7 @@ class FPDinerDetailCrawler():
         error_logs = []
         loop_count = 0
         for diner in diners_info:
+            diner = diner['_id']
             diner, error_log = self.get_diner_detail_from_FP_API(diner)
             if diner:
                 diners.append(diner)
@@ -369,7 +369,6 @@ class FPChecker():
         collection = self.collection
         pipeline = self.pipeline
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        result = list(result)[0]['_id']
         return result
 
 
@@ -415,5 +414,3 @@ if __name__ == '__main__':
         ]
     checker = FPChecker(db, 'fp_detail', pipeline)
     last_records = checker.get_last_records()
-    print(len(last_records))
-    pprint.pprint(last_records[0])
