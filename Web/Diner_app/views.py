@@ -92,3 +92,21 @@ class DinerSearch(views.APIView):
             'data_count': len(diners),
             'data': data
             })
+
+
+class DinerInfo(views.APIView):
+    parser_classes = [JSONParser]
+
+    def get(self, request):
+        start = time.time()
+        diner_id = self.request.query_params.get('diner_id', None)
+        if diner_id:
+            diners = uedinerinfo.get_diner(diner_id)
+            diners = list(diners)[0]
+            results = UESerializer(diners, many=False).data
+            stop = time.time()
+            print('get DinerInfo took: ', stop - start, 's.')
+            return Response({'data_count': len(diners), 'data': results})
+        else:
+            return Response({'message': 'need diner_id'})
+
