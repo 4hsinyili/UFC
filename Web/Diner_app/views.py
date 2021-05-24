@@ -30,16 +30,17 @@ uechecker = UEChecker(db, 'ue_detail')
 uesearcher = UESearcher(db, 'ue_detail')
 uedinerinfo = UEDinerInfo(db, 'ue_detail')
 
+
 class DinerList(views.APIView):
     parser_classes = [JSONParser]
 
     def get(self, request):
+        start = time.time()
         offset_param = self.request.query_params.get('offset', None)
         if offset_param:
             offset = int(offset_param)
         else:
             offset = 0
-        start = time.time()
         diners = uechecker.get_last_records(Pipeline.ue_list_pipeline, offset, limit=6)
         diners_count = uechecker.get_count(Pipeline.ue_count_pipeline)
         if offset + 6 < diners_count:
