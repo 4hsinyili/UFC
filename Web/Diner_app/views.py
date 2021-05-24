@@ -120,3 +120,6 @@ class Filters(views.APIView):
         print('get DinerInfo took: ', stop - start, 's.')
         return Response({'data': data})
 
+
+def dinerlist(request):
+    return render(request, 'Diner_app/dinerlist.html', {})
