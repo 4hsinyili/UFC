@@ -179,11 +179,13 @@ class FPDinerDetailCrawler():
             return False, error_log
         return FP_API_response, error_log
 
-    def get_diners_details(self, data_range=0):
+    def get_diners_details(self, diners_cursor, data_range=0):
         if data_range == 0:
-            diners_info = self.diners_info
+            diners_info = list(diners_cursor)
         else:
-            diners_info = self.diners_info[:data_range]
+            diners_info = []
+            for _ in range(data_range):
+                diners_info.append(next(diners_cursor))
         diners = []
         error_logs = []
         loop_count = 0
@@ -301,7 +303,8 @@ class FPDinerDetailCrawler():
         return diner
 
     def main(self, db, collection, data_range):
-        diners, error_logs = self.get_diners_details(data_range=data_range)
+        diners_cursor = self.diners_info
+        diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
         triggered_at = diners[0]['triggered_at']
         if error_logs == []:
             pass
