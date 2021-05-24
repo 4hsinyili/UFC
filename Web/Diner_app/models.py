@@ -267,3 +267,44 @@ class UEDinerInfo():
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
         return result
+
+
+class Pipeline():
+    ue_list_pipeline = [
+        {'$sort': {'triggered_at': -1, 'uuid': 1}},
+        {'$match': {'title': {'$exists': True}}},
+        {'$group': {
+            '_id': {
+                'title': '$title',
+                'link': '$link',
+                'deliver_fee': '$deliver_fee',
+                'deliver_time': '$deliver_time',
+                'budget': '$budget',
+                'uuid': '$uuid',
+                'triggered_at': '$triggered_at',
+                'menu': '$menu',
+                'budget': '$budget',
+                'rating': '$rating',
+                'view_count': '$view_count',
+                'image': '$image',
+                'tags': '$tags',
+                'address': '$address',
+                'gps': '$gps',
+                'open_hours': '$open_hours',
+                'UE_choice': '$UE_choice'
+            },
+            'triggered_at': {'$last': '$triggered_at'}
+        }},
+        {'$sort': {'_id.uuid': 1}}
+    ]
+    ue_count_pipeline = [
+        {'$sort': {'triggered_at': -1, 'uuid': 1}},
+        {'$match': {'title': {'$exists': True}}},
+        {'$group': {
+            '_id': {
+                'title': '$title',
+            },
+            'triggered_at': {'$last': '$triggered_at'}
+        }},
+        {'$count': 'triggered_at'}
+    ]
