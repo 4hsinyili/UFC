@@ -305,44 +305,43 @@ if __name__ == '__main__':
         }}
         ]
     uechecker = UE_crawl.UEChecker(db, 'ue_detail', pipeline)
-    targets = uechecker.get_last_records(5)
+    targets = uechecker.get_last_records(0)
 
     start = time.time()
     link_crawler = GMCrawler(driver_path=driver_path,
                              headless=True,
                              auto_close=True,
                              inspect=False)
-    diners, error_logs = link_crawler.main(targets,
-                                           db=db,
-                                           collection='gm_detail')
+    with targets:
+        diners, error_logs = link_crawler.main(targets, db=db, collection='gm_detail')
     stop = time.time()
     print(stop - start)
 
     time.sleep(5)
 
-    pipeline = [
-        {'$match': {'title': {"$exists": True}}},
-        {'$sort': {'triggered_at': -1}},
-        {'$group': {
-            '_id': {
-                'title': '$title',
-                'link': '$link',
-                'triggered_at': '$triggered_at',
-                'budget': '$budget',
-                'rating': '$rating',
-                'view_count': '$view_count',
-                'reviews': '$reviews',
-                'address': '$address'
-            },
-            'triggered_at': {'$last': '$triggered_at'}
-        }},
-        {'$sort': {'uuid': 1}}
-    ]
-    checker = GMChecker(db, 'gm_detail', pipeline)
-    last_records = checker.get_last_records()
-    loop_count = 0
-    for record in last_records:
-        if loop_count == 10:
-            break
-        print(record['_id']['title'])
-        loop_count += 1
+    # pipeline = [
+    #     {'$match': {'title': {"$exists": True}}},
+    #     {'$sort': {'triggered_at': -1}},
+    #     {'$group': {
+    #         '_id': {
+    #             'title': '$title',
+    #             'link': '$link',
+    #             'triggered_at': '$triggered_at',
+    #             'budget': '$budget',
+    #             'rating': '$rating',
+    #             'view_count': '$view_count',
+    #             'reviews': '$reviews',
+    #             'address': '$address'
+    #         },
+    #         'triggered_at': {'$last': '$triggered_at'}
+    #     }},
+    #     {'$sort': {'uuid': 1}}
+    # ]
+    # checker = GMChecker(db, 'gm_detail', pipeline)
+    # last_records = checker.get_last_records()
+    # loop_count = 0
+    # for record in last_records:
+    #     if loop_count == 10:
+    #         break
+    #     print(record['_id']['title'])
+    #     loop_count += 1
