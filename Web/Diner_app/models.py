@@ -186,3 +186,55 @@ class UFFilters():
         result = list(result)[0]
         return result
 
+
+class UESearcher():
+    def __init__(self, db, collection, triggered_at):
+        self.db = db
+        self.collection = collection
+        self.triggered_at = triggered_at
+
+    def get_search_result(self, condition, offset=0):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.triggered_at
+        match_conditions = {"$match": {
+            "triggered_at": triggered_at,
+            'title': {'$exists': True}
+            }}
+        sort_condttions = {}
+        conditions = [match_conditions, sort_condttions]
+        try:
+            for match in condition['keyword']:
+                match_conditions['$match'][match['field']] = {'$regex': match['value']}
+        except Exception:
+            pass
+        try:
+            for filter in condition['filter']:
+                if filter['field'] not in ['tags', 'open_days']:
+                    match_conditions['$match'][filter['field']] = {filter['filter']: filter['value']}
+                else:
+                    match_conditions['$match'][filter['field']] = {
+                        '$elemMatch': {'$eq': filter['value']}
+                        }
+        except Exception:
+            pass
+        try:
+            sort_condttions = {'$sort': {}}
+            for sorter in condition['sorter']:
+                sort_condttions['$sort'][sorter['field']] = sorter['sorter']
+        except Exception:
+            pass
+        pipeline = [condition for condition in conditions if condition != {}]
+        if offset > 0:
+            pipeline.append({'$skip': offset})
+        limit = {'$limit': 6}
+        pipeline.append(limit)
+        print("====================================================")
+        print("now is using UESearcher's get_search_result function")
+        print("below is the pipeline")
+        pprint.pprint(pipeline)
+        start = time.time()
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        stop = time.time()
+        print('mongodb query took: ', stop - start, 's.')
+        return result
