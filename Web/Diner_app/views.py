@@ -123,3 +123,11 @@ class Filters(views.APIView):
 
 def dinerlist(request):
     return render(request, 'Diner_app/dinerlist.html', {})
+
+
+def dinerinfo(request):
+    diner_id = request.GET.get('diner_id')
+    response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?diner_id={diner_id}').content
+    data = json.loads(response)['data']
+    data['view_count'] = int(data['view_count'])
+    return render(request, 'Diner_app/diner.html', {'data': data})
