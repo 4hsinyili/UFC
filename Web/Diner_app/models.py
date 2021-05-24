@@ -30,8 +30,14 @@ class UEChecker():
             pipeline.append({'$skip': offset})
         if limit > 0:
             pipeline.append({'$limit': limit})
-        # pprint.pprint(pipeline)
+        print("====================================================")
+        print("now is using UEChecker's get_latest_records function")
+        print("below is the pipeline")
+        pprint.pprint(pipeline)
+        start = time.time()
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        stop = time.time()
+        print('mongodb query took: ', stop - start, 's.')
         return result
 
     def get_triggered_at(self):
