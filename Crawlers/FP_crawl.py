@@ -14,6 +14,8 @@ import time
 import random
 from datetime import datetime
 
+# for preview
+import pprint
 
 load_dotenv()
 MONGO_HOST = os.getenv("MONGO_HOST")
@@ -340,51 +342,52 @@ class FPChecker():
 
 
 if __name__ == '__main__':
-    # start = time.time()
-    # d_list_crawler = FPDinerListCrawler()
-    # d_list_crawler.main(target, db=db, collection='fp_list')
-    # stop = time.time()
-    # print(stop - start)
+    start = time.time()
+    d_list_crawler = FPDinerListCrawler()
+    d_list_crawler.main(target, db=db, collection='fp_list')
+    stop = time.time()
+    pprint.pprint(stop - start)
 
-    # time.sleep(10)
+    time.sleep(10)
 
     d_detail_crawler = FPDinerDetailCrawler('fp_list')
     start = time.time()
     diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=0)
     stop = time.time()
-    print(stop - start)
-
-    pipeline = [
-            {'$match': {'title': {"$exists": True}}},
-            {'$sort': {'triggered_at': -1}},
-            {'$group': {
-                '_id': {
-                    'title': '$title',
-                    'link': '$link',
-                    'deliver_fee': '$deliver_fee',
-                    'deliver_time': '$deliver_time',
-                    'FP_choice': '$FP_choice',
-                    'uuid': '$uuid',
-                    'triggered_at': '$triggered_at',
-                    'menu': '$menu',
-                    'budget': '$budget',
-                    'rating': '$rating',
-                    'view_count': '$view_count',
-                    'image': '$image',
-                    'tags': '$tags',
-                    'address': '$address',
-                    'gps': '$gps',
-                    'open_hours': '$open_hours',
-                },
-                'triggered_at': {'$last': '$triggered_at'}
-            }},
-            {'$sort': {'uuid': 1}}
-        ]
-    checker = FPChecker(db, 'fp_detail', pipeline)
-    last_records = checker.get_last_records()
-    loop_count = 0
-    for record in last_records:
-        if loop_count == 10:
-            break
-        print(record['_id']['title'])
-        loop_count += 1
+    pprint.pprint(stop - start)
+    time.sleep(5)
+    # pprint.pprint(diners)
+    # pipeline = [
+    #         {'$match': {'title': {"$exists": True}}},
+    #         {'$sort': {'triggered_at': -1}},
+    #         {'$group': {
+    #             '_id': {
+    #                 'title': '$title',
+    #                 'link': '$link',
+    #                 'deliver_fee': '$deliver_fee',
+    #                 'deliver_time': '$deliver_time',
+    #                 'FP_choice': '$FP_choice',
+    #                 'uuid': '$uuid',
+    #                 'triggered_at': '$triggered_at',
+    #                 'menu': '$menu',
+    #                 'budget': '$budget',
+    #                 'rating': '$rating',
+    #                 'view_count': '$view_count',
+    #                 'image': '$image',
+    #                 'tags': '$tags',
+    #                 'address': '$address',
+    #                 'gps': '$gps',
+    #                 'open_hours': '$open_hours',
+    #             },
+    #             'triggered_at': {'$last': '$triggered_at'}
+    #         }},
+    #         {'$sort': {'uuid': 1}}
+    #     ]
+    # checker = FPChecker(db, 'fp_detail', pipeline)
+    # last_records = checker.get_last_records()
+    # loop_count = 0
+    # for record in last_records:
+    #     if loop_count == 10:
+    #         break
+    #     print(record['_id']['deliver_time'])
+    #     loop_count += 1
