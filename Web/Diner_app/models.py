@@ -238,3 +238,32 @@ class UESearcher():
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
         return result
+
+
+class UEDinerInfo():
+    def __init__(self, db, collection, triggered_at):
+        self.db = db
+        self.collection = collection
+        self.triggered_at = triggered_at
+
+    def get_diner(self, diner_id):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.triggered_at
+        match_conditions = {
+            "$match": {
+                "triggered_at": triggered_at,
+                "uuid": diner_id
+                }}
+        limit = {'$limit': 1}
+        conditions = [match_conditions, limit]
+        pipeline = [condition for condition in conditions if condition != {}]
+        print("====================================================")
+        print("now is using UEDinerInfo's get_diner function")
+        print("below is the pipeline")
+        pprint.pprint(pipeline)
+        start = time.time()
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        stop = time.time()
+        print('mongodb query took: ', stop - start, 's.')
+        return result
