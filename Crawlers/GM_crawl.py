@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 # for timing and not to get caught
 import time
-# import random
+import random
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -226,6 +226,7 @@ class GMCrawler():
         now = datetime.now()
         triggered_at = datetime.combine(now.date(), datetime.min.time())
         triggered_at = triggered_at.replace(hour=now.hour)
+        loop_count = 0
         for target in targets:
             # start = time.time()
             diner, error_log = self.get_link(target, triggered_at)
@@ -244,6 +245,10 @@ class GMCrawler():
                     'diner': target
                 }
                 error_logs.append(error_log)
+            time.sleep(1)
+            loop_count += 1
+            if loop_count % 500 == 0:
+                time.sleep(random.randint(10, 30))
             # stop = time.time()
             # print('each site: ', stop - start)
         self.chrome_close(self.driver)
