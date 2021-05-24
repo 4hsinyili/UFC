@@ -442,6 +442,7 @@ class UEDinerDetailCrawler():
     def get_open_hours(self, UE_API_response, diner):
         business_hours = UE_API_response['hours']
         open_hours = []
+        open_days = set()
         day_map = {
             '星期一': 'Mon.',
             '周一': 'Mon.',
@@ -508,7 +509,9 @@ class UEDinerDetailCrawler():
                     open_hour = (run_day, f'{start_hour}:{start_minute}',
                                  f'{stop_hour}:{stop_minute}')
                     open_hours.append(open_hour)
+                    open_days.add(run_day)
         diner['open_hours'] = open_hours
+        diner['open_days'] = list(open_days)
         return diner
 
     def main(self, db, collection, data_range):

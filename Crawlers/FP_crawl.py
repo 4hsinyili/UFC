@@ -290,6 +290,7 @@ class FPDinerDetailCrawler():
             7: 'Sun.',
         }
         open_hours = []
+        open_days = set()
         for hours in business_hours:
             opening_type = hours['opening_type']
             if opening_type == 'delivering':
@@ -299,7 +300,9 @@ class FPDinerDetailCrawler():
                 closing_time = hours['closing_time']
                 open_hour = (weekday, opening_time, closing_time)
                 open_hours.append(open_hour)
+                open_days.add(weekday)
         diner['open_hours'] = open_hours
+        diner['open_days'] = list(open_days)
         return diner
 
     def main(self, db, collection, data_range):
