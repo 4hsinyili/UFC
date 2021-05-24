@@ -110,3 +110,13 @@ class DinerInfo(views.APIView):
         else:
             return Response({'message': 'need diner_id'})
 
+
+class Filters(views.APIView):
+    def get(self, request):
+        start = time.time()
+        filters = uechecker.get_filters()
+        data = FilterSerializer(filters, many=False).data
+        stop = time.time()
+        print('get DinerInfo took: ', stop - start, 's.')
+        return Response({'data': data})
+
