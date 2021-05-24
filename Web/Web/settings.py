@@ -27,7 +27,10 @@ SECRET_KEY = env.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'http://54.179.123.235:3000',
+    'https://54.179.123.235:3000'
+]
 
 
 # Application definition
