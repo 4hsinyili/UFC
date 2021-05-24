@@ -376,9 +376,10 @@ class UEDinerDetailCrawler():
 
     def get_other_info(self, UE_API_response, diner):
         try:
-            diner['deliver_time'] = UE_API_response['etaRange']['text']
+            raw_deliver_time = UE_API_response['etaRange']['text']
+            diner['deliver_time'] = int(raw_deliver_time.split('到')[0].replace(' ', ''))
         except Exception:
-            diner['deliver_time'] = ''
+            diner['deliver_time'] = 0
         try:
             diner['deliver_fee'] = int(UE_API_response['fareBadge']['text'].split('TWD')[0])
         except Exception:

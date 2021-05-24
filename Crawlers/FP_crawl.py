@@ -223,7 +223,7 @@ class FPDinerDetailCrawler():
         return diner, error_log
 
     def get_other_info(self, FP_API_response, diner):
-        diner['deliver_time'] = str(FP_API_response['minimum_delivery_time']) + ' 分鐘'
+        diner['deliver_time'] = FP_API_response['minimum_delivery_time']
         diner['deliver_fee'] = FP_API_response['deliver_fee']
         diner['budget'] = FP_API_response['budget']
         diner['rating'] = FP_API_response['rating']
