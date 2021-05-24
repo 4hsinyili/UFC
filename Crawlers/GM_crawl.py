@@ -211,12 +211,16 @@ class GMCrawler():
             error_log = {'error': 'parse review content wrong', 'diner': diner}
             return False, error_log
         indexes = range(len(names))
-        reviews = [{
-            'name': names[i],
-            'rating': ratings[i],
-            'date': dates[i],
-            'review': content[i]
-        } for i in indexes]
+        try:
+            reviews = [{
+                'name': names[i],
+                'rating': ratings[i],
+                'date': dates[i],
+                'review': content[i]
+            } for i in indexes]
+        except Exception:
+            error_log = {'error': 'assemble reviews wrong', 'diner': diner}
+            return False, error_log
         diner['reviews'] = reviews
         return diner, error_log
 
