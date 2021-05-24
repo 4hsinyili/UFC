@@ -62,3 +62,33 @@ class DinerList(views.APIView):
             'data_count': len(diners),
             'data': data
             })
+
+
+class DinerSearch(views.APIView):
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        start = time.time()
+        condition = request.data['condition']
+        offset = request.data['offset']
+        diners = uesearcher.get_search_result(condition, offset)
+        diners_count = uechecker.get_count(Pipeline.ue_count_pipeline)
+        if offset + 6 < diners_count:
+            has_more = True
+        else:
+            has_more = False
+        if has_more:
+            next_offset = offset + 6
+        else:
+            next_offset = 0
+        diners = list(diners)
+        data = UESerializer(diners, many=True).data
+        stop = time.time()
+        print('post DinerSearch took: ', stop - start, 's.')
+        return Response({
+            'next_offset': next_offset,
+            'has_more': has_more,
+            'max_page': diners_count // 6,
+            'data_count': len(diners),
+            'data': data
+            })
