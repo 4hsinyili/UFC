@@ -28,8 +28,7 @@ SECRET_KEY = env.SECRET_KEY
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'http://54.179.123.235:3000',
-    'https://54.179.123.235:3000'
+    '54.179.123.235'
 ]
 
 
