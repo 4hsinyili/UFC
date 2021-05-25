@@ -1,0 +1,62 @@
+{% extends 'Diner_app/base.html' %}
+{% block website_title %}
+    <title>Diner</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Diner_app/css/dinerinfo.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>Diner Info</h1>
+    <div id="diner-info" class="container">
+        <div id="diner-title" class="row"></div>
+        <div id="diner-image-row" class="row">
+            <img id="diner-image" class="image img-responsive">
+        </div>
+        <div id="diner-location" class="row">
+            <div id="diner-gps"></div>
+            <div id="diner-address"></div>
+        </div>
+        <div id="platform-info" class="row">
+            <div id="ue-info" class="col">
+                <div id="ue-rating"></div>
+                <div id="ue-view_count"></div>
+                <div id="ue-budget"></div>
+                <div id="ue-link"></div>
+                <div id="ue-deliver_fee"></div>
+                <div id="ue-deliver_time"></div>
+                <div id="ue-open_hours"></div>
+            </div>
+        </div>
+        <div id="menus">
+            <div id="ue-menu" class="row">
+                <div id="section-tabs" class="col">
+                    <div name="section-title"></div>
+                </div>
+                <div name="sections" class="col">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div name="item" class="col-12" style="display: none">
+        <div name="item-title" class="row"></div>
+        <div name="item-description" class="row"></div>
+        <div name="item-price" class="row"></div>
+        <img name="item-image" class="row">
+    </div>
+    <div name="items" class="row" style="display: none"></div>
+    <div name="subsection" class="col-12" style="display: none">
+        <div name="subsection-title" class="row"></div>
+    </div>
+    <div name="section" class="row" style="display: none">
+        <div name="section-title"></div>
+    </div>
+    <div name="open-hour" class="row" style="display: none"></div>
+{% endblock %}
+
+{% block javascript %}
+    {% load static %}
+    <script src="{% static 'Diner_app/js/dinerinfo.js' %}"></script>
+{% endblock %}
