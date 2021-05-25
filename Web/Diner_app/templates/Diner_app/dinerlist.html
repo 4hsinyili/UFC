@@ -1,0 +1,138 @@
+{% extends 'Diner_app/base.html' %}
+
+{% block website_title %}
+    <title>Diner_List</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Diner_app/css/dinerlist.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Diner List</h1>
+    <div class="container">
+        <div id="search" class="row text-center">
+            <input class="form-control input-sm" placeholder="search">
+        </div>
+        <div class="filter-sorter-toggle row d-flex justify-content-center">
+            <div id="toggle-filters" class=" text-center btn btn-primary btn-sm col-3 toggle-button">filters</div>
+            <div id="toggle-sorters" class=" text-center btn btn-primary btn-sm col-3 toggle-button">sorters</div>
+            <div name='send-filters' class="btn btn-primary btn-sm col-3">send filters</div>
+        </div>
+    </div>
+    <div id='filters-section' class="container" style="display: none;">
+        <div id='filters' class="container">
+            <div name='filter' data-number=0 class="row">
+                <select name="filter-type" data-number=0 class="form-select">
+                    <option value='default'></option>
+                    <option value="deliver_fee">deliver_fee</option>
+                    <option value="deliver_time">deliver_time</option>
+                    <option value="FP_choice">FP_choice</option>
+                    <option value="UE_choice">UE_choice</option>
+                    <option value="budget">budget</option>
+                    <option value="rating">rating</option>
+                    <option value="view_count">view_count</option>
+                    <option value="tags">tags</option>
+                    <option value="open_days">open_days</option>
+                </select>
+                <div name="filter-operator" data-number=0 class="col">
+                    <select name="filter-operator" class="deliver_fee deliver_time budget rating view_count form-select" data-number=0>
+                        <option value='default'></option>
+                        <option value='$gt'>></option>
+                        <option value='$gte'>>=</option>
+                        <option value='$eq'>=</option>
+                        <option value='$lte'><=</option>
+                        <option value='$lt'><</option>
+                    </select>
+                    <select name="filter-operator" class="FP_choice UE_choice form-select" data-number=0>
+                        <option value='$eq'>=</option>
+                    </select>
+                    <select name="filter-operator" class="tags form-select" data-number=0>
+                        <option value='$in'>=</option>
+                    </select>
+                    <select name="filter-operator" class="open_days form-select" data-number=0>
+                        <option value='$in'>=</option>
+                    </select>
+                </div> 
+                <div name="filter-value" data-number=0 class="col">
+                    <select name="filter-value" class="deliver_fee form-select" data-number=0 data-type='number'>
+                        <option value="default" disabled selected>Select deliver_fee</option>
+                    </select>
+                    <select name="filter-value" class="deliver_time form-select" data-number=0 data-type='number'>
+                        <option value="default" disabled selected>Select deliver_time</option>
+                    </select>
+                    <select name="filter-value" class="FP_choice form-select" data-number=0 data-type='number'>
+                        <option value="default" disabled selected>Select FP_choice</option>
+                        <option value=1>Yes</option>
+                        <option value=0>No</option>
+                    </select>
+                    <select name="filter-value" class="UE_choice form-select" data-number=0 data-type='number'>
+                        <option value="default" disabled selected>Select UE_choice</option>
+                        <option value=1>Yes</option>
+                        <option value=0>No</option>
+                    </select>
+                    <select name="filter-value" class="budget form-select" data-number=0 data-type='number'>
+                        <option value="default" disabled selected>Select budget</option>
+                    </select>
+                    <select name="filter-value" class="rating form-select" data-number=0 data-type='float'>
+                        <option value="default" disabled selected>Select rating</option>
+                    </select>
+                    <select name="filter-value" class="view_count form-select" data-number=0 data-type='number'>
+                        <option value="default" disabled selected>Select view_count</option>
+                    </select>
+                    <select name="filter-value" class="tags form-select" data-number=0 data-type='string'>
+                        <option value="default" disabled selected>Select tags</option>
+                    </select>
+                    <select name="filter-value" class="open_days form-select" data-number=0 data-type='string'>
+                        <option value="default" disabled selected>Select open_days</option>
+                        <option value="Mon.">Mon.</option>
+                        <option value="Tue.">Tue.</option>
+                        <option value="Wed.">Wed.</option>
+                        <option value="Thu.">Thu.</option>
+                        <option value="Fri.">Fri.</option>
+                        <option value="Sat.">Sat.</option>
+                        <option value="Sun.">Sun.</option>
+                    </select>
+                </div> 
+                <div name="clear-filter" class="btn btn-warning btn-sm" data-number=0>clear filter</div>
+            </div>
+        </div>
+        <div class="filters-buttons">
+            <div class="container row justify-content-around">
+                <div name='add-new-filter' class="btn btn-light btn-sm col-2">add new filter</div>
+                <div name='clear-all-filter' class="btn btn-danger btn-sm col-2">cleat all filter</div>
+            </div>
+        </div>
+    </div>
+    <div id="sorters-section" class="container" style="display: none;">
+    </div>
+    <div id='diners' class="container">
+        <div id='diner-tamplate' class="row diner" style="display: none;">
+            <div class="col-8">
+                <a class="redirect-href" href="">
+                    <img class="image img-responsive" src="">
+                </a>
+            </div>
+            <div class="col-4">
+                <a class="redirect-href" href="">
+                    <h3 class="title">title</h3>
+                </a>
+                <div class="row">
+                    <a href="ue_url" class="ue_info col-4">
+                        <div class="ue_info">
+                            <p class="rating">${result.rating}</p>
+                            <p class="view_count">${result.view_count}</p>
+                            <p class="budget">${result.budget}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id='show-more' data-offset=0 style="display: none;">show more</div>
+{% endblock %}
+{% block javascript %}
+    {% load static %}
+    <script src="{% static 'Diner_app/js/dinerlist.js' %}"></script>
+{% endblock %}
