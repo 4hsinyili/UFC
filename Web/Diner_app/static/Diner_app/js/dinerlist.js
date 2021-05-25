@@ -52,7 +52,6 @@ function ajaxGet(src, callback){
 } 
 
 function ajaxPost(src, params, callback){
-    console.log(params)
     let initialUrl = src;
     let initaialXhr = new XMLHttpRequest();
     initaialXhr.open('POST', initialUrl, true);
@@ -74,7 +73,6 @@ function clearDIners(){
 
 function renderList(data){
     let results = data.data
-    clearDIners()
     for (let i = 0; i < results.length; i++){
         let result = results[i]
         let diner = dinerTemplate.cloneNode(true)
@@ -95,8 +93,6 @@ function renderList(data){
         let redirectHref = diner.querySelectorAll('.redirect-href')
         for (let i = 0; i < redirectHref.length; i++){
             redirectHref[i].setAttribute('href', redirectUrl)
-            console.log(redirectUrl)
-            console.log(redirectHref[i])
         }
         diners.appendChild(diner)
         $(diner).show()
@@ -242,7 +238,11 @@ function turnFIltersToConditions(filterSet){
     return result
 }
 
-ajaxPost(dinerSearchAPI, initData, renderList)
+
+// start to render
+ajaxPost(dinerSearchAPI, initData, function(response){
+    renderList(response)
+})
 
 ajaxGet(filtersAPI, function(response){
     renderFilters();
@@ -280,7 +280,10 @@ clearAllFilterDom.addEventListener('click', (e)=>{
     result = turnFIltersToConditions(filterSet)
     console.log(result)
     data = {'condition': result, 'offset': 0}
-    ajaxPost(dinerSearchAPI, data, renderList)
+    ajaxPost(dinerSearchAPI, data, function(response){
+        clearDIners()
+        renderList(data)
+    })
 })
 
 $(sendFilterDom).click(function(){
@@ -288,7 +291,10 @@ $(sendFilterDom).click(function(){
     result = turnFIltersToConditions(filterSet)
     console.log(result)
     data = {'condition': result, 'offset': 0}
-    ajaxPost(dinerSearchAPI, data, renderList)
+    ajaxPost(dinerSearchAPI, data, function(response){
+        clearDIners()
+        renderList(response)
+    })
 })
 
 $(showMoreDom).click(function(){
@@ -296,5 +302,7 @@ $(showMoreDom).click(function(){
     let filterSet = $('div[name="filter"]')
     result = turnFIltersToConditions(filterSet)
     data = {'condition': result, 'offset': offset}
-    ajaxPost(dinerSearchAPI, data, renderMore)
+    ajaxPost(dinerSearchAPI, data, function(response){
+        renderMore(response)
+    })
 })
