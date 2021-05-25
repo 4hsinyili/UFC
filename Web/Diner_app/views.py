@@ -101,10 +101,10 @@ class DinerInfo(views.APIView):
         start = time.time()
         diner_id = self.request.query_params.get('diner_id', None)
         if diner_id:
-            diners = uedinerinfo.get_diner(diner_id)
-            diners = list(diners)[0]
-            results = UESerializer(diners, many=False).data
             triggered_at = uechecker.get_triggered_at(uedinerinfo.db, uedinerinfo.collection)
+            diner = uedinerinfo.get_diner(diner_id, triggered_at)
+            diner = list(diner)[0]
+            results = UESerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
             return Response({'data': results})
@@ -132,4 +132,4 @@ def dinerinfo(request):
     response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?diner_id={diner_id}').content
     data = json.loads(response)['data']
     data['view_count'] = int(data['view_count'])
-    return render(request, 'Diner_app/diner.html', {'data': data})
+    return render(request, 'Diner_app/dinerinfo.html', {'data': data})

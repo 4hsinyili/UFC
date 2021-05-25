@@ -271,15 +271,13 @@ class UESearcher():
 
 
 class UEDinerInfo():
-    def __init__(self, db, collection, triggered_at):
+    def __init__(self, db, collection):
         self.db = db
         self.collection = collection
-        self.triggered_at = triggered_at
 
-    def get_diner(self, diner_id):
+    def get_diner(self, diner_id, triggered_at):
         db = self.db
         collection = self.collection
-        triggered_at = self.triggered_at
         match_conditions = {
             "$match": {
                 "triggered_at": triggered_at,
