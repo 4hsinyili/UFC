@@ -1,0 +1,34 @@
+.diner{
+    height: 400px;
+    overflow: auto;
+}
+
+.image{
+    height: auto;
+    overflow: auto;
+    max-width: 100%;
+}
+
+.filters-buttons{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.page-title{
+    margin: 1rem;
+}
+
+.filter-sorter-toggle{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+[name=send-filters]{
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.toggle-button{
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
