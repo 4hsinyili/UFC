@@ -4,7 +4,6 @@ from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from .serializers import UESerializer, FilterSerializer
-from rest_framework.permissions import AllowAny
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
 from .models import UEChecker, UESearcher, UEDinerInfo, Pipeline
@@ -106,7 +105,7 @@ class DinerInfo(views.APIView):
             results = UESerializer(diners, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
-            return Response({'data_count': len(diners), 'data': results})
+            return Response({'data': results})
         else:
             return Response({'message': 'need diner_id'})
 
