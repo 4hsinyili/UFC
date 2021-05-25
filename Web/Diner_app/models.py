@@ -70,16 +70,14 @@ class UEChecker():
         return result
 
 
-class UFFilters():
-    def __init__(self, db, collection, triggered_at):
+class UEFilters():
+    def __init__(self, db, collection):
         self.db = db
         self.collection = collection
-        self.triggered_at = triggered_at
 
-    def get_filters(self):
+    def get_filters(self, triggered_at):
         db = db = self.db
         collection = self.collection
-        triggered_at = self.triggered_at
         rating = self.get_ratings(db, collection, triggered_at)
         rating['rating'].sort()
         tags = self.get_tags(db, collection, triggered_at)

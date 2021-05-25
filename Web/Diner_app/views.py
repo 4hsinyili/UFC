@@ -6,7 +6,7 @@ from rest_framework.parsers import JSONParser
 from .serializers import UESerializer, FilterSerializer
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
-from .models import UEChecker, UESearcher, UEDinerInfo, Pipeline
+from .models import UEChecker, UEFilters, UESearcher, UEDinerInfo, Pipeline
 import env
 from pymongo import MongoClient
 import time
@@ -28,6 +28,7 @@ db = admin_client['ufc_temp']
 uechecker = UEChecker(db, 'ue_detail')
 uesearcher = UESearcher(db, 'ue_detail')
 uedinerinfo = UEDinerInfo(db, 'ue_detail')
+uefilters = UEFilters(db, 'ue_detail')
 
 
 class DinerList(views.APIView):
@@ -115,8 +116,8 @@ class DinerInfo(views.APIView):
 class Filters(views.APIView):
     def get(self, request):
         start = time.time()
-        filters = uechecker.get_filters()
         triggered_at = uechecker.get_triggered_at(uefilters.db, uefilters.collection)
+        filters = uefilters.get_filters(triggered_at)
         data = FilterSerializer(filters, many=False).data
         stop = time.time()
         print('get DinerInfo took: ', stop - start, 's.')
