@@ -1,0 +1,8 @@
+.nav-bar{
+    margin: 1rem;
+    align-self: flex-end;
+}
+
+.nav-tab{
+    float: right;
+}
