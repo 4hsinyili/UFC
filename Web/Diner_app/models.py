@@ -22,9 +22,11 @@ class UEChecker():
         self.db = db
         self.collection = collection
 
-    def get_latest_records(self, pipeline, offset=0, limit=0):
-        db = self.db
-        collection = self.collection
+    def get_latest_records(self, pipeline, db='', collection='', offset=0, limit=0):
+        if db == '':
+            db = self.db
+        if collection == '':
+            collection = self.collection
         pipeline = copy.deepcopy(pipeline)
         if offset > 0:
             pipeline.append({'$skip': offset})
@@ -40,9 +42,19 @@ class UEChecker():
         print('mongodb query took: ', stop - start, 's.')
         return result
 
-    def get_triggered_at(self):
+    def get_count(self, pipeline):
         db = self.db
         collection = self.collection
+        pipeline = copy.deepcopy(pipeline)
+        result = db[collection].aggregate(pipeline=pipeline)
+        result = list(result)[0]['triggered_at']
+        return result
+    
+    def get_triggered_at(self, db='', collection=''):
+        if db == '':
+            db = self.db
+        if collection == '':
+            collection = self.collection
         pipeline = [
             {
                 '$group': {
@@ -55,14 +67,6 @@ class UEChecker():
         ]
         result = db[collection].aggregate(pipeline=pipeline)
         result = list(result)[-1]['triggered_at']
-        return result
-
-    def get_count(self, pipeline):
-        db = self.db
-        collection = self.collection
-        pipeline = copy.deepcopy(pipeline)
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]['triggered_at']
         return result
 
 

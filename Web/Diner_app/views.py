@@ -40,7 +40,7 @@ class DinerList(views.APIView):
             offset = int(offset_param)
         else:
             offset = 0
-        diners = uechecker.get_last_records(Pipeline.ue_list_pipeline, offset, limit=6)
+        diners = uechecker.get_latest_records(Pipeline.ue_list_pipeline, offset, limit=6)
         diners_count = uechecker.get_count(Pipeline.ue_count_pipeline)
         if offset + 6 < diners_count:
             has_more = True
@@ -72,6 +72,7 @@ class DinerSearch(views.APIView):
         offset = request.data['offset']
         diners = uesearcher.get_search_result(condition, offset)
         diners_count = uechecker.get_count(Pipeline.ue_count_pipeline)
+        triggered_at = uechecker.get_triggered_at(uesearcher.db, uesearcher.collection)
         if offset + 6 < diners_count:
             has_more = True
         else:
@@ -103,6 +104,7 @@ class DinerInfo(views.APIView):
             diners = uedinerinfo.get_diner(diner_id)
             diners = list(diners)[0]
             results = UESerializer(diners, many=False).data
+            triggered_at = uechecker.get_triggered_at(uedinerinfo.db, uedinerinfo.collection)
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
             return Response({'data': results})
@@ -114,6 +116,7 @@ class Filters(views.APIView):
     def get(self, request):
         start = time.time()
         filters = uechecker.get_filters()
+        triggered_at = uechecker.get_triggered_at(uefilters.db, uefilters.collection)
         data = FilterSerializer(filters, many=False).data
         stop = time.time()
         print('get DinerInfo took: ', stop - start, 's.')
