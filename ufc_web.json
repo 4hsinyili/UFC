@@ -1,7 +1,7 @@
 {
      "apps": [{
           "name": "django_ufc",
-          "script": "web/manage.py",
+          "script": "Web/manage.py",
           "args": ["runserver", "127.0.0.1:3000"],
           "exec_mode": "fork",
           "instances": "1",
