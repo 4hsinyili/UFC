@@ -114,22 +114,29 @@ class FPDinerDetailCrawler():
     def __init__(self, diners_info_collection):
         self.diners_info = self.get_diners_info(diners_info_collection)
 
-    def get_diners_info(self, diners_info_collection):
+    def get_triggered_at(self, collection):
         pipeline = [
-            {'$match': {'title': {"$exists": True}}},
-            {'$sort': {'triggered_at': -1}},
-            {'$group': {
-                '_id': {
-                    'title': '$title',
-                    'link': '$link',
-                    'deliver_fee': '$deliver_fee',
-                    'deliver_time': '$deliver_time',
-                    'FP_choice': '$FP_choice',
-                    'uuid': '$uuid',
-                    'triggered_at': '$triggered_at'
-                },
-                'triggered_at': {'$last': '$triggered_at'}
-            }}
+            {
+                '$sort': {'triggered_at': 1}
+            },
+            {
+                '$group': {
+                    '_id': None,
+                    'triggered_at': {'$last': '$triggered_at'}
+                    }
+            }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline)
+        result = list(result)[0]['triggered_at']
+        return result
+
+    def get_diners_info(self, diners_info_collection):
+        triggered_at = self.get_triggered_at(diners_info_collection)
+        pipeline = [
+            {'$match': {
+                'title': {"$exists": True},
+                'triggered_at': triggered_at
+                }}
         ]
         result = db[diners_info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
@@ -190,7 +197,6 @@ class FPDinerDetailCrawler():
         error_logs = []
         loop_count = 0
         for diner in diners_info:
-            diner = diner['_id']
             diner, error_log = self.get_diner_detail_from_FP_API(diner)
             if diner:
                 diners.append(diner)
@@ -331,69 +337,83 @@ class FPDinerDetailCrawler():
 
 
 class FPChecker():
-    def __init__(self, db, collection, pipeline):
+    def __init__(self, db, collection):
         self.db = db
         self.collection = collection
-        self.pipeline = pipeline
+
+    def get_triggered_at(self):
+        collection = self.collection
+        pipeline = [
+            {
+                '$sort': {'triggered_at': 1}
+            },
+            {
+                '$group': {
+                    '_id': None,
+                    'triggered_at': {'$last': '$triggered_at'}
+                    }
+            }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline)
+        result = list(result)[0]['triggered_at']
+        return result
 
     def get_last_records(self, limit=0):
         db = self.db
         collection = self.collection
-        pipeline = self.pipeline
+        triggered_at = self.get_triggered_at()
+        pipeline = [
+            {'$match': {
+                'title': {"$exists": True},
+                'triggered_at': triggered_at
+                }}, {
+                '$sort': {'uuid': 1}
+                }
+        ]
         if limit > 0:
             pipeline.append({'$limit': limit})
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        # result = [i['_id'] for i in result]
+        return result
+
+    def get_last_errorlogs(self):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.get_triggered_at()
+        pipeline = [
+            {'$match': {
+                'title': {"$exists": False},
+                'triggered_at': triggered_at
+                }}
+        ]
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
 
 if __name__ == '__main__':
-    start = time.time()
-    d_list_crawler = FPDinerListCrawler()
-    d_list_crawler.main(target, db=db, collection='fp_list')
-    stop = time.time()
-    pprint.pprint(stop - start)
+    # start = time.time()
+    # d_list_crawler = FPDinerListCrawler()
+    # d_list_crawler.main(target, db=db, collection='fp_list')
+    # stop = time.time()
+    # pprint.pprint(stop - start)
 
-    time.sleep(10)
+    # time.sleep(10)
 
-    d_detail_crawler = FPDinerDetailCrawler('fp_list')
-    start = time.time()
-    diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=0)
-    stop = time.time()
-    pprint.pprint(stop - start)
-    time.sleep(5)
+    # d_detail_crawler = FPDinerDetailCrawler('fp_list')
+    # start = time.time()
+    # diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=0)
+    # stop = time.time()
+    # pprint.pprint(stop - start)
+    # time.sleep(5)
     # pprint.pprint(diners)
-    # pipeline = [
-    #         {'$match': {'title': {"$exists": True}}},
-    #         {'$sort': {'triggered_at': -1}},
-    #         {'$group': {
-    #             '_id': {
-    #                 'title': '$title',
-    #                 'link': '$link',
-    #                 'deliver_fee': '$deliver_fee',
-    #                 'deliver_time': '$deliver_time',
-    #                 'FP_choice': '$FP_choice',
-    #                 'uuid': '$uuid',
-    #                 'triggered_at': '$triggered_at',
-    #                 'menu': '$menu',
-    #                 'budget': '$budget',
-    #                 'rating': '$rating',
-    #                 'view_count': '$view_count',
-    #                 'image': '$image',
-    #                 'tags': '$tags',
-    #                 'address': '$address',
-    #                 'gps': '$gps',
-    #                 'open_hours': '$open_hours',
-    #             },
-    #             'triggered_at': {'$last': '$triggered_at'}
-    #         }},
-    #         {'$sort': {'uuid': 1}}
-    #     ]
-    # checker = FPChecker(db, 'fp_detail', pipeline)
-    # last_records = checker.get_last_records()
-    # loop_count = 0
-    # for record in last_records:
-    #     if loop_count == 10:
-    #         break
-    #     print(record['_id']['deliver_time'])
-    #     loop_count += 1
+
+    checker = FPChecker(db, 'fp_detail')
+    last_records = checker.get_last_records()
+    loop_count = 0
+    for record in last_records:
+        if loop_count == 10:
+            break
+        pprint.pprint(record['_id']['deliver_time'])
+        loop_count += 1
+
+    errorlogs = checker.get_last_errorlogs()
+    pprint.pprint(list(errorlogs))
