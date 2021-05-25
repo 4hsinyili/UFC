@@ -71,9 +71,8 @@ class DinerSearch(views.APIView):
         start = time.time()
         condition = request.data['condition']
         offset = request.data['offset']
-        diners = uesearcher.get_search_result(condition, offset)
-        diners_count = uechecker.get_count(Pipeline.ue_count_pipeline)
         triggered_at = uechecker.get_triggered_at(uesearcher.db, uesearcher.collection)
+        diners, diners_count = uesearcher.get_search_result(condition, triggered_at, offset)
         if offset + 6 < diners_count:
             has_more = True
         else:

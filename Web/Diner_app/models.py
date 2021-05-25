@@ -196,15 +196,13 @@ class UEFilters():
 
 
 class UESearcher():
-    def __init__(self, db, collection, triggered_at):
+    def __init__(self, db, collection):
         self.db = db
         self.collection = collection
-        self.triggered_at = triggered_at
 
-    def get_search_result(self, condition, offset=0):
+    def get_search_result(self, condition, triggered_at, offset=0):
         db = self.db
         collection = self.collection
-        triggered_at = self.triggered_at
         match_conditions = {"$match": {
             "triggered_at": triggered_at,
             'title': {'$exists': True}
@@ -233,6 +231,8 @@ class UESearcher():
         except Exception:
             pass
         pipeline = [condition for condition in conditions if condition != {}]
+        result_count = self.get_count(db, collection, pipeline)
+        pprint.pprint(result_count)
         if offset > 0:
             pipeline.append({'$skip': offset})
         limit = {'$limit': 6}
@@ -245,7 +245,29 @@ class UESearcher():
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
-        return result
+        return result, result_count
+
+    def get_count(self, db, collection, pipeline):
+        db = self.db
+        collection = self.collection
+        count_pipeline = copy.deepcopy(pipeline)
+        count_pipeline.extend([
+            {'$group': {
+                '_id': {
+                    'title': '$title',
+                },
+                'triggered_at': {'$last': '$triggered_at'}
+            }},
+            {'$count': 'triggered_at'}
+        ])
+        pprint.pprint(count_pipeline)
+        result = db[collection].aggregate(pipeline=count_pipeline)
+        result = list(result)
+        if len(result) > 0:
+            diners_count = result[0]['triggered_at']
+        else:
+            diners_count = 0
+        return diners_count
 
 
 class UEDinerInfo():
