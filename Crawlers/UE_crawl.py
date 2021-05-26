@@ -604,13 +604,13 @@ class UEChecker():
         for record in records:
             if loop_count > data_range:
                 break
-            pprint.pprint([record['_id'][field] for field in fields])
+            pprint.pprint([record[field] for field in fields])
             loop_count += 1
 
 
 if __name__ == '__main__':
-    running = {'list': True, 'detail': True, 'check': True}
-    data_ranges = {'list': 0, 'detail': 0, 'check': 0}
+    running = {'list': False, 'detail': False, 'check': True}
+    data_ranges = {'list': 0, 'detail': 0, 'check': 1}
 
     if running['list']:
         start = time.time()
