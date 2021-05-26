@@ -1,348 +1,187 @@
 # for db control
 from pymongo import MongoClient, UpdateOne
 
-# for crawling from js-website
-from seleniumwire import webdriver
-from selenium.webdriver.chrome.options import Options
-
-# for html parsing
-from lxml import etree
-
 # for file handling
-import os
-from dotenv import load_dotenv
+import env
 
 # for timing and not to get caught
-import time
-import random
+# import time
+# import random
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+# from dateutil.relativedelta import relativedelta
 
 # for preview
 import pprint
 
+import requests
+from urllib.parse import urlencode
+
 # home-made module
-from Crawlers import UE_crawl
+from Crawlers import UF_combine
 
-load_dotenv()
-MONGO_HOST = os.getenv("MONGO_HOST")
-MONGO_PORT = int(os.getenv("MONGO_PORT"))
-MONGO_ADMIN_USERNAME = os.getenv("MONGO_ADMIN_USERNAME")
-MONGO_ADMIN_PASSWORD = os.getenv("MONGO_ADMIN_PASSWORD")
-
+MONGO_HOST = env.MONGO_HOST
+MONGO_PORT = env.MONGO_PORT
+MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
+MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
+API_KEY = env.PLACE_API_KEY
 admin_client = MongoClient(MONGO_HOST,
                            MONGO_PORT,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 
 db = admin_client['ufc_temp']
-driver_path = os.getenv("DRIVER_PATH")
+matched_checker = UF_combine.MatchedChecker(db, 'matched')
 
 
 class GMCrawler():
-    def __init__(self, driver_path, headless=True, auto_close=True, inspect=False):
-        self.driver = self.chrome_create(driver_path, headless, auto_close,
-                                         inspect)
-
-    def chrome_create(self, driver_path, headless, auto_close, inspect):
-        chrome_options = Options()
-        if headless:
-            chrome_options.add_argument("--headless")
-        if not auto_close:
-            chrome_options.add_experimental_option("detach", True)
-        if inspect:
-            chrome_options.add_argument("--auto-open-devtools-for-tabs")
-        chrome_options.add_experimental_option(
-            'prefs', {'intl.accept_languages': 'en,en_US'})
-        driver = webdriver.Chrome(driver_path, options=chrome_options)
-        driver.delete_all_cookies()
-        driver.implicitly_wait(3)
-        return driver
-
-    def chrome_close(self, driver):
-        driver.close()
-
-    def get_link(self, target, triggered_at):
-        error_log = {}
-        driver = self.driver
-        try:
-            driver.get('https://www.google.com.tw/maps')
-            driver.find_element_by_xpath(
-                '//input[@id="searchboxinput"]').send_keys(target['address'] +
-                                                           target['title'])
-            driver.find_element_by_xpath(
-                '//button[@id="searchbox-searchbutton"]').click()
-            time.sleep(4)
-            if driver.current_url == 'https://www.google.com.tw/maps':
-                time.sleep(4)
-            # time.sleep(3)
-        except Exception:
-            error_log = {'error': 'get place link wrong', 'diner': [target[key] for key in ['title', 'link', 'address']]}
-            return False, error_log
-        # print(driver.current_url)
-        diner = {
-            'title': target['title'],
-            'address': target['address'],
-            'link': driver.current_url,
-            'triggered_at': triggered_at
-        }
-        return diner, error_log
-
-    def get_info(self, diner):
-        error_log = {}
-        driver = self.driver
-        html = driver.page_source
-        selector = etree.HTML(html)
-        try:
-            rating = selector.xpath('//ol[@class="section-star-array"]/@aria-label')[0]
-            rating = rating.replace(' ', '')
-            rating = rating.split('星')[0]
-            rating = float(rating)
-            view_button = selector.xpath(
-                '//button[@jsaction="pane.rating.moreReviews"]'
-            )[0]
-            view_count = view_button.xpath('./text()')[0]
-            view_count = view_count.replace(',', '').replace(' ', '')
-            view_count = view_count.split('則評論')[0]
-            view_count = int(view_count)
-            budget = selector.xpath('//span[contains(., "$")]/text()')
-            if budget == []:
-                budget = 0
-            else:
-                budget = len(budget[0])
-        except Exception:
-            try:
-                driver.find_element_by_xpath("//a[contains(@class, 'place-result-container-place-link']").click()
-                time.sleep(4)
-                rating = selector.xpath('//ol[@class="section-star-array"]/@aria-label')[0]
-                rating = rating.replace(' ', '')
-                rating = rating.split('星')[0]
-                rating = float(rating)
-                view_button = selector.xpath(
-                    '//button[@jsaction="pane.rating.moreReviews"]'
-                )[0]
-                view_count = view_button.xpath('./text()')[0]
-                view_count = view_count.replace(',', '').replace(' ', '')
-                view_count = view_count.split('則評論')[0]
-                view_count = int(view_count)
-                budget = selector.xpath('//span[contains(., "$")]/text()')
-                if budget == []:
-                    budget = 0
-                else:
-                    budget = len(budget[0])
-            except Exception:
-                error_log = {'error': 'get place info wrong', 'diner': [diner[key] for key in ['title', 'link', 'address']]}
-                return False, False, error_log
-        try:
-            driver.find_element_by_xpath('//button[@jsaction="pane.rating.moreReviews"]').click()
-            time.sleep(3.5)
-        except Exception:
-            error_log = {
-                'error': 'get place review page wrong',
-                'diner': [diner[key] for key in ['title', 'link', 'address']]
+    def get_targets(self, db, collection, matched_checker, limit=0):
+        triggered_at = matched_checker.get_triggered_at()
+        last_week = triggered_at - timedelta(weeks=1)
+        grand_last_week = triggered_at - timedelta(weeks=2)
+        pipeline = [
+            {
+                '$match': {
+                    "$or": [
+                        {'triggered_at': {
+                            '$lt': last_week,
+                            '$gte': grand_last_week
+                            }},
+                        {'triggered_at_gm': {'$exists': False}}
+                    ]}
+            }, {
+                '$sort': {'triggered_at': -1}
+            }, {
+                '$group': {
+                    '_id': '$uuid_ue',
+                    'data': {
+                        '$push': {
+                            'title_ue': '$title_ue',
+                            'title_fp': '$title_fp',
+                            'gps_ue': '$gps_ue',
+                            'gps_fp': '$gps_fp',
+                            'triggered_at': '$triggered_at'}
+                        }}
             }
-            return False, False, error_log
-        try:
-            pane = driver.find_element_by_xpath(
-                '//div[contains(@class,"section-layout section-scrollbox")]'
-            )
-            for _ in range(3):
-                driver.execute_script(
-                    "arguments[0].scrollTop = arguments[0].scrollHeight", pane)
-                time.sleep(3.5)
-        except Exception:
-            error_log = {'error': 'scroll review page wrong', 'diner': [diner[key] for key in ['title', 'link', 'address']]}
-            return False, False, error_log
-        try:
-            show_all = driver.find_elements_by_xpath(
-                '//button[@aria-label="顯示更多"]')
-            for button in show_all:
-                button.click()
-        except Exception:
-            error_log = {'error': 'click all review wrong', 'diner': [diner[key] for key in ['title', 'link', 'address']]}
-            return False, False, error_log
-        html = driver.page_source
-        selector = etree.HTML(html)
-        diner['rating'] = rating
-        diner['view_count'] = view_count
-        diner['budget'] = budget
-        return selector, diner, error_log
-
-    def get_reviews(self, selector, diner):
-        error_log = {}
-        try:
-            names = selector.xpath(
-                '//div[@aria-label="所有評論"]/div[position()=last()]/div[position()=last()-1]//div[contains(@class, "section-review")]/@aria-label'
-            )
-            raw_rating = selector.xpath(
-                '//div[@aria-label="所有評論"]/div[position()=last()]/div[position()=last()-1]//div[contains(@class, "section-review")]//span[contains(@class, "section-review-stars")]/@aria-label'
-            )
-            ratings = [
-                int(i.replace(' ', '').split('顆星')[0]) for i in raw_rating
-            ]
-            raw_dates = selector.xpath(
-                '//div[@aria-label="所有評論"]/div[position()=last()]/div[position()=last()-1]//div[contains(@class, "section-review")]//span[contains(@class, "section-review-publish-date")]/text()'
-            )
-        except Exception:
-            error_log = {'error': 'get review metadata wrong', 'diner': [diner[key] for key in ['title', 'link', 'address']]}
-            return False, error_log
-        try:
-            dates = []
-            today = datetime.now().date()
-            for raw_date in raw_dates:
-                scope = raw_date.split(' ')[1]
-                delta = int(raw_date[0])
-                try:
-                    if '天' in scope:
-                        date = today.replace(day=(today.day - delta))
-                    elif '月' in scope:
-                        date = today - relativedelta(months=delta)
-                    elif '週' in scope:
-                        date = today - timedelta(weeks=delta)
-                    elif '年' in scope:
-                        date = today.replace(year=(today.year - delta))
-                except Exception:
-                    index = raw_dates.index(raw_date)
-                    print(index, names[index], raw_date)
-                    date = today
-                date_time = datetime.combine(date, datetime.min.time())
-                dates.append(date_time)
-        except Exception:
-            error_log = {'error': 'parse review date wrong', 'diner': [diner[key] for key in ['title', 'link', 'address']]}
-            return False, error_log
-        try:
-            raw_content = selector.xpath(
-                '//div[@aria-label="所有評論"]/div[position()=last()]/div[position()=last()-1]//div[contains(@class, "section-review")]//span[contains(@class, "section-review-text")]/text()'
-            )
-            content = [
-                i.replace("\n",
-                          '').replace('\u2028',
-                                      '').replace('\u2029',
-                                                  '').replace('\uFEFF', '')
-                for i in raw_content
-            ]
-        except Exception:
-            error_log = {'error': 'parse review content wrong', 'diner': [diner[key] for key in ['title', 'link', 'address']]}
-            return False, error_log
-        indexes = range(len(names))
-        try:
-            reviews = [{
-                'name': names[i],
-                'rating': ratings[i],
-                'date': dates[i],
-                'review': content[i]
-            } for i in indexes]
-        except Exception:
-            error_log = {'error': 'assemble reviews wrong', 'diner': [diner[key] for key in ['title', 'link', 'address']]}
-            return False, error_log
-        diner['reviews'] = reviews
-        return diner, error_log
-
-    def main(self, targets, db, collection):
-        diners = []
-        error_logs = []
-        now = datetime.now()
-        triggered_at = datetime.combine(now.date(), datetime.min.time())
-        triggered_at = triggered_at.replace(hour=now.hour)
-        loop_count = 0
-        for target in targets:
-            diner, error_log = self.get_link(target, triggered_at)
-            time.sleep(1)
-            loop_count += 1
-            if loop_count % 500 == 0:
-                time.sleep(random.randint(10, 30))
-            if diner:
-                selector, diner, error_log = self.get_info(diner)
-            else:
-                print('error while try to get ', target['title'], "'s link.")
-                error_logs.append(error_log)
-                continue
-            if diner:
-                diner, error_log = self.get_reviews(selector, diner)
-            else:
-                print('error while try to get ', target['title'], "'s info.")
-                error_logs.append(error_log)
-                continue
-            if diner:
-                diners.append(diner)
-            else:
-                print('error while try to get ', target['title'], "'s reviews.")
-                error_logs.append(error_log)
-                continue
-        print('error_logs:', error_logs)
-        self.driver.close()
-        if error_logs == []:
-            pass
-        else:
-            db[collection].insert_one({'link': '', 'triggered_at': triggered_at, 'error_logs': error_logs})
-        if diners:
-            records = []
-            for diner in diners:
-                if diner:
-                    record = UpdateOne(
-                        {'link': diner['link'], 'triggered_at': diner['triggered_at']},
-                        {'$setOnInsert': diner},
-                        upsert=True
-                        )
-                    records.append(record)
-            db[collection].bulk_write(records)
-        return diners, error_logs
-
-
-class GMChecker():
-    def __init__(self, db, collection, pipeline):
-        self.db = db
-        self.collection = collection
-        self.pipeline = pipeline
-
-    def get_last_records(self):
-        db = self.db
-        collection = self.collection
-        pipeline = self.pipeline
+        ]
+        if limit > 0:
+            pipeline.append({'$limit': limit})
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
+    def generate_triggered_at():
+        now = datetime.now()
+        triggered_at = datetime.combine(now.date(), datetime.min.time())
+        triggered_at = triggered_at.replace(hour=now.hour)
+        return triggered_at
+
+    def parse_targets(self, targets):
+        parsed_targets = []
+        for target in targets:
+            target = target['data']
+            if target['title_fp'] == '':
+                title = target['title_ue']
+            else:
+                title = target['title_fp']
+            if target['gps_fp'] == '':
+                gps = target['gps_ue']
+            else:
+                gps = target['gps_fp']
+            parsed_target = {
+                'title': title,
+                'gps': tuple(gps),
+                'triggered_at': target['triggered_at'],
+                'uuid_ue': target['uuid_ue'],
+                'uuid_fp': target['uuid_fp'],
+            }
+            parsed_targets.append(parsed_target)
+        return parsed_targets
+
+    def get_url(self, target, api_key):
+        data_type = 'json'
+        endpoint = f"https://maps.googleapis.com/maps/api/place/findplacefromtext/{data_type}"
+        params = {
+            "input": target['title'],
+            "inputtype": "textquery",
+            "key": api_key,
+            'locationbias': f"circle:50@{target['gps']}",
+            "language": "zh-TW",
+            "fields": "name,rating,user_ratings_total,place_id"
+        }
+        url_params = urlencode(params)
+        url = f"{endpoint}?{url_params}"
+        return url
+
+    def find_places(self, url):
+        r = requests.get(url)
+        places = r.json()
+        return places
+
+    def parse_places(self, places, triggered_at_gm):
+        if (places['status'] == 'OK') and (places['candidates'] != []):
+            place = places['candidates'][0]
+            diner = {
+                'title_gm': place['name'],
+                'rating_gm': place['rating'],
+                'view_count_gm': place['user_ratings_total'],
+                'uuid_gm': place['place_id'],
+                'link_gm': 'https://www.google.com/maps/place/?q=place_id:' + place['place_id'],
+                'triggered_at_gm': triggered_at_gm
+
+            }
+            return diner
+        else:
+            diner = {
+                'title_gm': '',
+                'rating_gm': 0,
+                'view_count_gm': 0,
+                'uuid_gm': '',
+                'link_gm': '',
+                'triggered_at_gm': triggered_at_gm
+            }
+            return diner
+
+    def transfer_diners_to_records(self, diners):
+        records = []
+        for diner in diners:
+            record = UpdateOne(
+                {
+                    'uuid_ue': diner['uuid_ue'],
+                    'uuid_fp': diner['uuid_fp'],
+                    'triggered_at': diner['triggered_at']
+                    }, {'$setOnInsert': diner}, upsert=True
+            )
+            records.append(record)
+        return records
+
+    def save_to_gm_placed(self, db, collection, records):
+        db[collection].bulk_write(records)
+
+    def save_to_matched(self, db, collection, records):
+        db[collection].bulk_write(records)
+
+    def main(self, db, matched_checker, api_key, limit=0):
+        triggered_at_gm = self.generate_triggered_at()
+        targets = self.get_targets(db, 'matched', matched_checker, limit)
+        targets = self.parse_targets(targets)
+        diners = []
+        for target in targets:
+            url = self.get_url(target, api_key)
+            places = self.find_places(url)
+            diner = self.parse_places(places, triggered_at_gm)
+            diner.update(target)
+            for key in ['title', 'gps']:
+                del diner[key]
+                diners.append(diner)
+            else:
+                continue
+        records = self.transfer_diners_to_records(diners)
+        self.save_to_matched(db, 'matched', records)
+        self.save_to_gm_placed(db, 'gm_placed', records)
+        pprint.pprint(diners[0])
+
 
 if __name__ == '__main__':
-    uechecker = UE_crawl.UEChecker(db, 'ue_detail')
-    targets = uechecker.get_last_records(3)
-    targets = list(targets)
-    start = time.time()
-    link_crawler = GMCrawler(driver_path=driver_path,
-                             headless=True,
-                             auto_close=True,
-                             inspect=False)
-    c_start = time.time()
-    diners, error_logs = link_crawler.main(targets, db=db, collection='gm_detail')
-    stop = time.time()
-    print(stop - start)
-    print((stop - c_start)//3)
-    pprint.pprint(diners)
-    time.sleep(5)
-
-    pipeline = [
-        {'$match': {'title': {"$exists": True}}},
-        {'$sort': {'triggered_at': -1}},
-        {'$group': {
-            '_id': {
-                'title': '$title',
-                'link': '$link',
-                'triggered_at': '$triggered_at',
-                'budget': '$budget',
-                'rating': '$rating',
-                'view_count': '$view_count',
-                'reviews': '$reviews',
-                'address': '$address'
-            },
-            'triggered_at': {'$last': '$triggered_at'}
-        }},
-        {'$sort': {'uuid': 1}}
-    ]
-    checker = GMChecker(db, 'gm_detail', pipeline)
-    last_records = checker.get_last_records()
-    loop_count = 0
-    for record in last_records:
-        if loop_count == 10:
-            break
-        print(record['_id']['title'])
-        loop_count += 1
+    crawler = GMCrawler()
+    # crawler.main(db, matched_checker, API_KEY, 10)
+    targets = crawler.get_targets(db, 'matched', matched_checker, 1)
+    pprint.pprint(next(targets))
