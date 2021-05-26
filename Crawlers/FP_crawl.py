@@ -388,32 +388,39 @@ class FPChecker():
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
+    def check_records(self, records, fields, data_range):
+        loop_count = 0
+        for record in records:
+            if loop_count > data_range:
+                break
+            pprint.pprint([record['_id'][field] for field in fields])
+            loop_count += 1
+
 
 if __name__ == '__main__':
-    # start = time.time()
-    # d_list_crawler = FPDinerListCrawler()
-    # d_list_crawler.main(target, db=db, collection='fp_list')
-    # stop = time.time()
-    # pprint.pprint(stop - start)
+    running = {'list': True, 'detail': True, 'check': True}
+    data_ranges = {'list': 0, 'detail': 0, 'check': 0}
+    if running['list']:
+        start = time.time()
+        list_crawler = FPDinerListCrawler()
+        list_crawler.main(target, db=db, collection='fp_list')
+        stop = time.time()
+        time.sleep(10)
+        pprint.pprint(stop - start)
 
-    # time.sleep(10)
+    if running['detail']:
+        start = time.time()
+        data_range = data_ranges['list']
+        detail_crawler = FPDinerDetailCrawler('fp_list')
+        diners, error_logs = detail_crawler.main(db=db, collection='fp_detail', data_range=data_range)
+        stop = time.time()
+        time.sleep(5)
+        pprint.pprint(stop - start)
 
-    # d_detail_crawler = FPDinerDetailCrawler('fp_list')
-    # start = time.time()
-    # diners, error_logs = d_detail_crawler.main(db=db, collection='fp_detail', data_range=0)
-    # stop = time.time()
-    # pprint.pprint(stop - start)
-    # time.sleep(5)
-    # pprint.pprint(diners)
-
-    checker = FPChecker(db, 'fp_detail')
-    last_records = checker.get_last_records()
-    loop_count = 0
-    for record in last_records:
-        if loop_count == 10:
-            break
-        pprint.pprint(record['_id']['deliver_time'])
-        loop_count += 1
-
-    errorlogs = checker.get_last_errorlogs()
-    pprint.pprint(list(errorlogs))
+    if running['check']:
+        data_range = data_ranges['check']
+        checker = FPChecker(db, 'fp_detail')
+        last_records = checker.get_last_records(data_range)
+        errorlogs = checker.get_last_errorlogs()
+        checker.check_records(last_records, ['title', 'deliver_time'], 1)
+        pprint.pprint(list(errorlogs))
