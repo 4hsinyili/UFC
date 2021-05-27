@@ -4,7 +4,15 @@ let dinerSearchAPI = 'api/v1/dinersearch'
 let domain = window.location.origin
 let dinerInfoRoute = domain.concat('/dinerinfo')
 let initData = {'condition': {}, 'offset': 0}
-
+let openDaysMap = {
+    1: 'Mon.',
+    2: 'Tue.',
+    3: 'Wed.',
+    4: 'Thu.',
+    5: 'Fri.',
+    6: 'Sat.',
+    7: 'Sun.',
+}
 // Doms
 let diners = document.getElementById('diners')
 let filters = document.getElementById('filters')
