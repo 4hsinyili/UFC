@@ -152,52 +152,45 @@ class UEDinerListCrawler():
             driver = self.driver
         error_log = {}
         responses = []
-        raw_responses = []
         start = time.time()
-        try:
-            for request in driver.requests:
-                if request.url == 'https://www.ubereats.com/api/getFeedV1?localeCode=tw':
-                    raw_responses.append(json.loads(request.response.body))
-                    diners = json.loads(
-                        request.response.body)['data']['feedItems']
-                    if diners == []:
-                        continue
-                    elif diners[0]['type'] == 'STORE':
-                        diners = json.loads(
-                            request.response.body)['data']['storesMap']
-                    try:
-                        response = self.get_diner_response(diners)
+        for request in driver.requests:
+            if request.url == 'https://www.ubereats.com/api/getFeedV1?localeCode=tw':
+                data = json.loads(
+                    request.response.body)['data']
+                try:
+                    response = self.get_response＿content(data)
+                    if response:
                         responses.extend(response)
-                    except Exception:
-                        error_log = {'error': 'parse selenium response wrong'}
-                        return False, error_log
-        except Exception:
-            error_log = {'error': 'get selenium response wrong'}
-            return False, error_log
+                except Exception:
+                    error_log = {'error': 'parse selenium response wrong'}
+                    return False, error_log
         stop = time.time()
         print(stop - start)
         responses = list(set(responses))
         dict_response = {i[0]: i[1] for i in responses}
         return dict_response, error_log
 
-    def get_diner_response(self, diners):
-        results = []
-        if type(diners) == list:
-            for diner in diners:
-                try:
-                    if diner['analyticsLabel'] == 'store_front':
-                        uuid = diner['uuid']
-                        title = diner['store']['title']['text']
-                        results.append((title, uuid))
-                    else:
-                        pass
-                except Exception:
-                    pprint.pprint(diner)
-        elif (type(diners) == dict) & (diners != {}):
-            for uuid in diners:
-                title = diners[uuid]['title']
-                results.append((title, uuid))
-        return results
+    def get_response＿content(self, data):
+        feed_items = data['feedItems']
+        contents = []
+        if feed_items == []:
+            return False
+        check_storemap = False
+        for feed_item in feed_items:
+            if feed_item['type'] == 'STORE':
+                check_storemap = True
+            elif feed_item['type'] == 'REGULAR_STORE':
+                uuid = feed_item['uuid']
+                title = feed_item['store']['title']['text']
+                content = (title, uuid)
+                contents.append(content)
+        if check_storemap:
+            stores_map = data['storesMap']
+            for uuid in stores_map:
+                title = stores_map[uuid]['title']
+                content = (title, uuid)
+                contents.append(content)
+        return contents
 
     def get_diner_divs(self, selector):
         diner_divs = selector.xpath('''
