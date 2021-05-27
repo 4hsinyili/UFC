@@ -253,7 +253,7 @@ class UEDinerListCrawler():
             ) for record in diners_info]
             db[info_collection].bulk_write(records)
         else:
-            print(error_log['error'])
+            print(error_log)
         self.chrome_close(self.driver)
 
 

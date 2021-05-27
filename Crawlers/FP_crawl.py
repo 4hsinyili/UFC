@@ -107,7 +107,7 @@ class FPDinerListCrawler():
             db[collection].bulk_write(records)
         else:
             # print(diners_info)
-            print(error_log['error'])
+            print(error_log)
 
 
 class FPDinerDetailCrawler():
