@@ -400,6 +400,8 @@ class FPChecker():
 if __name__ == '__main__':
     running = {'list': False, 'detail': False, 'check': True}
     data_ranges = {'list': 0, 'detail': 0, 'check': 1}
+    check_collection = 'fp_list'
+
     if running['list']:
         start = time.time()
         list_crawler = FPDinerListCrawler()
@@ -419,8 +421,8 @@ if __name__ == '__main__':
 
     if running['check']:
         data_range = data_ranges['check']
-        checker = FPChecker(db, 'fp_detail')
+        checker = FPChecker(db, check_collection)
         last_records = checker.get_last_records(data_range)
         errorlogs = checker.get_last_errorlogs()
-        checker.check_records(last_records, ['title', 'deliver_time'], 1)
+        checker.check_records(last_records, ['title', 'deliver_time', 'triggered_at'], data_range)
         pprint.pprint(list(errorlogs))
