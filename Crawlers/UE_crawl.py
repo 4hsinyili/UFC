@@ -94,7 +94,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(3)
+        time.sleep(5)
         try:
             try:
                 driver.find_element_by_xpath('//button[.="Find Food"]').click()
@@ -105,7 +105,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(3)
+        time.sleep(5)
         if lang == 'en':
             locator_xpath = '//button[text() = "Show more"]'
             locator = (By.XPATH, '//button[text() = "Show more"]')
@@ -114,11 +114,11 @@ class UEDinerListCrawler():
             locator = (By.XPATH, '//button[text() = "顯示更多餐廳"]')
         try:
             while len(driver.find_elements_by_xpath(locator_xpath)) > 0:
-                WebDriverWait(driver, 30, 0.5).until(
-                    EC.presence_of_element_located(locator))
-                driver.find_element_by_xpath(locator_xpath).send_keys(
-                    Keys.ENTER)
                 try:
+                    WebDriverWait(driver, 30, 0.5).until(
+                        EC.presence_of_element_located(locator))
+                    driver.find_element_by_xpath(locator_xpath).send_keys(
+                        Keys.ENTER)
                     WebDriverWait(driver, 30, 0.5).until(
                         EC.presence_of_element_located(locator))
                 except Exception:
