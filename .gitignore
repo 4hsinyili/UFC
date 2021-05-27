@@ -23,3 +23,5 @@ headless-chromium
 libgconf-2.so.4
 
 libORBit-2.so.0
+
+sql.txt
