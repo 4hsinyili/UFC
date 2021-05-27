@@ -3,13 +3,10 @@ from pymongo import MongoClient, UpdateOne
 
 # for crawling from js-website
 from seleniumwire import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
-# from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
-# from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 # for crawling from API
 import requests
@@ -19,8 +16,8 @@ from lxml import etree
 
 # for file handling
 import os
-from dotenv import load_dotenv
 import json
+import env
 
 # for timing and not to get caught
 import time
@@ -30,59 +27,137 @@ from datetime import datetime
 # for preview
 import pprint
 
-load_dotenv()
 
-MONGO_HOST = os.getenv("MONGO_HOST")
-MONGO_PORT = int(os.getenv("MONGO_PORT"))
-MONGO_ADMIN_USERNAME = os.getenv("MONGO_ADMIN_USERNAME")
-MONGO_ADMIN_PASSWORD = os.getenv("MONGO_ADMIN_PASSWORD")
+MONGO_HOST = env.MONGO_HOST
+MONGO_PORT = env.MONGO_PORT
+MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
+MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
 
 admin_client = MongoClient(MONGO_HOST,
                            MONGO_PORT,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 
-target = {
-    'name': 'Appworks School',
-    'address': '110台北市信義區基隆路一段178號',
-    'gps': (25.0424488, 121.562731)
-}
+targets = [
+    {
+        'title': 'Appworks School',
+        'address': '110台北市信義區基隆路一段178號',
+        'gps': (25.0424488, 121.562731)
+    }, {
+        'title': '宏大弘資源回收場',
+        'address': '105台北市松山區撫遠街409號',
+        'gps': (25.0657733, 121.5649126)
+    }, {
+        'title': '永清工程行',
+        'address': '115南港區成福路121巷30號',
+        'gps': (25.0424398, 121.5858762)
+    }, {
+        'title': '7-ELEVEN 惠安門市',
+        'address': '110台北市信義區吳興街520號',
+        'gps': (25.0221574, 121.5666836)
+    }, {
+        'title': '路易莎咖啡',
+        'address': '106台北市大安區忠孝東路三段217巷4弄2號',
+        'gps': (25.0424876, 121.5400285)
+    }
+]
+
 db = admin_client['ufc_temp']
-driver_path = os.getenv("DRIVER_PATH")
+driver_path = env.driver_path
 
 
 class UEDinerListCrawler():
-    def __init__(self, driver_path, headless, auto_close, inspect):
+    def __init__(self, driver_path='lambda', headless=False, auto_close=False, inspect=False):
         self.driver = self.chrome_create(driver_path, headless, auto_close,
                                          inspect)
 
     def chrome_create(self,
                       driver_path,
-                      headless=False,
-                      auto_close=False,
-                      inspect=False):
-        chrome_options = Options()
-        if headless:
-            chrome_options.add_argument("--headless")
-        if not auto_close:
-            chrome_options.add_experimental_option("detach", True)
-        if inspect:
-            chrome_options.add_argument("--auto-open-devtools-for-tabs")
-        chrome_options.add_experimental_option(
-            'prefs', {'intl.accept_languages': 'en,en_US'})
-        driver = webdriver.Chrome(driver_path, options=chrome_options)
-        driver.delete_all_cookies()
-        driver.implicitly_wait(2)
-        return driver
+                      headless,
+                      auto_close,
+                      inspect):
+        if driver_path != 'lambda':
+            chrome_options = webdriver.ChromeOptions()
+            if headless:
+                chrome_options.add_argument("--headless")
+            if not auto_close:
+                chrome_options.add_experimental_option("detach", True)
+            if inspect:
+                chrome_options.add_argument("--auto-open-devtools-for-tabs")
+            chrome_options.add_experimental_option(
+                'prefs', {'intl.accept_languages': 'en,en_US'})
+            driver = webdriver.Chrome(driver_path, options=chrome_options)
+            driver.delete_all_cookies()
+            driver.implicitly_wait(2)
+            return driver
+        else:
+            options = webdriver.ChromeOptions()
+            lambda_options = [
+                    '--autoplay-policy=user-gesture-required',
+                    '--disable-background-networking',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-breakpad',
+                    '--disable-client-side-phishing-detection',
+                    '--disable-component-update',
+                    '--disable-default-apps',
+                    '--disable-dev-shm-usage',
+                    '--disable-domain-reliability',
+                    '--disable-extensions',
+                    '--disable-features=AudioServiceOutOfProcess',
+                    '--disable-hang-monitor',
+                    '--disable-ipc-flooding-protection',
+                    '--disable-notifications',
+                    '--disable-offer-store-unmasked-wallet-cards',
+                    '--disable-popup-blocking',
+                    '--disable-print-preview',
+                    '--disable-prompt-on-repost',
+                    '--disable-renderer-backgrounding',
+                    '--disable-setuid-sandbox',
+                    '--disable-speech-api',
+                    '--disable-sync',
+                    '--disk-cache-size=33554432',
+                    '--hide-scrollbars',
+                    '--ignore-gpu-blacklist',
+                    '--ignore-certificate-errors',
+                    '--metrics-recording-only',
+                    '--mute-audio',
+                    '--no-default-browser-check',
+                    '--no-first-run',
+                    '--no-pings',
+                    '--no-sandbox',
+                    '--no-zygote',
+                    '--password-store=basic',
+                    '--use-gl=swiftshader',
+                    '--use-mock-keychain',
+                    '--single-process',
+                    '--headless']
+
+            # chrome_options.add_argument('--disable-gpu')
+            for argument in lambda_options:
+                options.add_argument(argument)
+
+            user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
+            options.add_argument(f'user-agent={user_agent}')
+            options.binary_location = os.getcwd() + "/bin/headless-chromium"
+            driver = webdriver.Chrome(
+                executable_path=os.getcwd() + "/bin/chromedriver",
+                chrome_options=options,
+                seleniumwire_options={
+                    'request_storage_base_dir': '/tmp'
+                }
+            )
+            driver.implicitly_wait(8)
+            return driver
 
     def chrome_close(self, driver):
         driver.close()
 
-    def send_location_to_UE(self, target, html_collection,
-                            responses_collection):
-        now = datetime.now()
+    def send_location_to_UE(self, target):
+        now = datetime.utcnow()
         triggered_at = datetime.combine(now.date(), datetime.min.time())
         triggered_at = triggered_at.replace(hour=now.hour)
+        print('Start getting diners list of ', target['title'], 'begin at', triggered_at, '.')
         error_log = {}
         start = time.time()
         driver = self.driver
@@ -94,7 +169,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(5)
+        time.sleep(10)
         try:
             try:
                 driver.find_element_by_xpath('//button[.="Find Food"]').click()
@@ -105,7 +180,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(5)
+        time.sleep(10)
         if lang == 'en':
             locator_xpath = '//button[text() = "Show more"]'
             locator = (By.XPATH, '//button[text() = "Show more"]')
@@ -115,11 +190,11 @@ class UEDinerListCrawler():
         try:
             while len(driver.find_elements_by_xpath(locator_xpath)) > 0:
                 try:
-                    WebDriverWait(driver, 30, 0.5).until(
+                    WebDriverWait(driver, 40, 0.5).until(
                         EC.presence_of_element_located(locator))
                     driver.find_element_by_xpath(locator_xpath).send_keys(
                         Keys.ENTER)
-                    WebDriverWait(driver, 30, 0.5).until(
+                    WebDriverWait(driver, 40, 0.5).until(
                         EC.presence_of_element_located(locator))
                 except Exception:
                     break
@@ -127,50 +202,34 @@ class UEDinerListCrawler():
             error_log = {'error': 'scroll wrong'}
             return False, False, error_log
         html = driver.page_source
-        self.save_html_to_mongo(html, error_log, html_collection, triggered_at)
         selector = etree.HTML(html)
-        dict_response, error_log = self.get_diners_response(
-            driver, responses_collection)
-        self.save_responses_to_mongo(error_log, responses_collection, triggered_at)
-        # self.driver.close()
+        dict_response, error_log = self.get_diners_response(driver)
         stop = time.time()
-        print(stop - start)
+        print('Scroll took: ', stop - start)
         return selector, dict_response, error_log, triggered_at
 
-    def save_html_to_mongo(self, html, error_log, collection, triggered_at):
-        record = {'triggered_at': triggered_at, 'html': html, 'error_log': error_log}
-        db[collection].insert_one(record)
-
-    def save_responses_to_mongo(self, error_log, collection, triggered_at):
-        record = {'triggered_at': triggered_at, 'error_log': error_log}
-        db[collection].insert_one(record)
-
     def get_diners_response(self,
-                            driver=None,
-                            responses_collection='responses_collection'):
+                            driver=None):
         if not driver:
             driver = self.driver
         error_log = {}
         responses = []
-        start = time.time()
         for request in driver.requests:
             if request.url == 'https://www.ubereats.com/api/getFeedV1?localeCode=tw':
                 data = json.loads(
                     request.response.body)['data']
                 try:
-                    response = self.get_response＿content(data)
+                    response = self.get_response_content(data)
                     if response:
                         responses.extend(response)
                 except Exception:
                     error_log = {'error': 'parse selenium response wrong'}
                     return False, error_log
-        stop = time.time()
-        print(stop - start)
         responses = list(set(responses))
         dict_response = {i[0]: i[1] for i in responses}
         return dict_response, error_log
 
-    def get_response＿content(self, data):
+    def get_response_content(self, data):
         feed_items = data['feedItems']
         contents = []
         if feed_items == []:
@@ -193,11 +252,19 @@ class UEDinerListCrawler():
         return contents
 
     def get_diner_divs(self, selector):
-        diner_divs = selector.xpath('''
-            //main[@id="main-content"]/div[position()=last()]/div[position()=last()]/div[position()=last()]\
-            /div[position()=last()]/div[position()=last()]/div
-            ''')
-        print(len(diner_divs))
+        try:
+            diner_divs = selector.xpath('''
+                //main[@id="main-content"]/div[position()=last()]/div[position()=last()]/div[position()=last()]\
+                /div[position()=last()]/div[position()=last()]/div
+                ''')
+            diner_divs[0].xpath('.//a')[0].get('href')
+        except Exception:
+            diner_divs = selector.xpath('''
+                //main[@id="main-content"]/div[position()=last()]/div[position()=last()]/div[position()=last()]\
+                /div[position()=last()]/div[position()=last()-1]/div
+                ''')
+            diner_divs[0].xpath('.//a')[0].get('href')
+        print('There are ', len(diner_divs), ' diners on this target.')
         return diner_divs
 
     def get_diner_info(self, diner_div, triggered_at):
@@ -235,17 +302,16 @@ class UEDinerListCrawler():
             diner['uuid'] = dict_response[diner['title']]
         return diners_info
 
-    def main(self, target, db, html_collection, responses_collection,
-             info_collection):
+    def main(self, target, db, info_collection):
+        start = time.time()
         selector, dict_response, error_log, triggered_at = self.send_location_to_UE(
-            target,
-            html_collection=html_collection,
-            responses_collection=responses_collection)
+            target)
         if (type(selector) != bool) and dict_response:
             diner_divs = self.get_diner_divs(selector)
             diners_info = [self.get_diner_info(i, triggered_at) for i in diner_divs]
             diners_info = self.combine_uuid_diners_info(
                 diners_info, dict_response)
+            print('There are ', len(diners_info), ' diners successfully paresed.')
             records = [UpdateOne(
                 {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
                 {'$setOnInsert': record},
@@ -253,13 +319,17 @@ class UEDinerListCrawler():
             ) for record in diners_info]
             db[info_collection].bulk_write(records)
         else:
-            print(error_log)
+            pprint.pprint('Error Logs:')
+            pprint.pprint(error_log)
+        stop = time.time()
+        print('Get diner list near ', target['title'], ' took ', stop - start, ' seconds.')
         self.chrome_close(self.driver)
+        return len(diners_info)
 
 
 class UEDinerDetailCrawler():
-    def __init__(self, info_collection):
-        self.diners_info = self.get_diners_info(info_collection)
+    def __init__(self, info_collection, offset=False, limit=False):
+        self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection):
         pipeline = [
@@ -277,19 +347,28 @@ class UEDinerDetailCrawler():
         result = list(result)[0]['triggered_at']
         return result
 
-    def get_diners_info(self, info_collection):
+    def get_diners_info(self, info_collection, offset=False, limit=False):
         triggered_at = self.get_triggered_at(info_collection)
         pipeline = [
-            {'$match': {
-                'title': {"$exists": True},
-                'triggered_at': triggered_at
-                }}
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                }
+            }, {
+                '$sort': {'uuid': 1}
+                }
         ]
+        if offset:
+            pipeline.append({'$skip': offset})
+        if limit:
+            pipeline.append({'$limit': limit})
         result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
     def get_diner_detail_from_UE_API(self, diner):
-        timestamp = datetime.now().timestamp()
+        now = datetime.utcnow()
+        timestamp = now.replace(hour=(now.hour+8)).timestamp()
         error_log = {}
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
@@ -334,9 +413,11 @@ class UEDinerDetailCrawler():
             diners_info = []
             for _ in range(data_range):
                 diners_info.append(next(diners_cursor))
+        now = datetime.utcnow()
         diners = []
         error_logs = []
         loop_count = 0
+        print('Start crawling ', len(diners_info), 'diners at ', now, '.')
         for diner in diners_info:
             diner, error_log = self.get_diner_detail_from_UE_API(diner)
             if diner:
@@ -346,10 +427,19 @@ class UEDinerDetailCrawler():
             loop_count += 1
             if loop_count % 500 == 0:
                 time.sleep(random.randint(10, 30))
+        print('There are ', len(diners_info), ' diners able to send to Appworks School.')
         return diners, error_logs
 
     def clean_UE_API_response(self, UE_API_response, diner):
         error_log = {}
+        try:
+            in_range, diner = self.get_in_range(UE_API_response, diner)
+            if in_range:
+                pass
+            else:
+                return False, error_log
+        except Exception:
+            return False, error_log
         try:
             diner = self.get_diner_menu(UE_API_response, diner)
         except Exception:
@@ -372,6 +462,16 @@ class UEDinerDetailCrawler():
             }
             return False, error_log
         return diner, error_log
+
+    def get_in_range(self, UE_API_response, diner):
+        try:
+            in_range = UE_API_response['closedMessage']
+            if ('Too far to deliver' in in_range) or ('距離太遠，無法外送' in in_range):
+                return False, diner
+            else:
+                return True, diner
+        except Exception:
+            return False, diner
 
     def get_other_info(self, UE_API_response, diner):
         try:
@@ -443,29 +543,29 @@ class UEDinerDetailCrawler():
         open_hours = []
         open_days = set()
         day_map = {
-            '星期一': 'Mon.',
-            '周一': 'Mon.',
-            '週一': 'Mon.',
-            '星期二': 'Tue.',
-            '周二': 'Tue.',
-            '週二': 'Tue.',
-            '星期三': 'Wed.',
-            '周三': 'Wed.',
-            '週三': 'Wed.',
-            '星期四': 'Thu.',
-            '周四': 'Thu.',
-            '週四': 'Thu.',
-            '星期五': 'Fri.',
-            '周五': 'Fri.',
-            '週五': 'Fri.',
-            '星期六': 'Sat.',
-            '周六': 'Sat.',
-            '週六': 'Sat.',
-            '星期日': 'Sun.',
-            '周日': 'Sun.',
-            '週日': 'Sun.',
+            '星期一': 1,
+            '周一': 1,
+            '週一': 1,
+            '星期二': 2,
+            '周二': 2,
+            '週二': 2,
+            '星期三': 3,
+            '周三': 3,
+            '週三': 3,
+            '星期四': 4,
+            '周四': 4,
+            '週四': 4,
+            '星期五': 5,
+            '周五': 5,
+            '週五': 5,
+            '星期六': 6,
+            '周六': 6,
+            '週六': 6,
+            '星期日': 7,
+            '周日': 7,
+            '週日': 7,
         }
-        days = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.']
+        days = [1, 2, 3, 4, 5, 6, 7]
         for hours in business_hours:
             day_range = hours['dayRange']
             stop_day = None
@@ -476,8 +576,8 @@ class UEDinerDetailCrawler():
                 start_day = day_map[start_day]
                 stop_day = day_map[stop_day]
             elif '每天' == day_range:
-                start_day = 'Mon.'
-                stop_day = 'Sun.'
+                start_day = 1
+                stop_day = 7
             else:
                 start_day = day_range
                 start_day = day_map[start_day]
@@ -513,7 +613,8 @@ class UEDinerDetailCrawler():
         diner['open_days'] = list(open_days)
         return diner
 
-    def main(self, db, collection, data_range):
+    def main(self, db, collection, data_range=0):
+        start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
         triggered_at = diners[0]['triggered_at']
@@ -524,17 +625,19 @@ class UEDinerDetailCrawler():
         if diners:
             records = []
             for diner in diners:
-                if diner:
-                    record = UpdateOne(
-                        {'link': diner['link'], 'triggered_at': diner['triggered_at']},
-                        {'$setOnInsert': diner},
-                        upsert=True
-                        )
-                    records.append(record)
+                record = UpdateOne(
+                    {'link': diner['link'], 'triggered_at': diner['triggered_at']},
+                    {'$setOnInsert': diner},
+                    upsert=True
+                    )
+                records.append(record)
             db[collection].bulk_write(records)
         else:
-            # print(diners_info)
-            print(error_logs)
+            pprint.pprint('Error Logs:')
+            pprint.pprint(error_logs)
+        stop = time.time()
+        if diners:
+            print('Get ', len(diners), ' diner detail took ', stop - start, ' seconds.')
         return diners, error_logs
 
 
@@ -579,6 +682,23 @@ class UEChecker():
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
+    def get_last_records_count(self):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.get_triggered_at()
+        pipeline = [
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                    }
+            }, {
+                '$count': 'triggered_at'
+                }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return next(result)['triggered_at']
+
     def get_last_errorlogs(self):
         db = self.db
         collection = self.collection
@@ -604,20 +724,18 @@ class UEChecker():
 if __name__ == '__main__':
     running = {'list': False, 'detail': False, 'check': True}
     data_ranges = {'list': 0, 'detail': 0, 'check': 3}
-    check_collection = 'ue_list'
+    check_collection = 'ue_detail'
 
     if running['list']:
-        start = time.time()
         list_crawler = UEDinerListCrawler(driver_path=driver_path, headless=True, auto_close=True, inspect=False)
-        list_crawler.main(target, db=db, html_collection='ue_html', responses_collection='ue_responses', info_collection='ue_list')
-        stop = time.time()
-        pprint.pprint(stop - start)
+        diners_count = list_crawler.main(targets[0], db=db, info_collection='ue_list')
+        print(diners_count)
         time.sleep(5)
 
     if running['detail']:
         start = time.time()
         data_range = data_ranges['list']
-        detail_crawler = UEDinerDetailCrawler('ue_list')
+        detail_crawler = UEDinerDetailCrawler('ue_list', offset=False, limit=False)
         diners, error_logs = detail_crawler.main(db=db, collection='ue_detail', data_range=data_range)
         stop = time.time()
         pprint.pprint(stop - start)
@@ -626,6 +744,8 @@ if __name__ == '__main__':
         data_range = data_ranges['check']
         checker = UEChecker(db, check_collection)
         last_records = checker.get_last_records(data_range)
+        last_records_count = checker.get_last_records_count()
         errorlogs = checker.get_last_errorlogs()
         checker.check_records(last_records, ['title', 'deliver_time', 'triggered_at'], data_range)
         pprint.pprint(list(errorlogs))
+        print(last_records_count)

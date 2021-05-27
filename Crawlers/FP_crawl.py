@@ -5,9 +5,8 @@ from pymongo import MongoClient, UpdateOne
 import requests
 
 # for file handling
-import os
-from dotenv import load_dotenv
 import json
+import env
 
 # for timing and not to get caught
 import time
@@ -17,11 +16,10 @@ from datetime import datetime
 # for preview
 import pprint
 
-load_dotenv()
-MONGO_HOST = os.getenv("MONGO_HOST")
-MONGO_PORT = int(os.getenv("MONGO_PORT"))
-MONGO_ADMIN_USERNAME = os.getenv("MONGO_ADMIN_USERNAME")
-MONGO_ADMIN_PASSWORD = os.getenv("MONGO_ADMIN_PASSWORD")
+MONGO_HOST = env.MONGO_HOST
+MONGO_PORT = env.MONGO_PORT
+MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
+MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
 
 admin_client = MongoClient(MONGO_HOST,
                            MONGO_PORT,
@@ -30,18 +28,18 @@ admin_client = MongoClient(MONGO_HOST,
 db = admin_client['ufc_temp']
 
 target = {
-    'name': 'Appworks School',
+    'title': 'Appworks School',
     'address': '110台北市信義區基隆路一段178號',
     'gps': (25.0424488, 121.562731)
 }
-driver_path = os.getenv('DEIVER_PATH')
 
 
 class FPDinerListCrawler():
     def get_diners_info_from_FP_API(self, target):
-        now = datetime.now()
+        now = datetime.utcnow()
         triggered_at = datetime.combine(now.date(), datetime.min.time())
         triggered_at = triggered_at.replace(hour=now.hour)
+        print('Start getting diners list of ', target['title'], 'begin at', triggered_at, '.')
         error_log = {}
         headers = {
             'User-Agent':
@@ -91,9 +89,9 @@ class FPDinerListCrawler():
         return diners_info, error_log
 
     def main(self, target, db, collection):
-        # self.chrome_close(self.driver)
+        start = time.time()
         diners_info, error_log = self.get_diners_info_from_FP_API(target)
-        # print(len(diners_info))
+        print('There are ', len(diners_info), ' diners successfully paresed.')
         if error_log == {}:
             pass
         else:
@@ -106,13 +104,17 @@ class FPDinerListCrawler():
             ) for record in diners_info]
             db[collection].bulk_write(records)
         else:
-            # print(diners_info)
-            print(error_log)
+            pprint.pprint('Error Logs:')
+            pprint.pprint(error_log)
+        stop = time.time()
+        print('Get diner list near ', target['title'], ' took ', stop - start, ' seconds.')
+        return len(diners_info)
 
 
 class FPDinerDetailCrawler():
-    def __init__(self, diners_info_collection):
-        self.diners_info = self.get_diners_info(diners_info_collection)
+    def __init__(self, target, diners_info_collection, offset=False, limit=False):
+        self.diners_info = self.get_diners_info(diners_info_collection, offset, limit)
+        self.target = target
 
     def get_triggered_at(self, collection):
         pipeline = [
@@ -130,22 +132,32 @@ class FPDinerDetailCrawler():
         result = list(result)[0]['triggered_at']
         return result
 
-    def get_diners_info(self, diners_info_collection):
+    def get_diners_info(self, diners_info_collection, offset=False, limit=False):
         triggered_at = self.get_triggered_at(diners_info_collection)
         pipeline = [
-            {'$match': {
-                'title': {"$exists": True},
-                'triggered_at': triggered_at
-                }}
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                    }
+            }, {
+                '$sort': {'uuid': 1}
+            }
         ]
+        if offset:
+            pipeline.append({'$skip': offset})
+        if limit:
+            pipeline.append({'$limit': limit})
         result = db[diners_info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
     def get_diner_detail_from_FP_API(self, diner):
+        target = self.target
         error_log = {}
         try:
             diner_code = diner['uuid']
-            order_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+            now = datetime.utcnow()
+            order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
             order_gps = target['gps']
         except Exception:
             error_log = {'error': 'diner_info wrong', 'diner': diner}
@@ -176,9 +188,11 @@ class FPDinerDetailCrawler():
 
     def get_diner_fee(self, FP_API_response, diner_code, order_gps, headers):
         time.sleep(0.5)
+        now = datetime.utcnow()
+        order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
         error_log = {}
         try:
-            fee_url = f'https://tw.fd-api.com/api/v5/vendors/{diner_code}/delivery-fee?&latitude={order_gps[0]}&longitude={order_gps[1]}&order_time=now&basket_size=0&basket_currency=$&dynamic_pricing=0'
+            fee_url = f'https://tw.fd-api.com/api/v5/vendors/{diner_code}/delivery-fee?&latitude={order_gps[0]}&longitude={order_gps[1]}&order_time={order_time}&basket_size=0&basket_currency=$&dynamic_pricing=0'
             fee_response = requests.get(fee_url, headers=headers)
             FP_API_response['deliver_fee'] = json.loads(fee_response.content)['fee']
         except Exception:
@@ -207,6 +221,7 @@ class FPDinerDetailCrawler():
             loop_count += 1
             if loop_count % 500 == 0:
                 time.sleep(random.randint(10, 30))
+        print('There are ', len(diners_info), ' diners able to send to Appworks School.')
         return diners, error_logs
 
     def clean_FP_API_response(self, FP_API_response, diner):
@@ -286,22 +301,12 @@ class FPDinerDetailCrawler():
 
     def get_open_hours(self, FP_API_response, diner):
         business_hours = FP_API_response['schedules']
-        day_map = {
-            1: 'Mon.',
-            2: 'Tue.',
-            3: 'Wed.',
-            4: 'Thu.',
-            5: 'Fri.',
-            6: 'Sat.',
-            7: 'Sun.',
-        }
         open_hours = []
         open_days = set()
         for hours in business_hours:
             opening_type = hours['opening_type']
             if opening_type == 'delivering':
                 weekday = hours['weekday']
-                weekday = day_map[weekday]
                 opening_time = hours['opening_time']
                 closing_time = hours['closing_time']
                 open_hour = (weekday, opening_time, closing_time)
@@ -311,7 +316,8 @@ class FPDinerDetailCrawler():
         diner['open_days'] = list(open_days)
         return diner
 
-    def main(self, db, collection, data_range):
+    def main(self, db, collection, data_range=0):
+        start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
         triggered_at = diners[0]['triggered_at']
@@ -331,8 +337,11 @@ class FPDinerDetailCrawler():
                     records.append(record)
             db[collection].bulk_write(records)
         else:
-            # print(diners_info)
-            print(error_logs)
+            pprint.pprint('Error Logs:')
+            pprint.pprint(error_logs)
+        stop = time.time()
+        if diners:
+            print('Get ', len(diners), ' diner detail took ', stop - start, ' seconds.')
         return diners, error_logs
 
 
@@ -405,15 +414,16 @@ if __name__ == '__main__':
     if running['list']:
         start = time.time()
         list_crawler = FPDinerListCrawler()
-        list_crawler.main(target, db=db, collection='fp_list')
+        diners_count = list_crawler.main(target, db=db, collection='fp_list')
         stop = time.time()
         time.sleep(10)
         pprint.pprint(stop - start)
+        print(diners_count)
 
     if running['detail']:
         start = time.time()
         data_range = data_ranges['list']
-        detail_crawler = FPDinerDetailCrawler('fp_list')
+        detail_crawler = FPDinerDetailCrawler(target, 'fp_list', offset=False, limit=False)
         diners, error_logs = detail_crawler.main(db=db, collection='fp_detail', data_range=data_range)
         stop = time.time()
         time.sleep(5)
