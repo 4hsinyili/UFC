@@ -164,7 +164,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(10)
+        time.sleep(15)
         try:
             try:
                 driver.find_element_by_xpath('//button[.="Find Food"]').click()
@@ -175,7 +175,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(10)
+        time.sleep(15)
         if lang == 'en':
             locator_xpath = '//button[text() = "Show more"]'
             locator = (By.XPATH, '//button[text() = "Show more"]')
@@ -196,7 +196,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'scroll wrong'}
             return False, False, error_log
-        time.sleep(10)
+        time.sleep(20)
         html = driver.page_source
         selector = etree.HTML(html)
         dict_response, error_log = self.get_diners_response(driver)
@@ -255,12 +255,14 @@ class UEDinerListCrawler():
                 ''')
             print(len(diner_divs))
             diner_divs[0].xpath('.//a')[0].get('href')
+            str(diner_divs[0].xpath('.//h3/text()')[0])
         except Exception:
             diner_divs = selector.xpath('''
                 //main[@id="main-content"]/div[position()=last()]/div[position()=last()]/div[position()=last()]\
                 /div[position()=last()]/div[position()=last()-1]/div
                 ''')
             diner_divs[0].xpath('.//a')[0].get('href')
+            str(diner_divs[0].xpath('.//h3/text()')[0])
         print('There are ', len(diner_divs), ' diners on this target.')
         return diner_divs
 
