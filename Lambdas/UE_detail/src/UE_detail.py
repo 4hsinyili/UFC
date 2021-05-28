@@ -319,7 +319,7 @@ class UEDinerDetailCrawler():
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
-        triggered_at = diners[0]['triggered_at']
+        triggered_at = self.get_triggered_at('ue_list')
         if error_logs == []:
             pass
         else:
