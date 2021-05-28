@@ -267,9 +267,19 @@ class UEDinerListCrawler():
         return diner_divs
 
     def get_diner_info(self, diner_div, triggered_at):
-        link = diner_div.xpath('.//a')[0].get('href')
-        link = 'https://www.ubereats.com' + link
-        title = str(diner_div.xpath('.//h3/text()')[0])
+        try:
+            link = diner_div.xpath('.//a')[0].get('href')
+            link = 'https://www.ubereats.com' + link
+            title = str(diner_div.xpath('.//h3/text()')[0])
+        except Exception:
+            try:
+                link = diner_div.xpath('.//a')[0].get('href')
+                link = 'https://www.ubereats.com' + link
+                print('There are something wrong about this diner:')
+                print(link)
+            except Exception:
+                print('There are something wrong about a diner in list.')
+            return False
         try:
             diner_div.xpath(
                 ".//img[@src='https://d4p17acsd5wyj.cloudfront.net/eatsfeed/other_icons/top_eats.png']"
@@ -307,7 +317,11 @@ class UEDinerListCrawler():
             target)
         if (type(selector) != bool) and dict_response:
             diner_divs = self.get_diner_divs(selector)
-            diners_info = [self.get_diner_info(i, triggered_at) for i in diner_divs]
+            diners_info = []
+            for diner_div in diner_divs:
+                diner_info = self.get_diner_info(diner_div, triggered_at)
+                if diner_info:
+                    diners_info.append(diner_info)
             diners_info = self.combine_uuid_diners_info(
                 diners_info, dict_response)
             print('There are ', len(diners_info), ' diners successfully paresed.')
