@@ -8,7 +8,7 @@ import env
 # for timing and not to get caught
 import time
 
-from UE_list import UEDinerListCrawler
+from get_ue_list import UEDinerListCrawler
 
 MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT
@@ -26,9 +26,9 @@ driver_path = os.getcwd() + "/bin/headless-chromium"
 def lambda_handler(event, context, *args, **kwargs):
     target = event
     # target = {
-    #     'title': 'Appworks School',
-    #     'address': '110台北市信義區基隆路一段178號',
-    #     'gps': (25.0424488, 121.562731)
+    #     "title": "Appworks School",
+    #     "address": "110台北市信義區基隆路一段178號",
+    #     "gps": (25.0424488, 121.562731)
     # }
     list_crawler = UEDinerListCrawler()
     diners_count = list_crawler.main(target, db=db, info_collection='ue_list')
