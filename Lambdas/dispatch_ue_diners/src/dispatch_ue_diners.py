@@ -18,11 +18,17 @@ db = admin_client['ufc_temp']
 
 
 class UEDinerDispatcher():
-    def __init__(self, info_collection, offset=False, limit=False):
+    def __init__(self, db, info_collection, offset=False, limit=False):
+        self.db = db
+        self.collection = info_collection
+        self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
-    def get_triggered_at(self, collection):
+    def get_triggered_at(self, collection='triggered_log'):
         pipeline = [
+            {
+                '$match': {'triggered_by': 'get_ue_list'}
+            },
             {
                 '$sort': {'triggered_at': 1}
             },
@@ -38,7 +44,7 @@ class UEDinerDispatcher():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
-        triggered_at = self.get_triggered_at(info_collection)
+        triggered_at = self.triggered_at
         pipeline = [
             {
                 '$match': {
@@ -56,12 +62,15 @@ class UEDinerDispatcher():
         result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
-    def save_to_temp_collection(self):
+    def main(self):
         temp_collection = 'ue_list_temp'
         diners_cursor = self.diners_info
         db[temp_collection].drop()
         records = []
+        diners_count = 0
         for diner in diners_cursor:
             record = InsertOne(diner)
             records.append(record)
+            diners_count += 1
         db[temp_collection].bulk_write(records)
+        return diners_count

@@ -31,10 +31,14 @@ db = admin_client['ufc_temp']
 
 class UEDinerDetailCrawler():
     def __init__(self, info_collection, offset=False, limit=False):
+        self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
-    def get_triggered_at(self, collection):
+    def get_triggered_at(self, collection='triggered_log'):
         pipeline = [
+            {
+                '$match': {'triggered_by': 'get_ue_list'}
+            },
             {
                 '$sort': {'triggered_at': 1}
             },
@@ -50,7 +54,7 @@ class UEDinerDetailCrawler():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
-        triggered_at = self.get_triggered_at(info_collection)
+        triggered_at = self.triggered_at
         pipeline = [
             {
                 '$match': {
@@ -319,7 +323,7 @@ class UEDinerDetailCrawler():
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
-        triggered_at = self.get_triggered_at('ue_list')
+        triggered_at = self.triggered_at
         if error_logs == []:
             pass
         else:

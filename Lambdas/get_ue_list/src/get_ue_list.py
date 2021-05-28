@@ -33,30 +33,6 @@ admin_client = MongoClient(MONGO_HOST,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 
-targets = [
-    {
-        'title': 'Appworks School',
-        'address': '110台北市信義區基隆路一段178號',
-        'gps': (25.0424488, 121.562731)
-    }, {
-        'title': '宏大弘資源回收場',
-        'address': '105台北市松山區撫遠街409號',
-        'gps': (25.0657733, 121.5649126)
-    }, {
-        'title': '永清工程行',
-        'address': '115南港區成福路121巷30號',
-        'gps': (25.0424398, 121.5858762)
-    }, {
-        'title': '7-ELEVEN 惠安門市',
-        'address': '110台北市信義區吳興街520號',
-        'gps': (25.0221574, 121.5666836)
-    }, {
-        'title': '路易莎咖啡',
-        'address': '106台北市大安區忠孝東路三段217巷4弄2號',
-        'gps': (25.0424876, 121.5400285)
-    }
-]
-
 db = admin_client['ufc_temp']
 driver_path = env.driver_path
 
@@ -164,7 +140,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(15)
+        time.sleep(10)
         try:
             try:
                 driver.find_element_by_xpath('//button[.="Find Food"]').click()
@@ -175,7 +151,7 @@ class UEDinerListCrawler():
         except Exception:
             error_log = {'error': 'send location wrong'}
             return False, False, error_log
-        time.sleep(15)
+        time.sleep(10)
         if lang == 'en':
             locator_xpath = '//button[text() = "Show more"]'
             locator = (By.XPATH, '//button[text() = "Show more"]')
@@ -314,6 +290,15 @@ class UEDinerListCrawler():
                 diner['uuid'] = False
         return diners_info
 
+    def save_triggered_at(self, target, triggered_at, records_count):
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'get_ue_list',
+            'target': target
+            })
+
     def main(self, target, db, info_collection):
         start = time.time()
         selector, dict_response, error_log, triggered_at = self.send_location_to_UE(
@@ -342,6 +327,7 @@ class UEDinerListCrawler():
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
         stop = time.time()
+        self.save_triggered_at(target, triggered_at, len(diners_info))
         print('Get diner list near ', target['title'], ' took ', stop - start, ' seconds.')
         self.chrome_close(self.driver)
         return len(diners_info)
