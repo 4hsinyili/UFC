@@ -1,5 +1,5 @@
 #  for db control
-from pymongo import MongoClient, UpdateOne
+from pymongo import MongoClient, UpdateOne, InsertOne
 
 # for crawling from js-website
 from seleniumwire import webdriver
@@ -325,6 +325,56 @@ class UEDinerListCrawler():
         print('Get diner list near ', target['title'], ' took ', stop - start, ' seconds.')
         self.chrome_close(self.driver)
         return len(diners_info)
+
+
+class UEDinerDispatcher():
+    def __init__(self, info_collection, offset=False, limit=False):
+        self.diners_info = self.get_diners_info(info_collection, offset, limit)
+
+    def get_triggered_at(self, collection):
+        pipeline = [
+            {
+                '$sort': {'triggered_at': 1}
+            },
+            {
+                '$group': {
+                    '_id': None,
+                    'triggered_at': {'$last': '$triggered_at'}
+                    }
+            }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline)
+        result = list(result)[0]['triggered_at']
+        return result
+
+    def get_diners_info(self, info_collection, offset=False, limit=False):
+        triggered_at = self.get_triggered_at(info_collection)
+        pipeline = [
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                }
+            }, {
+                '$sort': {'uuid': 1}
+                }
+        ]
+        if offset:
+            pipeline.append({'$skip': offset})
+        if limit:
+            pipeline.append({'$limit': limit})
+        result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return result
+
+    def save_to_temp_collection(self):
+        temp_collection = 'ue_list_temp'
+        diners_cursor = self.diners_info
+        db[temp_collection].drop()
+        records = []
+        for diner in diners_cursor:
+            record = InsertOne(diner)
+            records.append(record)
+        db[temp_collection].bulk_write(records)
 
 
 class UEDinerDetailCrawler():
@@ -723,7 +773,7 @@ class UEChecker():
 
 if __name__ == '__main__':
     running = {'list': False, 'detail': False, 'check': True}
-    data_ranges = {'list': 0, 'detail': 0, 'check': 3}
+    data_ranges = {'list': 0, 'detail': 0, 'check': 10}
     check_collection = 'ue_detail'
 
     if running['list']:
@@ -735,7 +785,7 @@ if __name__ == '__main__':
     if running['detail']:
         start = time.time()
         data_range = data_ranges['list']
-        detail_crawler = UEDinerDetailCrawler('ue_list', offset=False, limit=False)
+        detail_crawler = UEDinerDetailCrawler('ue_list_temp', offset=False, limit=False)
         diners, error_logs = detail_crawler.main(db=db, collection='ue_detail', data_range=data_range)
         stop = time.time()
         pprint.pprint(stop - start)
