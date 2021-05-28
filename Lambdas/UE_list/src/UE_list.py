@@ -308,7 +308,10 @@ class UEDinerListCrawler():
 
     def combine_uuid_diners_info(self, diners_info, dict_response):
         for diner in diners_info:
-            diner['uuid'] = dict_response[diner['title']]
+            try:
+                diner['uuid'] = dict_response[diner['title']]
+            except Exception:
+                del diners_info[diners_info.index(diner)]
         return diners_info
 
     def main(self, target, db, info_collection):
