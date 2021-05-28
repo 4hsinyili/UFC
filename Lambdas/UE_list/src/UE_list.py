@@ -311,7 +311,7 @@ class UEDinerListCrawler():
             try:
                 diner['uuid'] = dict_response[diner['title']]
             except Exception:
-                del diners_info[diners_info.index(diner)]
+                diner['uuid'] = False
         return diners_info
 
     def main(self, target, db, info_collection):
@@ -327,13 +327,17 @@ class UEDinerListCrawler():
                     diners_info.append(diner_info)
             diners_info = self.combine_uuid_diners_info(
                 diners_info, dict_response)
-            print('There are ', len(diners_info), ' diners successfully paresed.')
-            records = [UpdateOne(
-                {'uuid': record['uuid'], 'triggered_at': record['triggered_at']},
-                {'$setOnInsert': record},
-                upsert=True
-            ) for record in diners_info]
+            records = []
+            for diner_info in diners_info:
+                if diner_info['uuid']:
+                    record = UpdateOne(
+                        {'uuid': diner_info['uuid'], 'triggered_at': diner_info['triggered_at']},
+                        {'$setOnInsert': diner_info},
+                        upsert=True
+                    )
+                    records.append(record)
             db[info_collection].bulk_write(records)
+            print('There are ', len(records), ' diners successfully paresed.')
         else:
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
