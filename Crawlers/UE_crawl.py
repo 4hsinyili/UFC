@@ -168,7 +168,7 @@ class UEDinerListCrawler():
                     target['address'])
         except Exception:
             error_log = {'error': 'send location wrong'}
-            return False, False, error_log
+            return False, False, error_log, triggered_at
         time.sleep(10)
         try:
             try:
@@ -179,7 +179,7 @@ class UEDinerListCrawler():
                 lang = 'zh'
         except Exception:
             error_log = {'error': 'send location wrong'}
-            return False, False, error_log
+            return False, False, error_log, triggered_at
         time.sleep(10)
         if lang == 'en':
             locator_xpath = '//button[text() = "Show more"]'
@@ -200,7 +200,7 @@ class UEDinerListCrawler():
                     break
         except Exception:
             error_log = {'error': 'scroll wrong'}
-            return False, False, error_log
+            return False, False, error_log, triggered_at
         time.sleep(20)
         html = driver.page_source
         selector = etree.HTML(html)
@@ -369,7 +369,7 @@ class UEDinerDispatcher():
         self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
-    def get_triggered_at(self, collection='triggered_log'):
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_ue_list'}
@@ -426,7 +426,7 @@ class UEDinerDetailCrawler():
         self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
-    def get_triggered_at(self, collection='triggered_log'):
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_ue_list'}
@@ -711,6 +711,14 @@ class UEDinerDetailCrawler():
         diner['open_days'] = list(open_days)
         return diner
 
+    def save_triggered_at(self, triggered_at, records_count):
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'get_ue_detail'
+            })
+
     def main(self, db, collection, data_range=0):
         start = time.time()
         diners_cursor = self.diners_info
@@ -736,6 +744,7 @@ class UEDinerDetailCrawler():
         stop = time.time()
         if diners:
             print('Get ', len(diners), ' diner detail took ', stop - start, ' seconds.')
+            self.save_triggered_at(triggered_at, len(diners))
         return diners, error_logs
 
 
@@ -743,9 +752,10 @@ class UEChecker():
     def __init__(self, db, collection, triggered_by):
         self.db = db
         self.collection = collection
-        self.triggered_at = self.get_triggered_at(triggered_by)
+        self.triggered_by = triggered_by
+        self.triggered_at = self.get_triggered_at()
 
-    def get_triggered_at(self, collection='triggered_log'):
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
             {
                 '$match': {'triggered_by': self.triggered_by}
@@ -826,17 +836,18 @@ if __name__ == '__main__':
     running = {'list': False, 'detail': False, 'check': True}
     data_ranges = {'list': 0, 'detail': 0, 'check': 10}
     check_collection = 'ue_detail'
-    check_triggered_by = 'get' + check_collection
+    check_triggered_by = 'get_' + check_collection
 
     if running['list']:
         list_crawler = UEDinerListCrawler(driver_path=driver_path, headless=True, auto_close=True, inspect=False)
         diners_count_op = list_crawler.main(targets[0], db=db, info_collection='ue_list')
-        print(diners_count_op)
+        print('This time crawled ', diners_count_op, ' diners.')
         time.sleep(5)
         dispatcher = UEDinerDispatcher(db, 'ue_list')
         diners_count_ip = dispatcher.main()
-        print("Is dispatcher's input length == list_crawler's output: ")
-        print(diners_count_op == diners_count_ip)
+        print('There are ', diners_count_ip, ' were latest triggered on ue_list.')
+        print("Is dispatcher's input length >= list_crawler's output: ")
+        print(diners_count_ip >= diners_count_op)
 
     if running['detail']:
         start = time.time()
