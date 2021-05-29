@@ -4,7 +4,7 @@ from pymongo import MongoClient
 # for file handling
 import env
 
-from FP_list import FPDinerListCrawler
+from get_fp_list import FPDinerListCrawler
 
 MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT

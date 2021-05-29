@@ -53,13 +53,13 @@ class FPDinerListCrawler():
         except Exception:
             error_log = {'error': 'target value wrong', 'triggered_at': triggered_at}
             print('target value wrong')
-            return False, error_log
+            return False, error_log, triggered_at
         try:
             r = requests.get(url, headers=headers)
         except Exception:
             error_log = {'error': 'vendors_api wrong', 'triggered_at': triggered_at}
             print('vendors_api wrong')
-            return False, error_log
+            return False, error_log, triggered_at
         try:
             FP_API_response = json.loads(r.content)
             diners = FP_API_response['data']['items']
@@ -84,12 +84,21 @@ class FPDinerListCrawler():
         except Exception:
             error_log = {'error': 'parse vendors_api response wrong', 'triggered_at': triggered_at}
             print('parse vendors_api response wrong')
-            return False, error_log
-        return diners_info, error_log
+            return False, error_log, triggered_at
+        return diners_info, error_log, triggered_at
+
+    def save_triggered_at(self, target, triggered_at, records_count):
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'get_fp_list',
+            'target': target
+            })
 
     def main(self, target, db, collection):
         start = time.time()
-        diners_info, error_log = self.get_diners_info_from_FP_API(target)
+        diners_info, error_log, triggered_at = self.get_diners_info_from_FP_API(target)
         print('There are ', len(diners_info), ' diners successfully paresed.')
         if error_log == {}:
             pass
@@ -102,6 +111,7 @@ class FPDinerListCrawler():
                 upsert=True
             ) for record in diners_info]
             db[collection].bulk_write(records)
+            self.save_triggered_at(target, triggered_at, len(diners_info))
         else:
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)

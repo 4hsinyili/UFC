@@ -35,12 +35,16 @@ target = {
 
 
 class FPDinerDetailCrawler():
-    def __init__(self, target, diners_info_collection, offset=False, limit=False):
-        self.diners_info = self.get_diners_info(diners_info_collection, offset, limit)
+    def __init__(self, target, info_collection, offset=False, limit=False):
         self.target = target
+        self.triggered_at = self.get_triggered_at()
+        self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
-    def get_triggered_at(self, collection):
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
+            {
+                '$match': {'triggered_by': 'get_fp_list'}
+            },
             {
                 '$sort': {'triggered_at': 1}
             },
@@ -55,8 +59,8 @@ class FPDinerDetailCrawler():
         result = list(result)[0]['triggered_at']
         return result
 
-    def get_diners_info(self, diners_info_collection, offset=False, limit=False):
-        triggered_at = self.get_triggered_at(diners_info_collection)
+    def get_diners_info(self, info_collection, offset=False, limit=False):
+        triggered_at = self.triggered_at
         pipeline = [
             {
                 '$match': {
@@ -71,15 +75,19 @@ class FPDinerDetailCrawler():
             pipeline.append({'$skip': offset})
         if limit:
             pipeline.append({'$limit': limit})
-        result = db[diners_info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
     def get_diner_detail_from_FP_API(self, diner):
+        target = self.target
         error_log = {}
         try:
             diner_code = diner['uuid']
             now = datetime.utcnow()
-            order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+            if now.hour+8 < 24:
+                order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+            else:
+                order_time = now.replace(day=(now.day+1), hour=(now.hour-16)).strftime('%Y-%m-%dT%H:%M:%S')
             order_gps = target['gps']
         except Exception:
             error_log = {'error': 'diner_info wrong', 'diner': diner}
@@ -111,7 +119,10 @@ class FPDinerDetailCrawler():
     def get_diner_fee(self, FP_API_response, diner_code, order_gps, headers):
         time.sleep(0.5)
         now = datetime.utcnow()
-        order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+        if now.hour+8 < 24:
+            order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+        else:
+            order_time = now.replace(day=(now.day+1), hour=(now.hour-16)).strftime('%Y-%m-%dT%H:%M:%S')
         error_log = {}
         try:
             fee_url = f'https://tw.fd-api.com/api/v5/vendors/{diner_code}/delivery-fee?&latitude={order_gps[0]}&longitude={order_gps[1]}&order_time={order_time}&basket_size=0&basket_currency=$&dynamic_pricing=0'
@@ -238,11 +249,19 @@ class FPDinerDetailCrawler():
         diner['open_days'] = list(open_days)
         return diner
 
+    def save_triggered_at(self, triggered_at, records_count):
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'get_fp_detail'
+            })
+
     def main(self, db, collection, data_range=0):
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
-        triggered_at = diners[0]['triggered_at']
+        triggered_at = self.triggered_at
         if error_logs == []:
             pass
         else:
@@ -264,4 +283,5 @@ class FPDinerDetailCrawler():
         stop = time.time()
         if diners:
             print('Get ', len(diners), ' diner detail took ', stop - start, ' seconds.')
+            self.save_triggered_at(triggered_at, len(diners))
         return diners, error_logs

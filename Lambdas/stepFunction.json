@@ -1,0 +1,405 @@
+
+{
+  "Comment": "Flow State Machine",
+  "StartAt": "start_ufc_stepfunction",
+  "States": {
+    "start_ufc_stepfunction": {
+      "Type": "Parallel",
+      "Next": "log_stepfunction_result",
+      "Branches": [
+        {
+            "StartAt": "dispatch_ue_targets",
+            "States": {
+              "dispatch_ue_targets": {
+                "Type": "Task",
+                "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:dispatch_ue_targets",
+                "Next": "get_ue_list"
+              },
+              "get_ue_list":{
+                "Type": "Parallel",
+                "InputPath": "$.data",
+                "ResultPath": "$.taskresult",
+                "Next": "dispatch_ue_diners",
+                "Branches": [
+                    {
+                        "StartAt": "get_ue_diner_list_0",
+                        "States": {
+                          "get_ue_diner_list_0": {
+                            "Type": "Task",
+                            "InputPath": "$[0]",
+                            "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_list",
+                            "End": true
+                          }
+                        }
+                      }, {
+                        "StartAt": "get_ue_diner_list_1",
+                        "States": {
+                          "get_ue_diner_list_1": {
+                            "Type": "Task",
+                            "InputPath": "$[1]",
+                            "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_list",
+                            "End": true
+                          }
+                        }
+                      }, {
+                        "StartAt": "get_ue_diner_list_2",
+                        "States": {
+                          "get_ue_diner_list_2": {
+                            "Type": "Task",
+                            "InputPath": "$[2]",
+                            "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_list",
+                            "End": true
+                          }
+                        }
+                      }, {
+                        "StartAt": "get_ue_diner_list_3",
+                        "States": {
+                          "get_ue_diner_list_3": {
+                            "Type": "Task",
+                            "InputPath": "$[3]",
+                            "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_list",
+                            "End": true
+                          }
+                        }
+                      }, {
+                        "StartAt": "get_ue_diner_list_4",
+                        "States": {
+                          "get_ue_diner_list_4": {
+                            "Type": "Task",
+                            "InputPath": "$[4]",
+                            "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_list",
+                            "End": true
+                          }
+                        }
+                      }
+                ]
+              },
+              "dispatch_ue_diners": {
+                "Type": "Task",
+                "InputPath": "$",
+                "ResultPath": "$.taskresult",
+                "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:dispatch_ue_diners",
+                "Next": "get_ue_detail"
+              },
+              "get_ue_detail": {
+                "Type": "Parallel",
+                "InputPath": "$.taskresult",
+                "ResultPath": "$.taskresult",
+                "End": true,
+                "Branches": [
+                  {
+                    "StartAt": "get_ue_diner_detail_0",
+                    "States": {
+                      "get_ue_diner_detail_0": {
+                        "Type": "Task",
+                        "InputPath": "$[0]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_1",
+                    "States": {
+                      "get_ue_diner_detail_1": {
+                        "Type": "Task",
+                        "InputPath": "$[1]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_2",
+                    "States": {
+                      "get_ue_diner_detail_2": {
+                        "Type": "Task",
+                        "InputPath": "$[2]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_3",
+                    "States": {
+                      "get_ue_diner_detail_3": {
+                        "Type": "Task",
+                        "InputPath": "$[3]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_4",
+                    "States": {
+                      "get_ue_diner_detail_4": {
+                        "Type": "Task",
+                        "InputPath": "$[4]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_5",
+                    "States": {
+                      "get_ue_diner_detail_5": {
+                        "Type": "Task",
+                        "InputPath": "$[5]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_6",
+                    "States": {
+                      "get_ue_diner_detail_6": {
+                        "Type": "Task",
+                        "InputPath": "$[6]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_7",
+                    "States": {
+                      "get_ue_diner_detail_7": {
+                        "Type": "Task",
+                        "InputPath": "$[7]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_8",
+                    "States": {
+                      "get_ue_diner_detail_8": {
+                        "Type": "Task",
+                        "InputPath": "$[8]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_9",
+                    "States": {
+                      "get_ue_diner_detail_9": {
+                        "Type": "Task",
+                        "InputPath": "$[9]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_10",
+                    "States": {
+                      "get_ue_diner_detail_10": {
+                        "Type": "Task",
+                        "InputPath": "$[10]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_11",
+                    "States": {
+                      "get_ue_diner_detail_11": {
+                        "Type": "Task",
+                        "InputPath": "$[11]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_12",
+                    "States": {
+                      "get_ue_diner_detail_12": {
+                        "Type": "Task",
+                        "InputPath": "$[12]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }, {
+                    "StartAt": "get_ue_diner_detail_13",
+                    "States": {
+                      "get_ue_diner_detail_13": {
+                        "Type": "Task",
+                        "InputPath": "$[13]",
+                        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_ue_detail",
+                        "End": true
+                      }
+                    }
+                  }
+                ] 
+            }
+          }
+        },
+        {
+            "StartAt": "get_fp_list",
+            "States": {
+              "get_fp_list": {
+                "Type": "Task",
+                "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_list",
+                "Next": "dispatch_fp_diners"
+              },
+              "dispatch_fp_diners": {
+                "Type": "Task",
+                "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:dispatch_fp_diners",
+                "Next": "get_fp_detail"
+              },
+              "get_fp_detail": {
+                  "Type": "Parallel",
+                  "End": true,
+                  "Branches": [
+                    {
+                      "StartAt": "get_fp_diner_detail_0",
+                      "States": {
+                        "get_fp_diner_detail_0": {
+                          "Type": "Task",
+                          "InputPath": "$[0]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_1",
+                      "States": {
+                        "get_fp_diner_detail_1": {
+                          "Type": "Task",
+                          "InputPath": "$[1]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_2",
+                      "States": {
+                        "get_fp_diner_detail_2": {
+                          "Type": "Task",
+                          "InputPath": "$[2]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_3",
+                      "States": {
+                        "get_fp_diner_detail_3": {
+                          "Type": "Task",
+                          "InputPath": "$[3]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_4",
+                      "States": {
+                        "get_fp_diner_detail_4": {
+                          "Type": "Task",
+                          "InputPath": "$[4]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_5",
+                      "States": {
+                        "get_fp_diner_detail_5": {
+                          "Type": "Task",
+                          "InputPath": "$[5]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_6",
+                      "States": {
+                        "get_fp_diner_detail_6": {
+                          "Type": "Task",
+                          "InputPath": "$[6]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_7",
+                      "States": {
+                        "get_fp_diner_detail_7": {
+                          "Type": "Task",
+                          "InputPath": "$[7]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_8",
+                      "States": {
+                        "get_fp_diner_detail_8": {
+                          "Type": "Task",
+                          "InputPath": "$[8]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_9",
+                      "States": {
+                        "get_fp_diner_detail_9": {
+                          "Type": "Task",
+                          "InputPath": "$[9]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_10",
+                      "States": {
+                        "get_fp_diner_detail_10": {
+                          "Type": "Task",
+                          "InputPath": "$[10]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_11",
+                      "States": {
+                        "get_fp_diner_detail_11": {
+                          "Type": "Task",
+                          "InputPath": "$[11]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_12",
+                      "States": {
+                        "get_fp_diner_detail_12": {
+                          "Type": "Task",
+                          "InputPath": "$[12]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }, {
+                      "StartAt": "get_fp_diner_detail_13",
+                      "States": {
+                        "get_fp_diner_detail_13": {
+                          "Type": "Task",
+                          "InputPath": "$[13]",
+                          "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:get_fp_detail",
+                          "End": true
+                        }
+                      }
+                    }
+                  ] 
+              }
+            }
+        }
+      ]
+    },
+    "log_stepfunction_result":{
+        "Type": "Task",
+        "Resource": "arn:aws:lambda:ap-northeast-1:713960092195:function:log_stepfunction_result",
+        "End": true
+    }
+  }
+}

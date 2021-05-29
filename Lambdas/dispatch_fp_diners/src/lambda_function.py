@@ -4,7 +4,7 @@ from pymongo import MongoClient
 # for file handling
 import env
 
-from dispatch_ue_diners import UEDinerDispatcher
+from dispatch_fp_diners import FPDinerDispatcher
 
 MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT
@@ -21,12 +21,12 @@ db = admin_client['ufc_temp']
 def lambda_handler(event, context):
     lamdas_count = 14
 
-    crawler = UEDinerDispatcher(db, 'ue_list')
+    crawler = FPDinerDispatcher(db, 'fp_list')
     diners_count = crawler.main()
-    print('There are ', diners_count, ' diners in ue_list_temp.')
+    print('There are ', diners_count, ' diners in fp_list_temp.')
 
     divider = diners_count // lamdas_count
-    print('Now each get_ue_detail will fetch ', divider, ' results.')
+    print('Now each get_fp_detail will fetch ', divider, ' results.')
     offsets = [i * divider for i in range(lamdas_count)]
     limits = [divider for i in range(lamdas_count - 1)]
     remainder = diners_count - offsets[-1]

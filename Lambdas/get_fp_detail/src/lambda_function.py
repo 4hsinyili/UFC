@@ -3,8 +3,9 @@ from pymongo import MongoClient
 
 # for file handling
 import env
+import time
 
-from FP_detail import FPDinerDetailCrawler
+from get_fp_detail import FPDinerDetailCrawler
 
 MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT
@@ -29,5 +30,7 @@ def lambda_handler(event, context, *args, **kwargs):
     # index = {'offset': 0, 'limit': 10}
     offset = index['offset']
     limit = index['limit']
+    sleepy = index['sleep']
+    time.sleep(sleepy)
     detail_crawler = FPDinerDetailCrawler(target, 'fp_list', offset, limit)
     diners, error_logs = detail_crawler.main(db=db, collection='fp_detail')
