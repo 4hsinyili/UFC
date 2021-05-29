@@ -230,7 +230,10 @@ class FPDinerDetailCrawler():
         try:
             diner_code = diner['uuid']
             now = datetime.utcnow()
-            order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+            if now.hour+8 < 24:
+                order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+            else:
+                order_time = now.replace(day=(now.day+1), hour=(now.hour-16)).strftime('%Y-%m-%dT%H:%M:%S')
             order_gps = target['gps']
         except Exception:
             error_log = {'error': 'diner_info wrong', 'diner': diner}
@@ -262,7 +265,10 @@ class FPDinerDetailCrawler():
     def get_diner_fee(self, FP_API_response, diner_code, order_gps, headers):
         time.sleep(0.5)
         now = datetime.utcnow()
-        order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+        if now.hour+8 < 24:
+            order_time = now.replace(hour=(now.hour+8)).strftime('%Y-%m-%dT%H:%M:%S')
+        else:
+            order_time = now.replace(day=(now.day+1), hour=(now.hour-16)).strftime('%Y-%m-%dT%H:%M:%S')
         error_log = {}
         try:
             fee_url = f'https://tw.fd-api.com/api/v5/vendors/{diner_code}/delivery-fee?&latitude={order_gps[0]}&longitude={order_gps[1]}&order_time={order_time}&basket_size=0&basket_currency=$&dynamic_pricing=0'

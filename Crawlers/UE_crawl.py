@@ -466,7 +466,10 @@ class UEDinerDetailCrawler():
 
     def get_diner_detail_from_UE_API(self, diner):
         now = datetime.utcnow()
-        timestamp = now.replace(hour=(now.hour+8)).timestamp()
+        if now.hour+8 < 24:
+            timestamp = now.replace(hour=(now.hour+8)).timestamp()
+        else:
+            timestamp = now.replace(day=(now.day+1), hour=(now.hour+8)).timestamp()
         error_log = {}
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
