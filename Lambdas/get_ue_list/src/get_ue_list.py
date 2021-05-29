@@ -139,7 +139,7 @@ class UEDinerListCrawler():
                     target['address'])
         except Exception:
             error_log = {'error': 'send location wrong'}
-            return False, False, error_log
+            return False, False, error_log, triggered_at
         time.sleep(10)
         try:
             try:
@@ -150,7 +150,7 @@ class UEDinerListCrawler():
                 lang = 'zh'
         except Exception:
             error_log = {'error': 'send location wrong'}
-            return False, False, error_log
+            return False, False, error_log, triggered_at
         time.sleep(10)
         if lang == 'en':
             locator_xpath = '//button[text() = "Show more"]'
@@ -171,7 +171,7 @@ class UEDinerListCrawler():
                     break
         except Exception:
             error_log = {'error': 'scroll wrong'}
-            return False, False, error_log
+            return False, False, error_log, triggered_at
         time.sleep(20)
         html = driver.page_source
         selector = etree.HTML(html)
@@ -229,7 +229,6 @@ class UEDinerListCrawler():
                 //main[@id="main-content"]/div[position()=last()]/div[position()=last()]/div[position()=last()]\
                 /div[position()=last()]/div[position()=last()]/div
                 ''')
-            print(len(diner_divs))
             diner_divs[0].xpath('.//a')[0].get('href')
             str(diner_divs[0].xpath('.//h3/text()')[0])
         except Exception:

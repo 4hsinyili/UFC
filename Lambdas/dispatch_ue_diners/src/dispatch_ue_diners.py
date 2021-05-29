@@ -24,7 +24,7 @@ class UEDinerDispatcher():
         self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
-    def get_triggered_at(self, collection='triggered_log'):
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_ue_list'}

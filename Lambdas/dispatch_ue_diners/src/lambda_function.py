@@ -29,6 +29,6 @@ def lambda_handler(event, context):
     sleep_list = [i for i in range(lamdas_count)]
     indexes = [{'offset': offsets[i], 'limit': limits[i], 'sleep': sleep_list[i]} for i in range(lamdas_count)]
 
-    crawler = UEDinerDispatcher('ue_list')
+    crawler = UEDinerDispatcher(db, 'ue_list')
     crawler.save_to_temp_collection()
     return indexes
