@@ -1,5 +1,5 @@
 # for db control
-from pymongo import MongoClient, UpdateOne
+from pymongo import MongoClient, UpdateOne, InsertOne
 
 # for crawling from API
 import requests
@@ -54,13 +54,13 @@ class FPDinerListCrawler():
         except Exception:
             error_log = {'error': 'target value wrong', 'triggered_at': triggered_at}
             print('target value wrong')
-            return False, error_log
+            return False, error_log, triggered_at
         try:
             r = requests.get(url, headers=headers)
         except Exception:
             error_log = {'error': 'vendors_api wrong', 'triggered_at': triggered_at}
             print('vendors_api wrong')
-            return False, error_log
+            return False, error_log, triggered_at
         try:
             FP_API_response = json.loads(r.content)
             diners = FP_API_response['data']['items']
@@ -85,12 +85,21 @@ class FPDinerListCrawler():
         except Exception:
             error_log = {'error': 'parse vendors_api response wrong', 'triggered_at': triggered_at}
             print('parse vendors_api response wrong')
-            return False, error_log
-        return diners_info, error_log
+            return False, error_log, triggered_at
+        return diners_info, error_log, triggered_at
+
+    def save_triggered_at(self, target, triggered_at, records_count):
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'get_fp_list',
+            'target': target
+            })
 
     def main(self, target, db, collection):
         start = time.time()
-        diners_info, error_log = self.get_diners_info_from_FP_API(target)
+        diners_info, error_log, triggered_at = self.get_diners_info_from_FP_API(target)
         print('There are ', len(diners_info), ' diners successfully paresed.')
         if error_log == {}:
             pass
@@ -103,6 +112,7 @@ class FPDinerListCrawler():
                 upsert=True
             ) for record in diners_info]
             db[collection].bulk_write(records)
+            self.save_triggered_at(target, triggered_at, len(diners_info))
         else:
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
@@ -111,13 +121,18 @@ class FPDinerListCrawler():
         return len(diners_info)
 
 
-class FPDinerDetailCrawler():
-    def __init__(self, target, diners_info_collection, offset=False, limit=False):
-        self.diners_info = self.get_diners_info(diners_info_collection, offset, limit)
-        self.target = target
+class FPDinerDispatcher():
+    def __init__(self, db, info_collection, offset=False, limit=False):
+        self.db = db
+        self.collection = info_collection
+        self.triggered_at = self.get_triggered_at()
+        self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
-    def get_triggered_at(self, collection):
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
+            {
+                '$match': {'triggered_by': 'get_fp_list'}
+            },
             {
                 '$sort': {'triggered_at': 1}
             },
@@ -132,8 +147,66 @@ class FPDinerDetailCrawler():
         result = list(result)[0]['triggered_at']
         return result
 
-    def get_diners_info(self, diners_info_collection, offset=False, limit=False):
-        triggered_at = self.get_triggered_at(diners_info_collection)
+    def get_diners_info(self, info_collection, offset=False, limit=False):
+        triggered_at = self.triggered_at
+        pipeline = [
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                }
+            }, {
+                '$sort': {'uuid': 1}
+                }
+        ]
+        if offset:
+            pipeline.append({'$skip': offset})
+        if limit:
+            pipeline.append({'$limit': limit})
+        result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return result
+
+    def main(self):
+        temp_collection = 'fp_list_temp'
+        diners_cursor = self.diners_info
+        db[temp_collection].drop()
+        records = []
+        diners_count = 0
+        for diner in diners_cursor:
+            record = InsertOne(diner)
+            records.append(record)
+            diners_count += 1
+        db[temp_collection].bulk_write(records)
+        return diners_count
+
+
+class FPDinerDetailCrawler():
+    def __init__(self, target, info_collection, offset=False, limit=False):
+        self.target = target
+        self.triggered_at = self.get_triggered_at()
+        self.diners_info = self.get_diners_info(info_collection, offset, limit)
+
+    def get_triggered_at(self, collection='trigger_log'):
+        pipeline = [
+            {
+                '$match': {'triggered_by': 'get_fp_list'}
+            },
+            {
+                '$sort': {'triggered_at': 1}
+            },
+            {
+                '$group': {
+                    '_id': None,
+                    'triggered_at': {'$last': '$triggered_at'}
+                    }
+            }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline)
+        result = list(result)[0]['triggered_at']
+        return result
+
+    def get_diners_info(self, info_collection, offset=False, limit=False):
+        triggered_at = self.triggered_at
         pipeline = [
             {
                 '$match': {
@@ -148,7 +221,7 @@ class FPDinerDetailCrawler():
             pipeline.append({'$skip': offset})
         if limit:
             pipeline.append({'$limit': limit})
-        result = db[diners_info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = db[info_collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
     def get_diner_detail_from_FP_API(self, diner):
@@ -316,11 +389,19 @@ class FPDinerDetailCrawler():
         diner['open_days'] = list(open_days)
         return diner
 
+    def save_triggered_at(self, triggered_at, records_count):
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'get_fp_detail'
+            })
+
     def main(self, db, collection, data_range=0):
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
-        triggered_at = diners[0]['triggered_at']
+        triggered_at = self.triggered_at
         if error_logs == []:
             pass
         else:
@@ -342,17 +423,22 @@ class FPDinerDetailCrawler():
         stop = time.time()
         if diners:
             print('Get ', len(diners), ' diner detail took ', stop - start, ' seconds.')
+            self.save_triggered_at(triggered_at, len(diners))
         return diners, error_logs
 
 
 class FPChecker():
-    def __init__(self, db, collection):
+    def __init__(self, db, collection, triggered_by):
         self.db = db
         self.collection = collection
+        self.triggered_by = triggered_by
+        self.triggered_at = self.get_triggered_at()
 
-    def get_triggered_at(self):
-        collection = self.collection
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
+            {
+                '$match': {'triggered_by': self.triggered_by}
+            },
             {
                 '$sort': {'triggered_at': 1}
             },
@@ -370,12 +456,14 @@ class FPChecker():
     def get_last_records(self, limit=0):
         db = self.db
         collection = self.collection
-        triggered_at = self.get_triggered_at()
+        triggered_at = self.triggered_at
         pipeline = [
-            {'$match': {
-                'title': {"$exists": True},
-                'triggered_at': triggered_at
-                }}, {
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                }
+            }, {
                 '$sort': {'uuid': 1}
                 }
         ]
@@ -384,15 +472,34 @@ class FPChecker():
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
 
+    def get_last_records_count(self):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.triggered_at
+        pipeline = [
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                    }
+            }, {
+                '$count': 'triggered_at'
+                }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return next(result)['triggered_at']
+
     def get_last_errorlogs(self):
         db = self.db
         collection = self.collection
         triggered_at = self.get_triggered_at()
         pipeline = [
-            {'$match': {
-                'title': {"$exists": False},
-                'triggered_at': triggered_at
-                }}
+            {
+                '$match': {
+                    'title': {"$exists": False},
+                    'triggered_at': triggered_at
+                }
+            }
         ]
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         return result
@@ -407,22 +514,26 @@ class FPChecker():
 
 
 if __name__ == '__main__':
-    running = {'list': False, 'detail': False, 'check': True}
-    data_ranges = {'list': 0, 'detail': 0, 'check': 1}
+    running = {'list': False, 'detail': True, 'check': True}
+    data_ranges = {'list': 0, 'detail': 10, 'check': 10}
     check_collection = 'fp_list'
+    check_triggered_by = 'get_' + check_collection
 
     if running['list']:
         start = time.time()
         list_crawler = FPDinerListCrawler()
-        diners_count = list_crawler.main(target, db=db, collection='fp_list')
-        stop = time.time()
-        time.sleep(10)
-        pprint.pprint(stop - start)
-        print(diners_count)
+        diners_count_op = list_crawler.main(target, db=db, collection='fp_list')
+        print('This time crawled ', diners_count_op, ' diners.')
+        time.sleep(5)
+        dispatcher = FPDinerDispatcher(db, 'fp_list')
+        diners_count_ip = dispatcher.main()
+        print('There are ', diners_count_ip, ' were latest triggered on fp_list.')
+        print("Is dispatcher's input length >= list_crawler's output: ")
+        print(diners_count_ip >= diners_count_op)
 
     if running['detail']:
         start = time.time()
-        data_range = data_ranges['list']
+        data_range = data_ranges['detail']
         detail_crawler = FPDinerDetailCrawler(target, 'fp_list', offset=False, limit=False)
         diners, error_logs = detail_crawler.main(db=db, collection='fp_detail', data_range=data_range)
         stop = time.time()
@@ -431,7 +542,7 @@ if __name__ == '__main__':
 
     if running['check']:
         data_range = data_ranges['check']
-        checker = FPChecker(db, check_collection)
+        checker = FPChecker(db, check_collection, check_triggered_by)
         last_records = checker.get_last_records(data_range)
         errorlogs = checker.get_last_errorlogs()
         checker.check_records(last_records, ['title', 'deliver_time', 'triggered_at'], data_range)
