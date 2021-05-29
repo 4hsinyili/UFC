@@ -258,7 +258,6 @@ class UEDinerListCrawler():
                 //main[@id="main-content"]/div[position()=last()]/div[position()=last()]/div[position()=last()]\
                 /div[position()=last()]/div[position()=last()]/div
                 ''')
-            print(len(diner_divs))
             diner_divs[0].xpath('.//a')[0].get('href')
             str(diner_divs[0].xpath('.//h3/text()')[0])
         except Exception:
@@ -836,8 +835,8 @@ class UEChecker():
 
 
 if __name__ == '__main__':
-    running = {'list': False, 'detail': False, 'check': True}
-    data_ranges = {'list': 0, 'detail': 0, 'check': 10}
+    running = {'list': True, 'detail': True, 'check': True}
+    data_ranges = {'list': 0, 'detail': 10, 'check': 10}
     check_collection = 'ue_detail'
     check_triggered_by = 'get_' + check_collection
 
