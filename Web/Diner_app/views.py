@@ -136,7 +136,7 @@ class DinerInfo(views.APIView):
         if uuid_ue:
             triggered_at = match_checker.triggered_at
             diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
-            diner = list(diner)[0]
+            diner = diner
             results = MatchSerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
@@ -144,7 +144,7 @@ class DinerInfo(views.APIView):
         if uuid_fp:
             triggered_at = match_checker.triggered_at
             diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
-            diner = list(diner)[0]
+            diner = diner
             results = MatchSerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
@@ -200,22 +200,16 @@ class FavoritesAPI(views.APIView):
         for favorite in favorites[offset: offset+6]:
             if len(favorite) > 8:
                 uuid_ue = favorite
-                result = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
-                try:
-                    diner = next(result)
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
+                if diner:
                     diner['favorite'] = True
                     diners.append(diner)
-                except Exception:
-                    pass
             else:
                 uuid_fp = favorite
-                result = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
-                try:
-                    diner = next(result)
+                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
+                if diner:
                     diner['favorite'] = True
                     diners.append(diner)
-                except Exception:
-                    pass
         if len(diners) == 0:
             return Response({
                 'is_data': False

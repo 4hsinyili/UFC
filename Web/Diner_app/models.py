@@ -37,10 +37,14 @@ class MatchChecker():
                     '_id': None,
                     'triggered_at': {'$last': '$triggered_at'}
                     }
+            },
+            {
+                "$limit": 1
             }
         ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = next(result)['triggered_at']
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        result = next(cursor)['triggered_at']
+        cursor.close()
         return result
 
     def get_last_records(self, limit=0):
@@ -76,8 +80,10 @@ class MatchChecker():
                 '$count': 'triggered_at'
                 }
         ]
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        return next(result)['triggered_at']
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = next(cursor)['triggered_at']
+        cursor.close()
+        return result
 
     def get_last_errorlogs(self):
         db = self.db
@@ -89,7 +95,8 @@ class MatchChecker():
                 'triggered_at': triggered_at
                 }}
         ]
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = list(cursor)
         return result
 
     def check_records(self, records, fields, data_range):
@@ -137,7 +144,9 @@ class MatchFilters():
                 '$project': {'_id': 0}
             }
         ]
-        filters = next(db[collection].aggregate(pipeline=pipeline))
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        filters = next(cursor)
+        cursor.close()
         filters['open_days_fp'] = [i for i in filters['open_days_fp'] if type(i) == int]
         need_sorts = ['rating_ue', 'deliver_time_ue', 'budget_ue', 'view_count_ue', 'open_days_ue', 'rating_fp', 'deliver_time_fp', 'budget_fp', 'view_count_fp', 'open_days_fp']
         for need_sort in need_sorts:
@@ -209,23 +218,24 @@ class MatchSearcher():
         print("below is the pipeline")
         pprint.pprint(pipeline)
         start = time.time()
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         favorites = False
         if favorites_model:
             favorites = favorites_model.get_favorites(user_id)
         diners = []
         if favorites:
             favorites = set(favorites)
-            for diner in result:
+            for diner in cursor:
                 if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
                     diner['favorite'] = True
                 else:
                     diner['favorite'] = False
                 diners.append(diner)
         else:
-            for diner in result:
+            for diner in cursor:
                 diner['favorite'] = False
                 diners.append(diner)
+        cursor.close()
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
         return diners, result_count
@@ -237,8 +247,9 @@ class MatchSearcher():
         count_pipeline.extend([
             {'$count': 'triggered_at'}
         ])
-        result = db[collection].aggregate(pipeline=count_pipeline)
-        result = list(result)
+        cursor = db[collection].aggregate(pipeline=count_pipeline)
+        result = list(cursor)
+        cursor.close()
         if len(result) > 0:
             diners_count = result[0]['triggered_at']
         else:
@@ -252,23 +263,24 @@ class MatchSearcher():
             {"$match": {"triggered_at": triggered_at}},
             {"$sample": {"size": 6}}
         ]
-        result = db[collection].aggregate(pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline, allowDiskUse=True)
         favorites = False
         if favorites_model:
             favorites = favorites_model.get_favorites(user_id)
         diners = []
         if favorites:
             favorites = set(favorites)
-            for diner in result:
+            for diner in cursor:
                 if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
                     diner['favorite'] = True
                 else:
                     diner['favorite'] = False
                 diners.append(diner)
         else:
-            for diner in result:
+            for diner in cursor:
                 diner['favorite'] = False
                 diners.append(diner)
+        cursor.close()
         return diners
 
 
@@ -293,9 +305,14 @@ class MatchDinerInfo():
         print("below is the pipeline")
         pprint.pprint(pipeline)
         start = time.time()
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
+        try:
+            result = next(cursor)
+        except Exception:
+            return False
+        cursor.close()
         return result
 
 
@@ -336,7 +353,9 @@ class Favorites():
                     'uuid_ue': 1
                 }}
         ]
-        results = list(db[collection].aggregate(pipeline))
+        cursor = db[collection].aggregate(pipeline)
+        results = list(cursor)
+        cursor.close()
         if results != [{}]:
             uuid_ues = [result['uuid_ue'] for result in results if result['uuid_ue'] != '']
         else:
@@ -355,7 +374,9 @@ class Favorites():
                     'uuid_fp': 1
                 }}
         ]
-        results = list(db[collection].aggregate(pipeline))
+        cursor = db[collection].aggregate(pipeline)
+        results = list(cursor)
+        cursor.close()
         if results != [{}]:
             uuid_fps = [result['uuid_fp'] for result in results if result['uuid_fp'] != '']
         else:
