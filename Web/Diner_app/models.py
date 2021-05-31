@@ -1,19 +1,7 @@
 import pprint
 import copy
-import env
-from pymongo import MongoClient
 import time
 
-MONGO_HOST = env.MONGO_HOST
-MONGO_PORT = env.MONGO_PORT
-MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
-MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
-db = admin_client['ufc_temp']
 # Create your models here.
 
 
@@ -25,6 +13,7 @@ class MatchChecker():
         self.triggered_at = self.get_triggered_at()
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': self.triggered_by}
@@ -63,7 +52,7 @@ class MatchChecker():
         ]
         if limit > 0:
             pipeline.append({'$limit': limit})
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = db[collection].aggregate(pipeline=pipeline)
         return result
 
     def get_last_records_count(self):
@@ -80,7 +69,6 @@ class MatchChecker():
                 '$count': 'triggered_at'
                 }
         ]
-        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         result = next(cursor)['triggered_at']
         cursor.close()
         return result
@@ -95,7 +83,7 @@ class MatchChecker():
                 'triggered_at': triggered_at
                 }}
         ]
-        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline=pipeline)
         result = list(cursor)
         return result
 
@@ -218,7 +206,7 @@ class MatchSearcher():
         print("below is the pipeline")
         pprint.pprint(pipeline)
         start = time.time()
-        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline=pipeline)
         favorites = False
         if favorites_model:
             favorites = favorites_model.get_favorites(user_id)
@@ -263,7 +251,7 @@ class MatchSearcher():
             {"$match": {"triggered_at": triggered_at}},
             {"$sample": {"size": 6}}
         ]
-        cursor = db[collection].aggregate(pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline)
         favorites = False
         if favorites_model:
             favorites = favorites_model.get_favorites(user_id)
@@ -305,7 +293,7 @@ class MatchDinerInfo():
         print("below is the pipeline")
         pprint.pprint(pipeline)
         start = time.time()
-        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        cursor = db[collection].aggregate(pipeline=pipeline)
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
         try:
