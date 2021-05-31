@@ -29,6 +29,7 @@ def listen():
     ]
     result = db['stepfunction_log'].aggregate(pipeline=pipeline)
     result = list(result)
+    print(result)
     if result == []:
         return False
     else:
@@ -53,6 +54,7 @@ if __name__ == '__main__':
     collection = 'matched'
     data_range = 0
     comparison = UF_combine.Comparison()
+    check_break = main(comparison)
     while True:
         check_break = main(comparison)
         if check_break:
