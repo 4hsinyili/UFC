@@ -69,6 +69,7 @@ class MatchChecker():
                 '$count': 'triggered_at'
                 }
         ]
+        cursor = db[collection].aggregate(pipeline=pipeline)
         result = next(cursor)['triggered_at']
         cursor.close()
         return result

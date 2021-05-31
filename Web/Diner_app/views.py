@@ -11,9 +11,7 @@ import env
 from pymongo import MongoClient
 import time
 import pprint
-# import requests
-# import json
-# from . import models
+
 # Create your views here.
 MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT
