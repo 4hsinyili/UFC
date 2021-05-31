@@ -1,0 +1,69 @@
+{% extends "Diner_app/base.html" %}
+
+{% block website_title %}
+    <title>Collection</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'Diner_app/css/dinerlist.css' %}">
+{% endblock %}
+{% block content %}
+    <div>collection</div>
+    <div id='diners'>
+        <div id='diner-tamplate' class="row diner" style="display: none;">
+            <div class="col-8">
+                <a class="redirect-href_ue" href="">
+                    <img class="image_ue image img-responsive" src="">
+                </a>
+                <a class="redirect-href_fp" href="">
+                    <img class="image_fp image img-responsive" src="">
+                </a>
+            </div>
+            <div class="col-4">
+                <a class="redirect-href_ue" href="">
+                    <h4 class="title_ue"></h4>
+                </a>
+                <a class="redirect-href_ue" href="">
+                    <h4 class="title_fp"></h4>
+                </a>
+                <img name="collect" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/erase.svg" data-uuid-ue="" data-uuid-fp="">
+                <div class="row">
+                    <div class="info_ue col">
+                        <div class="rating_ue row">
+                            <div class="rating_value_ue col-4"></div>
+                        </div>
+                        <div class="view_count_ue row">
+                            <div class="view_count_value_ue col-4"></div>
+                        </div>
+                        <div class="budget_ue row">
+                            <div class="budget_value_ue col-4"></div>
+                        </div>
+                    </div>
+                    <div class="info_fp col">
+                        <div class="rating_fp row">
+                            <div class="rating_value_fp col-4"></div>
+                        </div>
+                        <div class="view_count_fp row">
+                            <div class="view_count_value_fp col-4"></div>
+                        </div>
+                        <div class="budget_fp row">
+                            <div class="budget_value_fp col-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-grid gap-2">
+        <div id='show-more' class="btn btn-dark btn-sm" data-offset=0 style="display: none;">顯示更多</div>
+    </div>
+    <img name="rating_svg" class="col-6" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/rating.svg" data-number=0 style="display: none;">
+    <img name="view_count_svg" class="col-6" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/view_count.svg" data-number=0  style="display: none;">
+    <img name="budget_svg" class="col-6" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/budget.svg" data-number=0  style="display: none;">
+{% endblock %}
+
+{% block javascript %}
+    {% load static %}
+    <script src="{% static 'Diner_app/js/collection.js' %}"></script>
+{% endblock %}
