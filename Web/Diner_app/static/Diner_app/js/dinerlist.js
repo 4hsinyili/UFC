@@ -1,10 +1,12 @@
 // API related variables
+let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
 let filtersAPI = 'api/v1/filters'
 let dinerSearchAPI = 'api/v1/dinersearch'
 let dinerShuffleAPI = 'api/v1/dinershuffle'
+let favoritesAPI = 'api/v1/favorites'
 let domain = window.location.origin
 let dinerInfoRoute = domain.concat('/dinerinfo')
-let initData = {'condition': {}, 'offset': 0}
+let initData = {'condition': {}, 'offset': 0, 'user_id': userId}
 let openDaysMap = {
     1: 'Mon.',
     2: 'Tue.',
@@ -46,6 +48,8 @@ let searchButton = $('#search-button')[0]
 let shuffleButton = $('#shuffle')[0]
 let toggleFiltersDom = $('#toggle-filters')[0]
 let toggleSortersDom = $('#toggle-sorters')[0]
+
+let collectDom = $('[name="collect"]')[0]
 
 // Define functions
 function getCookie(name) {
@@ -100,7 +104,6 @@ function clearDIners(){
 
 function renderDinerInfo(dinerInfo, dinerNode, source){
     let title = dinerInfo['title_'.concat(source)]
-    console.log(title)
     let image = dinerInfo['image_'.concat(source)]
     let rating = dinerInfo['rating_'.concat(source)]
     let viewCount = dinerInfo['view_count_'.concat(source)]
@@ -137,6 +140,7 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
 
 function renderDiner(diner){
     let dinerNode = dinerTemplate.cloneNode(true)
+    let collectNode = dinerNode.querySelector('[name=collect]')
     let diner_uuid_ue = diner['uuid_ue']
     let diner_uuid_fp = diner['uuid_fp']
     let redirectUrl = dinerInfoRoute.concat('?uuid_ue=').concat(diner_uuid_ue).concat('&uuid_fp=').concat(diner_uuid_fp)
@@ -152,6 +156,7 @@ function renderDiner(diner){
             "link_ue": diner["link_ue"],
             "redirect_url": redirectUrl
         }
+        if (userId > 0){collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)}
     }
     if (diner_uuid_fp != ''){
         diner_info_fp = {
@@ -163,15 +168,31 @@ function renderDiner(diner){
             "link_fp": diner["link_fp"],
             "redirect_url": redirectUrl
         }
+        if (userId > 0){collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)}
     }
     if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
     if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
+    if (diner['favorite']){collectNode.setAttribute('data-favorite', 1)}
+    else {collectNode.setAttribute('data-favorite', 0)}
+    collectNode.addEventListener('click', (e)=>{
+        if (userId == 0){alert('login la')}
+        else{
+            let favorited = parseInt(e.target.getAttribute('data-favorite'))
+            let activate = 0
+            if (favorited == 0){activate = 1}
+            let uuid_ue = e.target.getAttribute('data-uuid-ue')
+            let uuid_fp = e.target.getAttribute('data-uuid-fp')
+            if (uuid_ue){changeFavorites(userId, uuid_ue, 'ue', activate)}
+            if (uuid_fp){changeFavorites(userId, uuid_fp, 'fp', activate)}
+            if (activate == 1){e.target.setAttribute('data-favorite', 1)}
+            if (activate == 0){e.target.setAttribute('data-favorite', 0)}
+        }
+    })
     return dinerNode
 }
 
 function renderList(data){
     let results = data.data
-    console.log(results)
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
         diner = renderDiner(diner)
@@ -386,7 +407,6 @@ function removeSorter(target){
 
 function clearSorter(target){
     let dataNumber = parseInt(target.getAttribute('data-number'))
-    console.log(dataNumber)
     let selects = $(sorters).find(`select[data-number=${dataNumber}]`)
     for (let i = 0; i < selects.length; i++){
         selects[i].value = 'default'
@@ -459,7 +479,7 @@ function turnSortersToConditions(conditions, sorterSet){
     return conditions
 }
 
-function search(offset){
+function search(offset, showMore=false){
     $(showMoreDom).hide()
     let keyWord = document.getElementById('search-box')
     let filterSet = $('div[name="filter"]')
@@ -468,16 +488,37 @@ function search(offset){
     conditions = turnFIltersToConditions(conditions, filterSet)
     conditions = turnSortersToConditions(conditions, sorterSet)
     console.log(conditions)
-    data = {'condition': conditions, 'offset': offset}
-    ajaxPost(dinerSearchAPI, data, function(response){
-        renderList(response)
-    })
+    let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
+    data = {'condition': conditions, 'offset': offset, 'user_id': userId}
+    if (showMore){
+        ajaxPost(dinerSearchAPI, data, function(response){
+            let height = document.body.scrollHeight
+            renderList(response)
+            window.scrollTo(0,height);
+        })
+        }
+    else{
+        ajaxPost(dinerSearchAPI, data, function(response){
+            renderList(response)
+        })
+    }
 }
 
 function shuffle(){
     ajaxPost(dinerShuffleAPI, null, function(response){
         renderList(response)
     })
+}
+
+function changeFavorites(userId, diner_id, source, activate){
+    let data = {
+        'user_id': userId,
+        'source': source,
+        'activate': activate
+    }
+    if (source == 'ue'){data.uuid_ue = diner_id}
+    else if(source == 'fp'){data.uuid_fp = diner_id}
+    ajaxPost(favoritesAPI, data, console.log)
 }
 
 // start to render
@@ -576,5 +617,6 @@ $(shuffleButton).click(function(){
 
 $(showMoreDom).click(function(){
     let offset = parseInt(showMoreDom.getAttribute('data-offset'))
-    search(offset)
+    search(offset, true)
 })
+

@@ -67,3 +67,11 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
+
+[data-favorite]{
+    max-height: 36px;
+}
+
+[data-favorite='1']{
+    filter: invert(72%) sepia(73%) saturate(659%) hue-rotate(347deg) brightness(101%) contrast(98%);
+}
