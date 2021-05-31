@@ -1,0 +1,21 @@
+{% extends "Diner_app/base.html" %}
+
+{% block website_title %}
+    <title>Register</title>
+{% endblock %}
+
+{% block js_and_css %}
+    <!-- {% load static %} -->
+    <!-- <link rel="stylesheet" href="{% static 'Diner_app/css/dinerlist.css' %}"> -->
+{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <form method="POST" class="form-group">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-success">Register</button>
+    </form>
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}
