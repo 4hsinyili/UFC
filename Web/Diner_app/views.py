@@ -3,16 +3,16 @@ from django.shortcuts import render
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from .serializers import UESerializer, FilterSerializer
+from .serializers import MatchSerializer, FilterSerializer
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
-from .models import UEChecker, UEFilters, UESearcher, UEDinerInfo, Pipeline
+from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Pipeline
 import env
 from pymongo import MongoClient
 import time
-# import pprint
-import requests
-import json
+import pprint
+# import requests
+# import json
 # from . import models
 # Create your views here.
 MONGO_HOST = env.MONGO_HOST
@@ -25,10 +25,10 @@ admin_client = MongoClient(MONGO_HOST,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 db = admin_client['ufc_temp']
-uechecker = UEChecker(db, 'ue_detail')
-uesearcher = UESearcher(db, 'ue_detail')
-uedinerinfo = UEDinerInfo(db, 'ue_detail')
-uefilters = UEFilters(db, 'ue_detail')
+match_checker = MatchChecker(db, 'matched', 'match')
+match_searcher = MatchSearcher(db, 'matched')
+match_dinerinfo = MatchDinerInfo(db, 'matched')
+match_filters = MatchFilters(db, 'matched')
 
 
 class DinerList(views.APIView):
@@ -41,8 +41,8 @@ class DinerList(views.APIView):
             offset = int(offset_param)
         else:
             offset = 0
-        diners = uechecker.get_latest_records(Pipeline.ue_list_pipeline, offset, limit=6)
-        diners_count = uechecker.get_count(Pipeline.ue_count_pipeline)
+        diners = match_checker.get_latest_records(Pipeline.ue_list_pipeline, offset, limit=6)
+        diners_count = match_checker.get_count(Pipeline.ue_count_pipeline)
         if offset + 6 < diners_count:
             has_more = True
         else:
@@ -52,7 +52,7 @@ class DinerList(views.APIView):
         else:
             next_offset = 0
         diners = [diner['_id'] for diner in diners]
-        data = UESerializer(diners, many=True).data
+        data = MatchSerializer(diners, many=True).data
         stop = time.time()
         print('get DinerList took: ', stop - start, 's.')
         return Response({
@@ -70,9 +70,10 @@ class DinerSearch(views.APIView):
     def post(self, request):
         start = time.time()
         condition = request.data['condition']
+        pprint.pprint(condition)
         offset = request.data['offset']
-        triggered_at = uechecker.get_triggered_at(uesearcher.db, uesearcher.collection)
-        diners, diners_count = uesearcher.get_search_result(condition, triggered_at, offset)
+        triggered_at = match_checker.triggered_at
+        diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset)
         if offset + 6 < diners_count:
             has_more = True
         else:
@@ -82,7 +83,7 @@ class DinerSearch(views.APIView):
         else:
             next_offset = 0
         diners = list(diners)
-        data = UESerializer(diners, many=True).data
+        data = MatchSerializer(diners, many=True).data
         stop = time.time()
         print('post DinerSearch took: ', stop - start, 's.')
         return Response({
@@ -99,12 +100,21 @@ class DinerInfo(views.APIView):
 
     def get(self, request):
         start = time.time()
-        diner_id = self.request.query_params.get('diner_id', None)
-        if diner_id:
-            triggered_at = uechecker.get_triggered_at(uedinerinfo.db, uedinerinfo.collection)
-            diner = uedinerinfo.get_diner(diner_id, triggered_at)
+        uuid_ue = self.request.query_params.get('uuid_ue', None)
+        uuid_fp = self.request.query_params.get('uuid_fp', None)
+        if uuid_ue:
+            triggered_at = match_checker.triggered_at
+            diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
             diner = list(diner)[0]
-            results = UESerializer(diner, many=False).data
+            results = MatchSerializer(diner, many=False).data
+            stop = time.time()
+            print('get DinerInfo took: ', stop - start, 's.')
+            return Response({'data': results})
+        if uuid_fp:
+            triggered_at = match_checker.triggered_at
+            diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
+            diner = list(diner)[0]
+            results = MatchSerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
             return Response({'data': results})
@@ -115,8 +125,8 @@ class DinerInfo(views.APIView):
 class Filters(views.APIView):
     def get(self, request):
         start = time.time()
-        triggered_at = uechecker.get_triggered_at(uefilters.db, uefilters.collection)
-        filters = uefilters.get_filters(triggered_at)
+        triggered_at = match_checker.triggered_at
+        filters = match_filters.get_filters(triggered_at)
         data = FilterSerializer(filters, many=False).data
         stop = time.time()
         print('get DinerInfo took: ', stop - start, 's.')
@@ -128,8 +138,11 @@ def dinerlist(request):
 
 
 def dinerinfo(request):
-    diner_id = request.GET.get('diner_id')
-    response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?diner_id={diner_id}').content
-    data = json.loads(response)['data']
-    data['view_count'] = int(data['view_count'])
-    return render(request, 'Diner_app/dinerinfo.html', {'data': data})
+    # uuid_ue = request.GET.get('uuid_ue')
+    # uuid_fp = request.GET.get('uuid_fp')
+    # if uuid_ue:
+    #     response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?uuid_ue={uuid_ue}').content
+    # elif uuid_fp:
+    #     response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?uuid_fp={uuid_fp}').content
+    # data = json.loads(response)['data']
+    return render(request, 'Diner_app/dinerinfo.html', {})

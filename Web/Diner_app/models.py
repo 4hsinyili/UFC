@@ -17,60 +17,91 @@ db = admin_client['ufc_temp']
 # Create your models here.
 
 
-class UEChecker():
-    def __init__(self, db, collection):
+class MatchChecker():
+    def __init__(self, db, collection, triggered_by):
         self.db = db
         self.collection = collection
+        self.triggered_by = triggered_by
+        self.triggered_at = self.get_triggered_at()
 
-    def get_latest_records(self, pipeline, db='', collection='', offset=0, limit=0):
-        if db == '':
-            db = self.db
-        if collection == '':
-            collection = self.collection
-        pipeline = copy.deepcopy(pipeline)
-        if offset > 0:
-            pipeline.append({'$skip': offset})
-        if limit > 0:
-            pipeline.append({'$limit': limit})
-        print("====================================================")
-        print("now is using UEChecker's get_latest_records function")
-        print("below is the pipeline")
-        pprint.pprint(pipeline)
-        start = time.time()
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        stop = time.time()
-        print('mongodb query took: ', stop - start, 's.')
-        return result
-
-    def get_count(self, pipeline):
-        db = self.db
-        collection = self.collection
-        pipeline = copy.deepcopy(pipeline)
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]['triggered_at']
-        return result
-    
-    def get_triggered_at(self, db='', collection=''):
-        if db == '':
-            db = self.db
-        if collection == '':
-            collection = self.collection
+    def get_triggered_at(self, collection='trigger_log'):
         pipeline = [
+            {
+                '$match': {'triggered_by': self.triggered_by}
+            },
+            {
+                '$sort': {'triggered_at': 1}
+            },
             {
                 '$group': {
                     '_id': None,
                     'triggered_at': {'$last': '$triggered_at'}
                     }
-            }, {
-                '$sort': {'triggered_at': 1}
             }
         ]
         result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[-1]['triggered_at']
+        result = next(result)['triggered_at']
         return result
 
+    def get_last_records(self, limit=0):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.triggered_at
+        pipeline = [
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                    }
+            }, {
+                '$sort': {'uuid': 1}
+                }
+        ]
+        if limit > 0:
+            pipeline.append({'$limit': limit})
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return result
 
-class UEFilters():
+    def get_last_records_count(self):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.triggered_at
+        pipeline = [
+            {
+                '$match': {
+                    'title': {"$exists": True},
+                    'triggered_at': triggered_at
+                    }
+            }, {
+                '$count': 'triggered_at'
+                }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return next(result)['triggered_at']
+
+    def get_last_errorlogs(self):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.triggered_at
+        pipeline = [
+            {'$match': {
+                'title': {"$exists": False},
+                'triggered_at': triggered_at
+                }}
+        ]
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return result
+
+    def check_records(self, records, fields, data_range):
+        loop_count = 0
+        for record in records:
+            if loop_count > data_range:
+                break
+            pprint.pprint([record[field] for field in fields])
+            loop_count += 1
+
+
+class MatchFilters():
     def __init__(self, db, collection):
         self.db = db
         self.collection = collection
@@ -78,124 +109,43 @@ class UEFilters():
     def get_filters(self, triggered_at):
         db = db = self.db
         collection = self.collection
-        rating = self.get_ratings(db, collection, triggered_at)
-        rating['rating'].sort()
-        tags = self.get_tags(db, collection, triggered_at)
-        deliver_fee = self.get_deliver_fee(db, collection, triggered_at)
-        deliver_time = self.get_deliver_time(db, collection, triggered_at)
-        deliver_time['deliver_time'] = [i for i in deliver_time['deliver_time'] if type(i) == int]
-        deliver_time['deliver_time'].sort()
-        budget = self.get_budget(db, collection, triggered_at)
-        budget['budget'].sort()
-        view_count = self.get_view_count(db, collection, triggered_at)
-        view_count['view_count'] = [i for i in view_count['view_count'] if i]
-        view_count['view_count'].sort()
-        open_days = ['Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.']
-        result = {**rating, **tags, **deliver_fee, **deliver_time, **budget, **view_count, 'open_days': open_days}
-        return result
-
-    def get_ratings(self, db, collection, triggered_at):
         pipeline = [
             {"$match": {"triggered_at": triggered_at}},
+            {"$unwind": "$tags_ue"},
+            {"$unwind": "$open_days_ue"},
+            {"$unwind": "$tags_fp"},
+            {"$unwind": "$open_days_fp"},
             {
                 '$group': {
                     '_id': None,
-                    'rating': {'$addToSet': '$rating'}
+                    'rating_ue': {'$addToSet': '$rating_ue'},
+                    'deliver_fee_ue': {'$addToSet': '$deliver_fee_ue'},
+                    'deliver_time_ue': {'$addToSet': '$deliver_time_ue'},
+                    'budget_ue': {'$addToSet': '$budget_ue'},
+                    'view_count_ue': {'$addToSet': {'$round': ['$view_count_ue', -2]}},
+                    'tags_ue': {'$addToSet': '$tags_ue'},
+                    'open_days_ue': {'$addToSet': '$open_days_ue'},
+                    'rating_fp': {'$addToSet': '$rating_fp'},
+                    'deliver_fee_fp': {'$addToSet': '$deliver_fee_fp'},
+                    'deliver_time_fp': {'$addToSet': '$deliver_time_fp'},
+                    'budget_fp': {'$addToSet': '$budget_fp'},
+                    'view_count_fp': {'$addToSet': {'$round': ['$view_count_fp', -2]}},
+                    'tags_fp': {'$addToSet': '$tags_fp'},
+                    'open_days_fp': {'$addToSet': '$open_days_fp'},
                     }
             }, {
-                '$project': {'_id': 0, 'rating': 1}
+                '$project': {'_id': 0}
             }
         ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]
-        return result
-
-    def get_tags(self, db, collection, triggered_at):
-        pipeline = [
-            {"$match": {"triggered_at": triggered_at}},
-            {
-                '$project': {'_id': 0, 'tags': 1}
-            }, {
-                '$unwind': '$tags'
-            }, {
-                '$group': {
-                    '_id': None,
-                    'tags': {'$addToSet': '$tags'}
-                    }
-            }, {
-                '$project': {'_id': 0, 'tags': 1}
-            }
-        ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]
-        return result
-
-    def get_deliver_fee(self, db, collection, triggered_at):
-        pipeline = [
-            {"$match": {"triggered_at": triggered_at}},
-            {
-                '$group': {
-                    '_id': None,
-                    'deliver_fee': {'$addToSet': '$deliver_fee'}
-                    }
-            }, {
-                '$project': {'_id': 0, 'deliver_fee': 1}
-            }
-        ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]
-        return result
-
-    def get_deliver_time(self, db, collection, triggered_at):
-        pipeline = [
-            {"$match": {"triggered_at": triggered_at}},
-            {
-                '$group': {
-                    '_id': None,
-                    'deliver_time': {'$addToSet': '$deliver_time'}
-                    }
-            }, {
-                '$project': {'_id': 0, 'deliver_time': 1}
-            }
-        ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]
-        return result
-
-    def get_budget(self, db, collection, triggered_at):
-        pipeline = [
-            {"$match": {"triggered_at": triggered_at}},
-            {
-                '$group': {
-                    '_id': None,
-                    'budget': {'$addToSet': '$budget'}
-                    }
-            }, {
-                '$project': {'_id': 0, 'budget': 1}
-            }
-        ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]
-        return result
-
-    def get_view_count(self, db, collection, triggered_at):
-        pipeline = [
-            {"$match": {"triggered_at": triggered_at}},
-            {
-                '$group': {
-                    '_id': None,
-                    'view_count': {'$addToSet': {'$round': ['$view_count', -2]}}
-                    }
-            }, {
-                '$project': {'_id': 0, 'view_count': 1}
-            }
-        ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]
-        return result
+        filters = next(db[collection].aggregate(pipeline=pipeline))
+        filters['open_days_fp'] = [i for i in filters['open_days_fp'] if type(i) == int]
+        need_sorts = ['rating_ue', 'deliver_time_ue', 'budget_ue', 'view_count_ue', 'open_days_ue', 'rating_fp', 'deliver_time_fp', 'budget_fp', 'view_count_fp', 'open_days_fp']
+        for need_sort in need_sorts:
+            filters[need_sort].sort()
+        return filters
 
 
-class UESearcher():
+class MatchSearcher():
     def __init__(self, db, collection):
         self.db = db
         self.collection = collection
@@ -203,33 +153,50 @@ class UESearcher():
     def get_search_result(self, condition, triggered_at, offset=0):
         db = self.db
         collection = self.collection
-        match_conditions = {"$match": {
-            "triggered_at": triggered_at,
-            'title': {'$exists': True}
+        match_condition = {
+            "$match": {
+                "triggered_at": triggered_at
             }}
-        sort_condttions = {}
-        conditions = [match_conditions, sort_condttions]
+        conditions = [match_condition]
         try:
-            for match in condition['keyword']:
-                match_conditions['$match'][match['field']] = {'$regex': match['value']}
+            keyword = condition['keyword']
+            keyword_condition = {
+                "$match": {
+                    "$or": []
+                }
+            }
+            keyword_condition['$match']["$or"] = [
+                {"title_ue": {'$regex': keyword}},
+                {"title_fp": {'$regex': keyword}},
+                {"tags_ue": {"$elemMatch": {'$regex': keyword}}},
+                {"tags_ue": {"$elemMatch": {'$regex': keyword}}}
+                ]
+            conditions.insert(0, keyword_condition)
         except Exception:
             pass
         try:
             for filter in condition['filter']:
-                if filter['field'] not in ['tags', 'open_days']:
-                    match_conditions['$match'][filter['field']] = {filter['filter']: filter['value']}
+                if (filter['filter'] is None) or (filter['value'] is None):
+                    continue
+                elif filter['field'] not in ['tags', 'open_days']:
+                    match_condition['$match'][filter['field']] = {filter['filter']: filter['value']}
                 else:
-                    match_conditions['$match'][filter['field']] = {
+                    match_condition['$match'][filter['field']] = {
                         '$elemMatch': {'$eq': filter['value']}
                         }
         except Exception:
             pass
         try:
-            sort_condttions = {'$sort': {}}
+            sort_conditions = {"$sort": {}}
             for sorter in condition['sorter']:
-                sort_condttions['$sort'][sorter['field']] = sorter['sorter']
+                if (sorter == {}) or (sorter['field'] is None) or (sorter['sorter'] is None):
+                    continue
+                sort_conditions['$sort'][sorter['field']] = sorter['sorter']
+            if sort_conditions != {"$sort": {}}:
+                conditions.append(sort_conditions)
         except Exception:
             pass
+        pprint.pprint(conditions)
         pipeline = [condition for condition in conditions if condition != {}]
         result_count = self.get_count(db, collection, pipeline)
         pprint.pprint(result_count)
@@ -252,15 +219,8 @@ class UESearcher():
         collection = self.collection
         count_pipeline = copy.deepcopy(pipeline)
         count_pipeline.extend([
-            {'$group': {
-                '_id': {
-                    'title': '$title',
-                },
-                'triggered_at': {'$last': '$triggered_at'}
-            }},
             {'$count': 'triggered_at'}
         ])
-        pprint.pprint(count_pipeline)
         result = db[collection].aggregate(pipeline=count_pipeline)
         result = list(result)
         if len(result) > 0:
@@ -270,18 +230,18 @@ class UESearcher():
         return diners_count
 
 
-class UEDinerInfo():
+class MatchDinerInfo():
     def __init__(self, db, collection):
         self.db = db
         self.collection = collection
 
-    def get_diner(self, diner_id, triggered_at):
+    def get_diner(self, diner_id, source, triggered_at):
         db = self.db
         collection = self.collection
         match_conditions = {
             "$match": {
                 "triggered_at": triggered_at,
-                "uuid": diner_id
+                f"uuid_{source}": diner_id
                 }}
         limit = {'$limit': 1}
         conditions = [match_conditions, limit]
