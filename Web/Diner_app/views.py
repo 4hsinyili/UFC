@@ -95,6 +95,28 @@ class DinerSearch(views.APIView):
             })
 
 
+class DinerShuffle(views.APIView):
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        start = time.time()
+        triggered_at = match_checker.triggered_at
+        diners = match_searcher.get_random(triggered_at)
+        has_more = False
+        next_offset = 0
+        diners = list(diners)
+        data = MatchSerializer(diners, many=True).data
+        stop = time.time()
+        print('post DinerSearch took: ', stop - start, 's.')
+        return Response({
+            'next_offset': next_offset,
+            'has_more': has_more,
+            'max_page': 1,
+            'data_count': len(diners),
+            'data': data
+            })
+
+
 class DinerInfo(views.APIView):
     parser_classes = [JSONParser]
 

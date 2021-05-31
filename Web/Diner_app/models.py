@@ -228,6 +228,17 @@ class MatchSearcher():
         else:
             diners_count = 0
         return diners_count
+    
+    def get_random(self, triggered_at):
+        db = self.db
+        collection = self.collection
+        pipeline = [
+            {"$match": {"triggered_at": triggered_at}},
+            {"$sample": {"size": 6}}
+        ]
+        result = db[collection].aggregate(pipeline, allowDiskUse=True)
+        return result
+        
 
 
 class MatchDinerInfo():
