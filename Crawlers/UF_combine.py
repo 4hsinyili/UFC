@@ -93,11 +93,11 @@ class Comparison():
         return df_u_f
 
     def get_dfs(self):
-        uechecker = UEChecker(db, 'ue_detail')
+        uechecker = UEChecker(db, 'ue_detail', 'get_ue_detail')
         ue_result = uechecker.get_last_records()
         ue_result = list(ue_result)
 
-        fpchecker = FPChecker(db, 'fp_detail')
+        fpchecker = FPChecker(db, 'fp_detail', 'get_fp_detail')
         fp_result = fpchecker.get_last_records()
         fp_result = list(fp_result)
 
@@ -136,6 +136,7 @@ class Comparison():
             records.append(record)
         db[collection].bulk_write(records)
         print('write into matched successed')
+        return triggered_at
 
     def correct_types(self, df):
         should_int = ['UE_choice', 'FP_choice', 'budget_ue', 'budget_fp', 'deliver_fee_ue', 'deliver_fee_fp', 'deliver_time_ue', 'deliver_time_fp', 'rating_ue', 'rating_fp', 'view_count_ue', 'view_count_fp']
@@ -157,10 +158,19 @@ class Comparison():
                 df[column].fillna(0, inplace=True)
         return df
 
+    def save_triggered_at(self, triggered_at, records_count):
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'match'
+            })
+
     def main(self, db, collection, data_range=0):
+        print('Start comparsion')
         start = time.time()
-        df_ue, def_fp = self.get_dfs()
-        dict_ue, dict_fp = self.turn_dicts(df_ue, def_fp)
+        df_ue, df_fp = self.get_dfs()
+        dict_ue, dict_fp = self.turn_dicts(df_ue, df_fp)
         if data_range == 0:
             pass
         else:
@@ -169,15 +179,16 @@ class Comparison():
         c_start = time.time()
         similarities = self.compare(dict_ue, dict_fp)
         c_stop = time.time()
-        df_ue, df_fp = self.add_id(similarities, df_ue, def_fp)
-        df_u_f = self.merge_ue_fp(df_ue, df_fp)
+        df_ue, df_fp = self.add_id(similarities, df_ue, df_fp)
+        df_matched = self.merge_ue_fp(df_ue, df_fp)
         stop = time.time()
         print('process took: ', c_stop - c_start)
         print('compare took: ', stop - start)
-        df_u_f = self.fill_all_na(df_u_f)
-        df_u_f = self.correct_types(df_u_f)
-        print(df_u_f.info())
-        self.save_to_matched(db, collection, df_u_f)
+        df_matched = self.fill_all_na(df_matched)
+        df_matched = self.correct_types(df_matched)
+        print(df_matched.info())
+        triggered_at = self.save_to_matched(db, collection, df_matched)
+        self.save_triggered_at(triggered_at, len(df_matched))
 
 
 class MatchedChecker():
