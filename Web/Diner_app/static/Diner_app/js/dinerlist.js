@@ -505,7 +505,9 @@ function search(offset, showMore=false){
 }
 
 function shuffle(){
-    ajaxPost(dinerShuffleAPI, null, function(response){
+    let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
+    data = {'user_id': userId}
+    ajaxPost(dinerShuffleAPI, data, function(response){
         renderList(response)
     })
 }
