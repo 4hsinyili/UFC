@@ -6,3 +6,7 @@
 .nav-tab{
     float: right;
 }
+
+#content{
+    margin-bottom: 4rem;
+}
