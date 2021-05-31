@@ -228,13 +228,6 @@ def dinerlist(request):
 
 
 def dinerinfo(request):
-    # uuid_ue = request.GET.get('uuid_ue')
-    # uuid_fp = request.GET.get('uuid_fp')
-    # if uuid_ue:
-    #     response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?uuid_ue={uuid_ue}').content
-    # elif uuid_fp:
-    #     response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?uuid_fp={uuid_fp}').content
-    # data = json.loads(response)['data']
     return render(request, 'Diner_app/dinerinfo.html', {})
 
 
