@@ -150,7 +150,7 @@ class MatchSearcher():
         self.db = db
         self.collection = collection
 
-    def get_search_result(self, condition, triggered_at, offset=0):
+    def get_search_result(self, condition, triggered_at, offset=0, user_id=0, favorites_model=False):
         db = self.db
         collection = self.collection
         match_condition = {
@@ -210,9 +210,25 @@ class MatchSearcher():
         pprint.pprint(pipeline)
         start = time.time()
         result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        favorites = False
+        if favorites_model:
+            favorites = favorites_model.get_favorites(user_id)
+        diners = []
+        if favorites:
+            favorites = set(favorites)
+            for diner in result:
+                if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
+                    diner['favorite'] = True
+                else:
+                    diner['favorite'] = False
+                diners.append(diner)
+        else:
+            for diner in result:
+                diner['favorite'] = False
+                diners.append(diner)
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
-        return result, result_count
+        return diners, result_count
 
     def get_count(self, db, collection, pipeline):
         db = self.db
@@ -228,8 +244,8 @@ class MatchSearcher():
         else:
             diners_count = 0
         return diners_count
-    
-    def get_random(self, triggered_at):
+
+    def get_random(self, triggered_at, user_id=0, favorites_model=False):
         db = self.db
         collection = self.collection
         pipeline = [
@@ -237,8 +253,22 @@ class MatchSearcher():
             {"$sample": {"size": 6}}
         ]
         result = db[collection].aggregate(pipeline, allowDiskUse=True)
-        return result
-        
+        if favorites_model:
+            favorites = favorites_model.get_favorites(user_id)
+        diners = []
+        if favorites:
+            favorites = set(favorites)
+            for diner in result:
+                if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
+                    diner['favorite'] = True
+                else:
+                    diner['favorite'] = False
+                diners.append(diner)
+        else:
+            for diner in result:
+                diner['favorite'] = False
+                diners.append(diner)
+        return diners
 
 
 class MatchDinerInfo():

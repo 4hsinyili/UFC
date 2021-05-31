@@ -72,9 +72,13 @@ class DinerSearch(views.APIView):
         start = time.time()
         condition = request.data['condition']
         pprint.pprint(condition)
+        user_id = request.data['user_id']
         offset = request.data['offset']
         triggered_at = match_checker.triggered_at
-        diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset)
+        if user_id > 0:
+            diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset, user_id, favorites_model)
+        else:
+            diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset)
         if offset + 6 < diners_count:
             has_more = True
         else:
@@ -83,7 +87,7 @@ class DinerSearch(views.APIView):
             next_offset = offset + 6
         else:
             next_offset = 0
-        diners = list(diners)
+        diners = diners
         data = MatchSerializer(diners, many=True).data
         stop = time.time()
         print('post DinerSearch took: ', stop - start, 's.')
@@ -101,11 +105,15 @@ class DinerShuffle(views.APIView):
 
     def post(self, request):
         start = time.time()
+        user_id = request.data['user_id']
         triggered_at = match_checker.triggered_at
-        diners = match_searcher.get_random(triggered_at)
+        if user_id > 0:
+            diners = match_searcher.get_random(triggered_at, user_id, favorites_model)
+        else:
+            diners = match_searcher.get_random(triggered_at)
         has_more = False
         next_offset = 0
-        diners = list(diners)
+        diners = diners
         data = MatchSerializer(diners, many=True).data
         stop = time.time()
         print('post DinerSearch took: ', stop - start, 's.')
@@ -224,7 +232,10 @@ class FavoritesAPI(views.APIView):
 
 
 def dinerlist(request):
-    return render(request, 'Diner_app/dinerlist.html', {})
+    user_id = request.user.id
+    if user_id is None:
+        user_id = 0
+    return render(request, 'Diner_app/dinerlist.html', {'user_id': user_id})
 
 
 def dinerinfo(request):
