@@ -169,3 +169,5 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+LOGIN_REDIRECT_URL = '/dinerlist'
+LOGOUT_REDIRECT_URL = '/dinerlist'
