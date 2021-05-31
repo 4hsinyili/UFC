@@ -8,6 +8,8 @@ urlpatterns = [
     path('api/v1/dinershuffle', views.DinerShuffle.as_view()),
     path('api/v1/dinerinfo', views.DinerInfo.as_view()),
     path('api/v1/filters', views.Filters.as_view()),
+    path('api/v1/favorites', views.FavoritesAPI.as_view()),
     path('dinerlist', views.dinerlist, name='dinerlist'),
     path('dinerinfo', views.dinerinfo, name='dinerinfo'),
+    path('collection', views.collection, name='collection')
 ]

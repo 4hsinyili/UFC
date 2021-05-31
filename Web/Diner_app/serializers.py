@@ -87,6 +87,7 @@ class MatchSerializer(serializers.Serializer):
     address_fp = serializers.CharField(max_length=3000)
     gps_fp = serializers.ListField()
     open_hours_fp = serializers.ListField()
+    favorite = serializers.BooleanField()
 
 
 class FilterSerializer(serializers.Serializer):

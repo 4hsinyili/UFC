@@ -268,6 +268,73 @@ class MatchDinerInfo():
         return result
 
 
+class Favorites():
+    def __init__(self, db, collection):
+        self.db = db
+        self.collection = collection
+
+    def change_favorites(self, user_id, diner_id, source, activate):
+        db = self.db
+        collection = self.collection
+        field = 'uuid_' + source
+        db[collection].update_one(
+            {
+                field: diner_id,
+                'user_id': user_id
+            },
+            {
+                "$set": {'activate': activate}
+            }, upsert=True)
+
+    def get_favorites(self, user_id):
+        if user_id == 0:
+            return False
+        db = self.db
+        collection = self.collection
+        pipeline = [
+            {
+                '$match': {
+                    'user_id': user_id,
+                    'activate': 1,
+                    'uuid_ue': {"$exists": True}
+                    }
+            },
+            {
+                '$project': {
+                    '_id': 0,
+                    'uuid_ue': 1
+                }}
+        ]
+        results = list(db[collection].aggregate(pipeline))
+        if results != [{}]:
+            uuid_ues = [result['uuid_ue'] for result in results if result['uuid_ue'] != '']
+        else:
+            uuid_ues = []
+        pipeline = [
+            {
+                '$match': {
+                    'user_id': user_id,
+                    'activate': 1,
+                    'uuid_fp': {"$exists": True}
+                    }
+            },
+            {
+                '$project': {
+                    '_id': 0,
+                    'uuid_fp': 1
+                }}
+        ]
+        results = list(db[collection].aggregate(pipeline))
+        if results != [{}]:
+            uuid_fps = [result['uuid_fp'] for result in results if result['uuid_fp'] != '']
+        else:
+            uuid_fps = []
+        favorites = uuid_ues + uuid_fps
+        if favorites == []:
+            return False
+        return favorites
+
+
 class Pipeline():
     ue_list_pipeline = [
         {'$sort': {'triggered_at': -1, 'uuid': 1}},

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 # from django.http import HttpResponse
 from rest_framework import views
 from rest_framework.response import Response
@@ -6,7 +6,7 @@ from rest_framework.parsers import JSONParser
 from .serializers import MatchSerializer, FilterSerializer
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
-from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Pipeline
+from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, Pipeline
 import env
 from pymongo import MongoClient
 import time
@@ -29,6 +29,7 @@ match_checker = MatchChecker(db, 'matched', 'match')
 match_searcher = MatchSearcher(db, 'matched')
 match_dinerinfo = MatchDinerInfo(db, 'matched')
 match_filters = MatchFilters(db, 'matched')
+favorites_model = Favorites(db, 'favorites')
 
 
 class DinerList(views.APIView):
@@ -155,6 +156,73 @@ class Filters(views.APIView):
         return Response({'data': data})
 
 
+class FavoritesAPI(views.APIView):
+    def post(self, request):
+        request_data = request.data
+        user_id = request_data['user_id']
+        source = request_data['source']
+        if source == 'ue':
+            uuid = request_data['uuid_ue']
+        if source == 'fp':
+            uuid = request_data['uuid_fp']
+        activate = request_data['activate']
+        print(user_id, uuid, source, activate)
+        favorites_model.change_favorites(user_id, uuid, source, activate)
+        return Response({'message': 'success'})
+
+    def get(self, request):
+        user_id = int(self.request.query_params.get('user_id', None))
+        offset = int(self.request.query_params.get('offset', None))
+        favorites = favorites_model.get_favorites(user_id)
+        favorites_count = len(favorites)
+        if favorites_count == 0:
+            return Response({
+                'is_data': False
+            })
+        diners = []
+        triggered_at = match_checker.triggered_at
+        if offset + 6 < favorites_count:
+            has_more = True
+        else:
+            has_more = False
+        if has_more:
+            next_offset = offset + 6
+        else:
+            next_offset = 0
+        for favorite in favorites[offset: offset+6]:
+            if len(favorite) > 8:
+                uuid_ue = favorite
+                result = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
+                try:
+                    diner = next(result)
+                    diner['favorite'] = True
+                    diners.append(diner)
+                except Exception:
+                    pass
+            else:
+                uuid_fp = favorite
+                result = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
+                try:
+                    diner = next(result)
+                    diner['favorite'] = True
+                    diners.append(diner)
+                except Exception:
+                    pass
+        if len(diners) == 0:
+            return Response({
+                'is_data': False
+            })
+        data = MatchSerializer(diners, many=True).data
+        return Response({
+            'is_data': True,
+            'next_offset': next_offset,
+            'has_more': has_more,
+            'max_page': 1,
+            'data_count': len(diners),
+            'data': data
+            })
+
+
 def dinerlist(request):
     return render(request, 'Diner_app/dinerlist.html', {})
 
@@ -168,3 +236,13 @@ def dinerinfo(request):
     #     response = requests.get(f'http://localhost:3000/api/v1/dinerinfo?uuid_fp={uuid_fp}').content
     # data = json.loads(response)['data']
     return render(request, 'Diner_app/dinerinfo.html', {})
+
+
+def collection(request):
+    user_id = request.user.id
+    if user_id is None:
+        user_id = 0
+    if request.user.is_authenticated:
+        return render(request, 'Diner_app/collection.html', {'user_id': user_id})
+    else:
+        return redirect('login')
