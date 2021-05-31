@@ -107,8 +107,14 @@ WSGI_APPLICATION = 'Web.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ufc_temp',  # 目標資料庫的名稱
+        'USER': env.MYSQL_ACCOUNT,  # 資料庫帳號
+        'PASSWORD': env.MYSQL_PWD,  # 資料庫密碼
+        'HOST': env.MYSQL_ROUTE,  # 主機位置，可以先測本地localhost
+        'PORT': env.MYSQL_PORT  # 設定連接埠
     }
 }
 
