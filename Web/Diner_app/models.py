@@ -253,6 +253,7 @@ class MatchSearcher():
             {"$sample": {"size": 6}}
         ]
         result = db[collection].aggregate(pipeline, allowDiskUse=True)
+        favorites = False
         if favorites_model:
             favorites = favorites_model.get_favorites(user_id)
         diners = []
