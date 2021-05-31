@@ -26,6 +26,7 @@
             {% block content %}
             {% endblock %}
         </div>
+        <div id="user-id" data-user-id="{{ user_id }}" style="display: none;"></div>
     {% block javascript %}
         <script src="{% static 'Diner_app/js/dinerlist.js' %}"></script>
     {% endblock %}
