@@ -14,6 +14,10 @@
     margin-bottom: 1rem;
 }
 
+.button{
+    max-height: 36px;
+}
+
 .page-title{
     margin: 1rem;
 }
@@ -31,4 +35,35 @@
 .toggle-button{
     margin-left: 1rem;
     margin-right: 1rem;
+}
+
+.iconify{
+    font-size: 2rem;
+    min-width: 2rem;
+}
+
+[data-hover=yes]{
+    cursor: pointer;
+}
+
+/* #filters{
+    float: right;
+} */
+
+.form-select{
+    font-size: 0.6rem;
+}
+
+/* #show-more{
+    margin-left: auto;
+    margin-right: auto;
+} */
+
+[name=rating_svg]{
+    filter: invert(72%) sepia(73%) saturate(659%) hue-rotate(347deg) brightness(101%) contrast(98%);
+}
+
+#search{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }

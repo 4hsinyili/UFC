@@ -11,31 +11,84 @@
 {% block content %}
     <h1>Diner Info</h1>
     <div id="diner-info" class="container">
-        <div id="diner-title" class="row"></div>
-        <div id="diner-image-row" class="row">
-            <img id="diner-image" class="image img-responsive">
-        </div>
-        <div id="diner-location" class="row">
-            <div id="diner-gps"></div>
-            <div id="diner-address"></div>
-        </div>
-        <div id="platform-info" class="row">
-            <div id="ue-info" class="col">
-                <div id="ue-rating"></div>
-                <div id="ue-view_count"></div>
-                <div id="ue-budget"></div>
-                <div id="ue-link"></div>
-                <div id="ue-deliver_fee"></div>
-                <div id="ue-deliver_time"></div>
-                <div id="ue-open_hours"></div>
+        <div id="info_ue" class="col" style="display: none;">
+            <a id="title_ue" class="row" href=""></a>
+            <div name="thumbnail" class="row">
+                <div class="col-7">
+                    <div id="image-row" class="row">
+                        <img id="image_ue">
+                    </div>
+                </div>
+                <div class="col-1"></div>
+                <div class="col-4">
+                    <div id="rating_ue" class="row"></div>
+                    <div id="view_count_ue" class="row"></div>
+                    <div id="budget_ue" class="row"></div>
+                    <div id="deliver_fee_ue" class="row"></div>
+                    <div id="deliver_time_ue" class="row"></div>
+                    <div id="show-more-info_ue" class="row">顯示營業時間</div>
+                </div>
+            </div>
+            <div name="more-info" class="row" style="display: none;">
+                <div id="open_hours_row" class="col">
+                    <div id="open_hours_ue" class="col">
+                        <div name="open_hour_ue" class="row" style="display: none;"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="menus">
-            <div id="ue-menu" class="row">
-                <div id="section-tabs" class="col">
-                    <div name="section-title"></div>
+        <div id="info_fp" class="col" style="display: none;">
+            <a id="title_fp" class="row" href=""></a>
+            <div name="thumbnail" class="row">
+                <div class="col-7">
+                    <div id="image-row" class="row">
+                        <img id="image_fp">
+                    </div>
                 </div>
-                <div name="sections" class="col">
+                <div class="col-1"></div>
+                <div class="col-4">
+                    <div id="rating_fp" class="row"></div>
+                    <div id="view_count_fp" class="row"></div>
+                    <div id="budget_fp" class="row"></div>
+                    <div id="deliver_fee_fp" class="row"></div>
+                    <div id="deliver_time_fp" class="row"></div>
+                    <div id="show-more-info_fp" class="row">顯示營業時間</div>
+                </div>
+            </div>
+            <div name="more-info" class="row" style="display: none;">
+                <div id="open_hours_row" class="col">
+                    <div id="open_hours_fp" class="col">
+                        <div name="open_hour_fp" class="row" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="info_gm" class="row" style="display: none;">
+            <div id="rating_gm"></div>
+            <div id="view_count_gm"></div>
+            <div id="link_gm"></div>
+        </div>
+        <div id="menu">
+            <div id="menu_ue" class="row">
+                <div id="section-tabs_ue"></div>
+                <div name="sections_ue" class="col">
+                </div>
+            </div>
+            <div id="menu_fp" class="row">
+                <div id="section-tabs_fp"></div>
+                <div name="sections_fp" class="col">
+                </div>
+            </div>
+        </div>
+        <div id="menu_pk row">
+            <div class="col">
+                <div class="row">
+                    <div id="section-tabs_pk_ue" class="col"></div>
+                    <div id="section-tabs_pk_fp" class="col"></div>
+                </div>
+                <div class="row">
+                    <div name="sections_pk_ue" class="col-6"></div>
+                    <div name="sections_pk_fp" class="col-6"></div>
                 </div>
             </div>
         </div>
@@ -53,7 +106,8 @@
     <div name="section" class="row" style="display: none">
         <div name="section-title"></div>
     </div>
-    <div name="open-hour" class="row" style="display: none"></div>
+    <div name="section-tab" class="col" style="display: none;"></div>
+    <div name="section-tab-pk" class="col" style="display: none;"></div>
 {% endblock %}
 
 {% block javascript %}

@@ -32,3 +32,22 @@
     margin-left: 1rem;
     margin-right: 1rem;
 }
+
+
+[name=thumbnail]{
+    max-height: 200px;
+}
+
+#image_ue{
+    background-size: 400px;
+    width: 360px;
+    height: 180px;
+    object-fit: none;
+}
+
+#image_fp{
+    background-size: 400px;
+    width: 360px;
+    height: 180px;
+    object-fit: none;
+}
