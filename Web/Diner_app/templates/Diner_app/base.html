@@ -9,10 +9,16 @@
         {% block js_and_css %}
         {% endblock %}
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+       
     </head>
     <body>
         <nav class="nav-bar">
-            <a class="nav-tab" href='dinerlist' class="diner-list-link">Diner List</a>
+            <a class="nav-tab" href='/dinerlist' class="diner-list-link">Diner List</a>
+            {% if user.is_authenticated %}
+                <a class="nav-tab" href="/logout" class="logout-link">Logout</a>
+            {% else %}
+                <a class="nav-tab" href="/login" class="login-link">Login</a>
+            {% endif %}
         </nav>
         <div id="content" name="content" class="container">
             {% block content %}
