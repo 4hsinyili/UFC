@@ -20,7 +20,7 @@ let openDaysMap = {
 // Doms
 let diners = document.getElementById('diners')
 let filters = document.getElementById('filters')
-let dinerTemplate = document.getElementById('diner-tamplate')
+let dinerTemplate = document.getElementById('diner-template')
 let dinersHtml = diners.innerHTML
 
 let ratingSvg = document.querySelector('[name="rating_svg"]')
@@ -112,8 +112,9 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
     let redirectUrl = dinerInfo['redirect_url']
     let titleNode = dinerNode.querySelector('.title_'.concat(source))
     titleNode.innerText = title
+    let imageNodeUe = dinerNode.querySelector('.image_ue')
     let imageNode = dinerNode.querySelector('.image_'.concat(source))
-    imageNode.setAttribute('src', image)
+    if (imageNodeUe.getAttribute('src') == ""){imageNode.setAttribute('src', image)}
     let ratingNode = dinerNode.querySelector('.rating_'.concat(source))
     ratingNode.querySelector('.rating_value_'.concat(source)).innerText = rating
     let newRatingSvg = ratingSvg.cloneNode(true)
@@ -173,9 +174,11 @@ function renderDiner(diner){
     if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
     if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
     if (diner['favorite']){collectNode.setAttribute('data-favorite', 1)}
+    let imageNodeFp = dinerNode.querySelector('.image_fp')
+    if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()}
     else {collectNode.setAttribute('data-favorite', 0)}
     collectNode.addEventListener('click', (e)=>{
-        if (userId == 0){alert('login la')}
+        if (userId == 0){}
         else{
             let favorited = parseInt(e.target.getAttribute('data-favorite'))
             let activate = 0
