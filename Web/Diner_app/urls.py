@@ -11,5 +11,5 @@ urlpatterns = [
     path('api/v1/favorites', views.FavoritesAPI.as_view()),
     path('dinerlist', views.dinerlist, name='dinerlist'),
     path('dinerinfo', views.dinerinfo, name='dinerinfo'),
-    path('collection', views.collection, name='collection')
+    path('favorites', views.favorites, name='favorites')
 ]

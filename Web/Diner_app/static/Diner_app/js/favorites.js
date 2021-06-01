@@ -19,7 +19,7 @@ let openDaysMap = {
 
 // Doms
 let diners = document.getElementById('diners')
-let dinerTemplate = document.getElementById('diner-tamplate')
+let dinerTemplate = document.getElementById('diner-template')
 let dinersHtml = diners.innerHTML
 
 let ratingSvg = document.querySelector('[name="rating_svg"]')

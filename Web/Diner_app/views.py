@@ -243,11 +243,11 @@ def dinerinfo(request):
     return render(request, 'Diner_app/dinerinfo.html', {'user_id': user_id})
 
 
-def collection(request):
+def favorites(request):
     user_id = request.user.id
     if user_id is None:
         user_id = 0
     if request.user.is_authenticated:
-        return render(request, 'Diner_app/collection.html', {'user_id': user_id})
+        return render(request, 'Diner_app/favorites.html', {'user_id': user_id})
     else:
         return redirect('login')
