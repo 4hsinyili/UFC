@@ -21,8 +21,8 @@ db = admin_client['ufc']
 def lambda_handler(event, context):
     lamdas_count = 14
 
-    crawler = UEDinerDispatcher(db, 'ue_list')
-    diners_count = crawler.main()
+    dispatcher = UEDinerDispatcher(db, 'ue_list')
+    diners_count = dispatcher.main()
     print('There are ', diners_count, ' diners in ue_list_temp.')
 
     divider = diners_count // lamdas_count

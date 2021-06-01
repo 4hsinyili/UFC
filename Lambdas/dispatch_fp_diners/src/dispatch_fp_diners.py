@@ -1,20 +1,5 @@
 #  for db control
-from pymongo import MongoClient, InsertOne
-
-import env
-
-
-MONGO_HOST = env.MONGO_HOST
-MONGO_PORT = env.MONGO_PORT
-MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
-MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
-
-db = admin_client['ufc']
+from pymongo import InsertOne
 
 
 class FPDinerDispatcher():
@@ -25,6 +10,7 @@ class FPDinerDispatcher():
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_fp_list'}
@@ -44,6 +30,7 @@ class FPDinerDispatcher():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
+        db = self.db
         triggered_at = self.triggered_at
         pipeline = [
             {
@@ -63,6 +50,7 @@ class FPDinerDispatcher():
         return result
 
     def main(self):
+        db = self.db
         temp_collection = 'fp_list_temp'
         diners_cursor = self.diners_info
         db[temp_collection].drop()

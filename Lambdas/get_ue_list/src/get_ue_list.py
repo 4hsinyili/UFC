@@ -1,5 +1,5 @@
 #  for db control
-from pymongo import MongoClient, UpdateOne
+from pymongo import UpdateOne
 
 # for crawling from js-website
 from seleniumwire import webdriver
@@ -23,17 +23,6 @@ from datetime import datetime
 # for preview
 import pprint
 
-MONGO_HOST = env.MONGO_HOST
-MONGO_PORT = env.MONGO_PORT
-MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
-MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
-
-db = admin_client['ufc']
 driver_path = env.driver_path
 
 
@@ -289,7 +278,7 @@ class UEDinerListCrawler():
                 diner['uuid'] = False
         return diners_info
 
-    def save_triggered_at(self, target, triggered_at, records_count):
+    def save_triggered_at(self, target, db, triggered_at, records_count):
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -326,7 +315,7 @@ class UEDinerListCrawler():
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
         stop = time.time()
-        self.save_triggered_at(target, triggered_at, len(diners_info))
+        self.save_triggered_at(target, db, triggered_at, len(diners_info))
         print('Get diner list near ', target['title'], ' took ', stop - start, ' seconds.')
         self.chrome_close(self.driver)
         return len(diners_info)

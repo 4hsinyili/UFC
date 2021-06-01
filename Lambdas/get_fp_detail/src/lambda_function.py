@@ -32,6 +32,6 @@ def lambda_handler(event, context, *args, **kwargs):
     limit = index['limit']
     sleepy = index['sleep']
     time.sleep(sleepy)
-    detail_crawler = FPDinerDetailCrawler(target, 'fp_list', offset, limit)
-    diners, error_logs = detail_crawler.main(db=db, collection='fp_detail')
+    detail_crawler = FPDinerDetailCrawler(target, db, 'fp_list', offset, limit)
+    diners, error_logs = detail_crawler.main(collection='fp_detail')
     return len(diners)

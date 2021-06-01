@@ -1,12 +1,11 @@
 #  for db control
-from pymongo import MongoClient, UpdateOne
+from pymongo import UpdateOne
 
 # for crawling from API
 import requests
 
 # for file handling
 import json
-import env
 
 # for timing and not to get caught
 import time
@@ -16,25 +15,15 @@ import random
 # for preview
 import pprint
 
-MONGO_HOST = env.MONGO_HOST
-MONGO_PORT = env.MONGO_PORT
-MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
-MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
-
-db = admin_client['ufc']
-
 
 class UEDinerDetailCrawler():
-    def __init__(self, info_collection, offset=False, limit=False):
+    def __init__(self, db, info_collection, offset=False, limit=False):
+        self.db = db
         self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_ue_list'}
@@ -54,6 +43,7 @@ class UEDinerDetailCrawler():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
+        db = self.db
         triggered_at = self.triggered_at
         pipeline = [
             {
@@ -74,7 +64,10 @@ class UEDinerDetailCrawler():
 
     def get_diner_detail_from_UE_API(self, diner):
         now = datetime.utcnow()
-        timestamp = now.replace(hour=(now.hour+8)).timestamp()
+        if now.hour+8 < 24:
+            timestamp = now.replace(hour=(now.hour+8)).timestamp()
+        else:
+            timestamp = now.replace(day=(now.day+1), hour=(now.hour+8)).timestamp()
         error_log = {}
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
@@ -320,6 +313,7 @@ class UEDinerDetailCrawler():
         return diner
 
     def save_triggered_at(self, triggered_at, records_count):
+        db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -327,7 +321,8 @@ class UEDinerDetailCrawler():
             'triggered_by': 'get_ue_detail'
             })
 
-    def main(self, db, collection, data_range=0):
+    def main(self, collection, data_range=0):
+        db = self.db
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)

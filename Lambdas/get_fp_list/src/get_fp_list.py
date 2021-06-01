@@ -1,12 +1,11 @@
 # for db control
-from pymongo import MongoClient, UpdateOne
+from pymongo import UpdateOne
 
 # for crawling from API
 import requests
 
 # for file handling
 import json
-import env
 
 # for timing and not to get caught
 from datetime import datetime
@@ -14,17 +13,6 @@ import time
 
 # for preview
 import pprint
-
-MONGO_HOST = env.MONGO_HOST
-MONGO_PORT = env.MONGO_PORT
-MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
-MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
-db = admin_client['ufc']
 
 target = {
     'title': 'Appworks School',
@@ -87,7 +75,7 @@ class FPDinerListCrawler():
             return False, error_log, triggered_at
         return diners_info, error_log, triggered_at
 
-    def save_triggered_at(self, target, triggered_at, records_count):
+    def save_triggered_at(self, target, db, triggered_at, records_count):
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -111,7 +99,7 @@ class FPDinerListCrawler():
                 upsert=True
             ) for record in diners_info]
             db[collection].bulk_write(records)
-            self.save_triggered_at(target, triggered_at, len(diners_info))
+            self.save_triggered_at(target, db, triggered_at, len(diners_info))
         else:
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)

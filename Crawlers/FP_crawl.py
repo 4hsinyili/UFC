@@ -88,7 +88,7 @@ class FPDinerListCrawler():
             return False, error_log, triggered_at
         return diners_info, error_log, triggered_at
 
-    def save_triggered_at(self, target, triggered_at, records_count):
+    def save_triggered_at(self, target, db, triggered_at, records_count):
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -112,7 +112,7 @@ class FPDinerListCrawler():
                 upsert=True
             ) for record in diners_info]
             db[collection].bulk_write(records)
-            self.save_triggered_at(target, triggered_at, len(diners_info))
+            self.save_triggered_at(target, db, triggered_at, len(diners_info))
         else:
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
@@ -129,6 +129,7 @@ class FPDinerDispatcher():
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_fp_list'}
@@ -148,6 +149,7 @@ class FPDinerDispatcher():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
+        db = self.db
         triggered_at = self.triggered_at
         pipeline = [
             {
@@ -167,6 +169,7 @@ class FPDinerDispatcher():
         return result
 
     def main(self):
+        db = self.db
         temp_collection = 'fp_list_temp'
         diners_cursor = self.diners_info
         db[temp_collection].drop()
@@ -181,12 +184,14 @@ class FPDinerDispatcher():
 
 
 class FPDinerDetailCrawler():
-    def __init__(self, target, info_collection, offset=False, limit=False):
+    def __init__(self, target, db, info_collection, offset=False, limit=False):
         self.target = target
+        self.db = db
         self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_fp_list'}
@@ -206,6 +211,7 @@ class FPDinerDetailCrawler():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
+        db = self.db
         triggered_at = self.triggered_at
         pipeline = [
             {
@@ -396,6 +402,7 @@ class FPDinerDetailCrawler():
         return diner
 
     def save_triggered_at(self, triggered_at, records_count):
+        db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -403,7 +410,8 @@ class FPDinerDetailCrawler():
             'triggered_by': 'get_fp_detail'
             })
 
-    def main(self, db, collection, data_range=0):
+    def main(self, collection, data_range=0):
+        db = self.db
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
@@ -441,6 +449,7 @@ class FPChecker():
         self.triggered_at = self.get_triggered_at()
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': self.triggered_by}
@@ -540,8 +549,8 @@ if __name__ == '__main__':
     if running['detail']:
         start = time.time()
         data_range = data_ranges['detail']
-        detail_crawler = FPDinerDetailCrawler(target, 'fp_list', offset=False, limit=False)
-        diners, error_logs = detail_crawler.main(db=db, collection='fp_detail', data_range=data_range)
+        detail_crawler = FPDinerDetailCrawler(target, db, 'fp_list', offset=False, limit=False)
+        diners, error_logs = detail_crawler.main(collection='fp_detail', data_range=data_range)
         stop = time.time()
         time.sleep(5)
         pprint.pprint(stop - start)

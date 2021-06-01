@@ -26,6 +26,6 @@ def lambda_handler(event, context, *args, **kwargs):
     limit = index['limit']
     sleepy = index['sleep']
     time.sleep(sleepy)
-    detail_crawler = UEDinerDetailCrawler('ue_list_temp', offset, limit)
-    diners, error_logs = detail_crawler.main(db=db, collection='ue_detail')
+    detail_crawler = UEDinerDetailCrawler('ue_list_temp', db, offset, limit)
+    diners, error_logs = detail_crawler.main(collection='ue_detail')
     return len(diners)

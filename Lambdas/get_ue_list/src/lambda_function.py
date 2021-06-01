@@ -2,7 +2,6 @@
 from pymongo import MongoClient
 
 # for file handling
-import os
 import env
 
 # for timing and not to get caught
@@ -20,7 +19,6 @@ admin_client = MongoClient(MONGO_HOST,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 db = admin_client['ufc']
-driver_path = os.getcwd() + "/bin/headless-chromium"
 
 
 def lambda_handler(event, context, *args, **kwargs):

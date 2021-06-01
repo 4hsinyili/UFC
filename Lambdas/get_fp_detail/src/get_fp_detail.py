@@ -1,12 +1,11 @@
 # for db control
-from pymongo import MongoClient, UpdateOne
+from pymongo import UpdateOne
 
 # for crawling from API
 import requests
 
 # for file handling
 import json
-import env
 
 # for timing and not to get caught
 from datetime import datetime
@@ -16,16 +15,6 @@ import random
 # for preview
 import pprint
 
-MONGO_HOST = env.MONGO_HOST
-MONGO_PORT = env.MONGO_PORT
-MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
-MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
-db = admin_client['ufc']
 
 target = {
     'title': 'Appworks School',
@@ -35,12 +24,14 @@ target = {
 
 
 class FPDinerDetailCrawler():
-    def __init__(self, target, info_collection, offset=False, limit=False):
+    def __init__(self, target, db, info_collection, offset=False, limit=False):
         self.target = target
+        self.db = db
         self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_fp_list'}
@@ -60,6 +51,7 @@ class FPDinerDetailCrawler():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
+        db = self.db
         triggered_at = self.triggered_at
         pipeline = [
             {
@@ -250,6 +242,7 @@ class FPDinerDetailCrawler():
         return diner
 
     def save_triggered_at(self, triggered_at, records_count):
+        db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -257,7 +250,8 @@ class FPDinerDetailCrawler():
             'triggered_by': 'get_fp_detail'
             })
 
-    def main(self, db, collection, data_range=0):
+    def main(self, collection, data_range=0):
+        db = self.db
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)

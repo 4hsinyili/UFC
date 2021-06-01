@@ -318,7 +318,7 @@ class UEDinerListCrawler():
                 diner['uuid'] = False
         return diners_info
 
-    def save_triggered_at(self, target, triggered_at, records_count):
+    def save_triggered_at(self, target, db, triggered_at, records_count):
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -355,7 +355,7 @@ class UEDinerListCrawler():
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
         stop = time.time()
-        self.save_triggered_at(target, triggered_at, len(diners_info))
+        self.save_triggered_at(target, db, triggered_at, len(diners_info))
         print('Get diner list near ', target['title'], ' took ', stop - start, ' seconds.')
         self.chrome_close(self.driver)
         return len(diners_info)
@@ -369,6 +369,7 @@ class UEDinerDispatcher():
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_ue_list'}
@@ -388,6 +389,7 @@ class UEDinerDispatcher():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
+        db = self.db
         triggered_at = self.triggered_at
         pipeline = [
             {
@@ -407,6 +409,7 @@ class UEDinerDispatcher():
         return result
 
     def main(self):
+        db = self.db
         temp_collection = 'ue_list_temp'
         diners_cursor = self.diners_info
         db[temp_collection].drop()
@@ -421,11 +424,13 @@ class UEDinerDispatcher():
 
 
 class UEDinerDetailCrawler():
-    def __init__(self, info_collection, offset=False, limit=False):
+    def __init__(self, db, info_collection, offset=False, limit=False):
+        self.db = db
         self.triggered_at = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': 'get_ue_list'}
@@ -445,6 +450,7 @@ class UEDinerDetailCrawler():
         return result
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
+        db = self.db
         triggered_at = self.triggered_at
         pipeline = [
             {
@@ -714,6 +720,7 @@ class UEDinerDetailCrawler():
         return diner
 
     def save_triggered_at(self, triggered_at, records_count):
+        db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -721,7 +728,8 @@ class UEDinerDetailCrawler():
             'triggered_by': 'get_ue_detail'
             })
 
-    def main(self, db, collection, data_range=0):
+    def main(self, collection, data_range=0):
+        db = self.db
         start = time.time()
         diners_cursor = self.diners_info
         diners, error_logs = self.get_diners_details(diners_cursor, data_range=data_range)
@@ -758,6 +766,7 @@ class UEChecker():
         self.triggered_at = self.get_triggered_at()
 
     def get_triggered_at(self, collection='trigger_log'):
+        db = self.db
         pipeline = [
             {
                 '$match': {'triggered_by': self.triggered_by}
@@ -854,8 +863,8 @@ if __name__ == '__main__':
     if running['detail']:
         start = time.time()
         data_range = data_ranges['detail']
-        detail_crawler = UEDinerDetailCrawler('ue_list_temp', offset=False, limit=False)
-        diners, error_logs = detail_crawler.main(db=db, collection='ue_detail', data_range=data_range)
+        detail_crawler = UEDinerDetailCrawler('ue_list_temp', db, offset=False, limit=False)
+        diners, error_logs = detail_crawler.main(collection='ue_detail', data_range=data_range)
         stop = time.time()
         pprint.pprint(stop - start)
 
