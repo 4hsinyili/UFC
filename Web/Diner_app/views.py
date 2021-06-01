@@ -200,23 +200,24 @@ class FavoritesAPI(views.APIView):
             next_offset = offset + 6
         else:
             next_offset = 0
+        or_conditions = []
         for favorite in favorites[offset: offset+6]:
             if len(favorite) > 8:
                 uuid_ue = favorite
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
-                if diner:
-                    diner['favorite'] = True
-                    diners.append(diner)
+                match = {"uuid_ue": uuid_ue}
+                or_conditions.append(match)
             else:
                 uuid_fp = favorite
-                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
-                if diner:
-                    diner['favorite'] = True
-                    diners.append(diner)
+                match = {"uuid_fp": uuid_fp}
+                or_conditions.append(match)
+        match_condition = {"$match": {"$or": or_conditions, "triggered_at": triggered_at}}
+        diners = list(db['matched'].aggregate([match_condition]))
         if len(diners) == 0:
             return Response({
                 'is_data': False
             })
+        for diner in diners:
+            diner['favorite'] = True
         data = MatchSerializer(diners, many=True).data
         return Response({
             'is_data': True,
