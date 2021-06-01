@@ -1,8 +1,9 @@
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
+const userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
 const uuidUE = urlParams.get('uuid_ue')
 const uuidFP = urlParams.get('uuid_fp')
-let dinerInfoAPI = 'api/v1/dinerinfo'.concat('?uuid_ue=').concat(uuidUE).concat('&uuid_fp=').concat(uuidFP)
+let dinerInfoAPI = 'api/v1/dinerinfo'.concat('?uuid_ue=').concat(uuidUE).concat('&uuid_fp=').concat(uuidFP).concat('&user_id=').concat(userId)
 
 let dinerSection = document.querySelector('[name=section]')
 let dinerSubsection = document.querySelector('[name=subsection]')
@@ -52,8 +53,9 @@ function renderTitle(diner, source){
 
 function renderImage(diner, source){
     let selector = 'image_'.concat(source)
+    let imageNodeUe = document.getElementById('image_ue')
     let imageDom = document.getElementById(selector)
-    imageDom.setAttribute('src', diner['image_'.concat(source)])
+    if (imageNodeUe.getAttribute('src') == ""){imageDom.setAttribute('src', diner['image_'.concat(source)])}
     return imageDom
 }
 
@@ -211,6 +213,8 @@ ajaxGet(dinerInfoAPI, function(response){
         renderDiner(response, 'fp')
         $('#info_fp').show()
     }
+    let imageNodeFp = document.getElementById('image_fp')
+    if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()}
     $('#diner-info').show()
 })
 

@@ -11,72 +11,70 @@
 {% block content %}
     <h1>Diner Info</h1>
     <div id="diner-info" class="container">
-        <div id="info_ue" class="col" style="display: none;">
-            <a id="title_ue" class="row" href=""></a>
-            <div name="thumbnail" class="row">
-                <div class="col-7">
-                    <div id="image-row" class="row">
-                        <img id="image_ue">
-                    </div>
-                </div>
-                <div class="col-1"></div>
-                <div class="col-4">
-                    <div id="rating_ue" class="row"></div>
-                    <div id="view_count_ue" class="row"></div>
-                    <div id="budget_ue" class="row"></div>
-                    <div id="deliver_fee_ue" class="row"></div>
-                    <div id="deliver_time_ue" class="row"></div>
-                    <div id="show-more-info_ue" class="row">顯示營業時間</div>
-                </div>
-            </div>
-            <div name="more-info" class="row" style="display: none;">
-                <div id="open_hours_row" class="col">
-                    <div id="open_hours_ue" class="col">
-                        <div name="open_hour_ue" class="row" style="display: none;"></div>
-                    </div>
-                </div>
-            </div>
+        <div id="title-row" class="row">
+            <a id="title_ue" class="col" href=""></a>
+            <a id="title_fp" class="col" href=""></a>
         </div>
-        <div id="info_fp" class="col" style="display: none;">
-            <a id="title_fp" class="row" href=""></a>
-            <div name="thumbnail" class="row">
-                <div class="col-7">
-                    <div id="image-row" class="row">
-                        <img id="image_fp">
-                    </div>
-                </div>
-                <div class="col-1"></div>
-                <div class="col-4">
-                    <div id="rating_fp" class="row"></div>
-                    <div id="view_count_fp" class="row"></div>
-                    <div id="budget_fp" class="row"></div>
-                    <div id="deliver_fee_fp" class="row"></div>
-                    <div id="deliver_time_fp" class="row"></div>
-                    <div id="show-more-info_fp" class="row">顯示營業時間</div>
-                </div>
-            </div>
-            <div name="more-info" class="row" style="display: none;">
-                <div id="open_hours_row" class="col">
-                    <div id="open_hours_fp" class="col">
-                        <div name="open_hour_fp" class="row" style="display: none;"></div>
-                    </div>
-                </div>
-            </div>
+        <div id="image-row" class="row">
+            <img id="image_ue" class="col" src="">
+            <img id="image_fp" class="col" src="">
         </div>
-        <div id="info_gm" class="row" style="display: none;">
-            <div id="rating_gm"></div>
-            <div id="view_count_gm"></div>
-            <div id="link_gm"></div>
+        <div id="info-rows" class="row">
+            <div id="info_ue" class="col" style="display: none;">
+                <div name="thumbnail" class="row">
+                    <div class="col">
+                        <div id="rating_ue" class="row"></div>
+                        <div id="view_count_ue" class="row"></div>
+                        <div id="budget_ue" class="row"></div>
+                        <div id="deliver_fee_ue" class="row"></div>
+                        <div id="deliver_time_ue" class="row"></div>
+                        <div id="show-more-info_ue" class="row">顯示營業時間</div>
+                    </div>
+                </div>
+                <div name="more-info" class="row" style="display: none;">
+                    <div id="open_hours_row" class="col">
+                        <div id="open_hours_ue" class="col">
+                            <div name="open_hour_ue" class="row" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="info_fp" class="col" style="display: none;">
+                <div name="thumbnail" class="row">
+                    <div class="col">
+                        <div id="rating_fp" class="row"></div>
+                        <div id="view_count_fp" class="row"></div>
+                        <div id="budget_fp" class="row"></div>
+                        <div id="deliver_fee_fp" class="row"></div>
+                        <div id="deliver_time_fp" class="row"></div>
+                        <div id="show-more-info_fp" class="row">顯示營業時間</div>
+                    </div>
+                </div>
+                <div name="more-info" class="row" style="display: none;">
+                    <div id="open_hours_row" class="col">
+                        <div id="open_hours_fp" class="col">
+                            <div name="open_hour_fp" class="row" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="info_gm" class="row" style="display: none;">
+                <div id="rating_gm"></div>
+                <div id="view_count_gm"></div>
+                <div id="link_gm"></div>
+            </div>
         </div>
         <div id="menu">
             <div id="menu_ue" class="row">
+                <div>Uber Eats Menu</div>
                 <div id="section-tabs_ue"></div>
-                <div name="sections_ue" class="col">
+                <div name="sections_ue" class="col" style="display: none;">
                 </div>
             </div>
             <div id="menu_fp" class="row">
+                <div>Food Panda Menu</div>
                 <div id="section-tabs_fp"></div>
-                <div name="sections_fp" class="col">
+                <div name="sections_fp" class="col" style="display: none;">
                 </div>
             </div>
         </div>

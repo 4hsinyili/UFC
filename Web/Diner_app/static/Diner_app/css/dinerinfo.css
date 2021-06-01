@@ -6,7 +6,10 @@
 .image{
     height: auto;
     overflow: auto;
+    width: 100%;
     max-width: 100%;
+    max-height: 400px;
+    object-fit: none;
 }
 
 .filters-buttons{
@@ -50,4 +53,53 @@
     width: 360px;
     height: 180px;
     object-fit: none;
+}
+
+
+#title_ue{
+    color: #14BC41;
+}
+
+#rating_ue{
+    color: #14BC41;
+}
+
+#view_count_ue{
+    color: #14BC41;
+}
+
+#budget_ue{
+    color: #14BC41;
+}
+
+#deliver_fee_ue{
+    color: #14BC41;
+}
+
+#deliver_time_ue{
+    color: #14BC41;
+}
+
+#title_fp{
+    color: #E54190;
+}
+
+#rating_fp{
+    color: #E54190;
+}
+
+#view_count_fp{
+    color: #E54190;
+}
+
+#budget_fp{
+    color: #E54190;
+}
+
+#deliver_fee_fp{
+    color: #E54190;
+}
+
+#deliver_time_fp{
+    color: #E54190;
 }
