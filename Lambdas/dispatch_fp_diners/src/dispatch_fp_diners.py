@@ -14,7 +14,7 @@ admin_client = MongoClient(MONGO_HOST,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 
-db = admin_client['ufc_temp']
+db = admin_client['ufc']
 
 
 class FPDinerDispatcher():

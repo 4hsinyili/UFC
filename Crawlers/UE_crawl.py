@@ -62,7 +62,7 @@ targets = [
     }
 ]
 
-db = admin_client['ufc_temp']
+db = admin_client['ufc']
 driver_path = env.driver_path
 
 

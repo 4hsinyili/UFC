@@ -13,7 +13,7 @@ admin_client = MongoClient(MONGO_HOST,
                            MONGO_PORT,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
-db = admin_client['ufc_temp']
+db = admin_client['ufc']
 
 target = {
     'name': 'Appworks School',
