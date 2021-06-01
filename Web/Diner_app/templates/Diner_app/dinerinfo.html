@@ -68,13 +68,13 @@
             <div id="menu_ue" class="row">
                 <div>Uber Eats Menu</div>
                 <div id="section-tabs_ue"></div>
-                <div name="sections_ue" class="col" style="display: none;">
+                <div name="sections_ue" class="col">
                 </div>
             </div>
             <div id="menu_fp" class="row">
                 <div>Food Panda Menu</div>
                 <div id="section-tabs_fp"></div>
-                <div name="sections_fp" class="col" style="display: none;">
+                <div name="sections_fp" class="col">
                 </div>
             </div>
         </div>
@@ -92,13 +92,19 @@
         </div>
     </div>
     <div name="item" class="col-12" style="display: none">
-        <div name="item-title" class="row"></div>
-        <div name="item-description" class="row"></div>
-        <div name="item-price" class="row"></div>
-        <img name="item-image" class="row">
+        <div class="row">
+            <div class="col-8">
+                <div name="item-title" class="row"></div>
+                <div name="item-price" class="row"></div>
+                <div name="item-description" class="row"></div>
+            </div>
+            <img name="item-image" class="col-4">
+        </div>
+        <div class="row line"></div>
     </div>
     <div name="items" class="row" style="display: none"></div>
     <div name="subsection" class="col-12" style="display: none">
+        <div class="row line"></div>
         <div name="subsection-title" class="row"></div>
     </div>
     <div name="section" class="row" style="display: none">

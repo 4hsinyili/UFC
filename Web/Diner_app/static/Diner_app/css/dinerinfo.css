@@ -103,3 +103,21 @@
 #deliver_time_fp{
     color: #E54190;
 }
+
+[name=item-image]{
+    max-height: 100px;
+}
+
+.line{
+    height: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #E5E5E5;
+}
+
+.line{
+    height: 1px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background-color: #E5E5E5;
+}

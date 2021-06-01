@@ -12,6 +12,8 @@ let dinerItem = document.querySelector('[name=item]')
 let tabDom = document.querySelector('[name=section-tab]')
 let tabPkDom = document.querySelector('[name=section-tab-pk]')
 
+
+
 $('#diner-info').hide()
 
 function ajaxGet(src, callback){
@@ -150,7 +152,7 @@ function renderMenu(sections, subsectionTitles, source){
         let subsections = sections[key]
         let newSection = dinerSection.cloneNode(true)
         let nsTitleDom = newSection.querySelector('[name=section-title]')
-        nsTitleDom.innerText = key
+        // nsTitleDom.innerText = key
         for (let r=0; r < subsections.length; r++){
             let subsection = subsections[r]
             let items = subsection.items
@@ -172,7 +174,7 @@ function renderMenu(sections, subsectionTitles, source){
                 let descriptionDom = newItem.querySelector('[name=item-description]')
                 titleDom.innerText = itemTitle
                 priceDom.innerText = itemPrice
-                imageDom.setAttribute('src', itemImage)
+                if (itemImage == ""){imageDom.remove()} else{ imageDom.setAttribute('src', itemImage)}
                 descriptionDom.innerText = itemDescription
                 $(newItem).show()
                 newItemsDom.appendChild(newItem)
@@ -216,6 +218,7 @@ ajaxGet(dinerInfoAPI, function(response){
     let imageNodeFp = document.getElementById('image_fp')
     if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()}
     $('#diner-info').show()
+    $('[data-section-title]').hide()
 })
 
 document.addEventListener('click', (e)=>{
@@ -227,8 +230,8 @@ document.addEventListener('click', (e)=>{
 })
 
 document.addEventListener('click', (e)=>{
-    console.log('aa')
     if (e.target.getAttribute('name') == 'section-tab'){
+        console.log('aab')
         let dataSectionTitle = e.target.innerText
         $(`[data-section-title="${dataSectionTitle}"]`).toggle()
     } else if (e.target.getAttribute('name') == 'section-tab-pk'){
