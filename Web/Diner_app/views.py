@@ -131,18 +131,23 @@ class DinerInfo(views.APIView):
         start = time.time()
         uuid_ue = self.request.query_params.get('uuid_ue', None)
         uuid_fp = self.request.query_params.get('uuid_fp', None)
+        user_id = self.request.query_params.get('user_id', None)
         if uuid_ue:
             triggered_at = match_checker.triggered_at
-            diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
-            diner = diner
+            if user_id == 0:
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
+            else:
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, user_id, favorites_model)
             results = MatchSerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
             return Response({'data': results})
         if uuid_fp:
             triggered_at = match_checker.triggered_at
-            diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
-            diner = diner
+            if user_id == 0:
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
+            else:
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, user_id, favorites_model)
             results = MatchSerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
@@ -231,7 +236,10 @@ def dinerlist(request):
 
 
 def dinerinfo(request):
-    return render(request, 'Diner_app/dinerinfo.html', {})
+    user_id = request.user.id
+    if user_id is None:
+        user_id = 0
+    return render(request, 'Diner_app/dinerinfo.html', {'user_id': user_id})
 
 
 def collection(request):

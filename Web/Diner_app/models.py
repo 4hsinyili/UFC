@@ -278,7 +278,7 @@ class MatchDinerInfo():
         self.db = db
         self.collection = collection
 
-    def get_diner(self, diner_id, source, triggered_at):
+    def get_diner(self, diner_id, source, triggered_at, user_id=0, favorites_model=False):
         db = self.db
         collection = self.collection
         match_conditions = {
@@ -298,11 +298,21 @@ class MatchDinerInfo():
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
         try:
-            result = next(cursor)
+            diner = next(cursor)
+            if favorites_model:
+                favorites = favorites_model.get_favorites(user_id)
+            if favorites:
+                favorites = set(favorites)
+                if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
+                    diner['favorite'] = True
+                else:
+                    diner['favorite'] = False
+            else:
+                diner['favorite'] = False
         except Exception:
             return False
         cursor.close()
-        return result
+        return diner
 
 
 class Favorites():
