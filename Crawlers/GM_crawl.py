@@ -221,7 +221,7 @@ class GMCrawler():
                     'uuid_ue': diner['uuid_ue'],
                     'uuid_fp': diner['uuid_fp'],
                     'triggered_at': diner['triggered_at']
-                    }, {'$setOnInsert': diner}, upsert=True
+                    }, {'$set': diner}, upsert=True
             )
             records.append(record)
         return records
