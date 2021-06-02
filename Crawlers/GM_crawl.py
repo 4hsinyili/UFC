@@ -179,27 +179,38 @@ class GMCrawler():
         return places
 
     def parse_places(self, places, triggered_at_gm):
-        if (places['status'] == 'OK') and (places['candidates'] != []):
-            place = places['candidates'][0]
-            diner = {
-                'title_gm': place['name'],
-                'rating_gm': place['rating'],
-                'view_count_gm': place['user_ratings_total'],
-                'uuid_gm': place['place_id'],
-                'link_gm': 'https://www.google.com/maps/place/?q=place_id:' + place['place_id'],
-                'triggered_at_gm': triggered_at_gm
+        try:
+            if (places['status'] == 'OK') and (places['candidates'] != []):
+                place = places['candidates'][0]
+                diner = {
+                    'title_gm': place['name'],
+                    'rating_gm': place['rating'],
+                    'view_count_gm': place['user_ratings_total'],
+                    'uuid_gm': place['place_id'],
+                    'link_gm': 'https://www.google.com/maps/place/?q=place_id:' + place['place_id'],
+                    'triggered_at_gm': triggered_at_gm
 
-            }
-            return diner
-        else:
+                }
+                return diner
+            else:
+                diner = {
+                    'title_gm': '',
+                    'rating_gm': 0,
+                    'view_count_gm': 0,
+                    'uuid_gm': '',
+                    'link_gm': '',
+                    'triggered_at_gm': triggered_at_gm
+                }
+                return diner
+        except Exception:
             diner = {
-                'title_gm': '',
-                'rating_gm': 0,
-                'view_count_gm': 0,
-                'uuid_gm': '',
-                'link_gm': '',
-                'triggered_at_gm': triggered_at_gm
-            }
+                    'title_gm': '',
+                    'rating_gm': 0,
+                    'view_count_gm': 0,
+                    'uuid_gm': '',
+                    'link_gm': '',
+                    'triggered_at_gm': triggered_at_gm
+                }
             return diner
 
     def transfer_diners_to_records(self, diners):
