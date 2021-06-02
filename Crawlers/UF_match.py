@@ -186,6 +186,11 @@ class Match():
             del records_combined[(key, '')]
         for key in similarities_fp:
             del records_combined[('', key)]
+        for key in records_combined:
+            records_combined[key]['uuid_gm'] = ''
+            records_combined[key]['similarity'] = 0
+            records_combined[key]['cheaper_ue'] = []
+            records_combined[key]['cheaper_fp'] = []
         for key in similarities_mathced:
             uuid_ue = key[0]
             uuid_fp = key[1]
