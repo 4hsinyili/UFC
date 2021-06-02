@@ -232,7 +232,8 @@ class GMCrawler():
     def save_to_matched(self, db, collection, records):
         db[collection].bulk_write(records)
 
-    def main(self, db, matched_checker, api_key, limit=0):
+    def main(self, db, api_key, limit=0):
+        db = self.db
         triggered_at_gm = self.generate_triggered_at()
         targets = self.get_targets(db, 'matched', matched_checker, limit)
         start = time.time()
@@ -260,6 +261,7 @@ class GMCrawler():
 
 if __name__ == '__main__':
     crawler = GMCrawler()
-    # crawler.main(db, matched_checker, API_KEY, 10)
     targets = crawler.get_targets(db, 'matched', matched_checker, 1)
     pprint.pprint(next(targets))
+    crawler = GMCrawler(db, 'matched', matched_checker)
+    crawler.main(db, API_KEY, 0)
