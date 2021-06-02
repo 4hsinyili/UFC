@@ -52,7 +52,7 @@ class GMCrawler():
         pipeline = [
             {
                 '$match': {
-                    'triggered_at': {
+                    'triggered_at_gm': {
                                 '$gte': last_week,
                                 '$lt': triggered_at
                                 },
