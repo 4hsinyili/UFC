@@ -258,6 +258,47 @@ class GMCrawler():
         print('Send ', len(diners), ' to place API and save to db took: ', stop - start, 's.')
 
 
+class GMChecker():
+    def __init__(self, db, collection):
+        self.db = db
+        self. collection = collection
+        self.triggered_at = self.get_triggered_at()
+
+    def get_triggered_at(self):
+        db = self.db
+        collection = self.collection
+        pipeline = [
+            {
+                '$sort': {'triggered_at': 1}
+            },
+            {
+                '$group': {
+                    '_id': None,
+                    'triggered_at': {'$last': '$triggered_at'}
+                    }
+            }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline)
+        result = list(result)[0]['triggered_at']
+        return result
+
+    def get_last_records(self, limit=0):
+        db = self.db
+        collection = self.collection
+        triggered_at = self.triggered_at
+        pipeline = [
+            {'$match': {
+                'triggered_at': triggered_at
+                }}, {
+                '$sort': {'uuid_ue': 1}
+                }
+        ]
+        if limit > 0:
+            pipeline.append({'$limit': limit})
+        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return result
+
+
 if __name__ == '__main__':
     crawler = GMCrawler(db, 'matched', matched_checker)
     crawler.main(db, API_KEY, 0)
