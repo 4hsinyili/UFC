@@ -221,13 +221,10 @@ class GMCrawler():
                     'uuid_ue': diner['uuid_ue'],
                     'uuid_fp': diner['uuid_fp'],
                     'triggered_at': diner['triggered_at']
-                    }, {'$set': diner}, upsert=True
+                    }, {'$set': diner}
             )
             records.append(record)
         return records
-
-    def save_to_placed(self, db, collection, records):
-        db[collection].bulk_write(records)
 
     def save_to_matched(self, db, collection, records):
         db[collection].bulk_write(records)
