@@ -100,11 +100,35 @@ class GMCrawler():
             db[collection].bulk_write(update_records)
         stop = time.time()
         print('Update took ', stop - start, ' s.')
+
+    def get_targets(self, limit=0):
+        db = self.db
+        collection = self.collection
+        matched_checker = self.matched_checker
+        triggered_at = matched_checker.triggered_at
+        pipeline = [
+            {
+                '$match': {
+                    'triggered_at_gm': {'$exists': False},
+                    'triggered_at': triggered_at}
+            }, {
+                '$sort': {'_id': 1}
+            }, {
+                '$project': {
+                    '_id': 0,
+                    'uuid_ue': 1,
+                    'title_ue': 1,
+                    'gps_ue': 1,
+                    'uuid_fp': 1,
+                    'title_fp': 1,
+                    'gps_fp': 1,
+                    'triggered_at': 1,
+                    }
             }
         ]
         if limit > 0:
             pipeline.append({'$limit': limit})
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = db[collection].aggregate(pipeline=pipeline)
         return result
 
     def generate_triggered_at():
