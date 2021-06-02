@@ -150,6 +150,7 @@ class GMCrawler():
                 'uuid_fp': target['uuid_fp'],
             }
             parsed_targets.append(parsed_target)
+        print('There are', len(parsed_targets), 'diners need to send to google map API')
         return parsed_targets
 
     def generate_triggered_at(self):
