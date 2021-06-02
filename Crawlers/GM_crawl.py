@@ -131,21 +131,14 @@ class GMCrawler():
         result = db[collection].aggregate(pipeline=pipeline)
         return result
 
-    def generate_triggered_at():
-        now = datetime.now()
-        triggered_at = datetime.combine(now.date(), datetime.min.time())
-        triggered_at = triggered_at.replace(hour=now.hour)
-        return triggered_at
-
     def parse_targets(self, targets):
         parsed_targets = []
         for target in targets:
-            target = target['data']
             if target['title_fp'] == '':
                 title = target['title_ue']
             else:
                 title = target['title_fp']
-            if target['gps_fp'] == '':
+            if target['gps_fp'] == []:
                 gps = target['gps_ue']
             else:
                 gps = target['gps_fp']
@@ -158,6 +151,12 @@ class GMCrawler():
             }
             parsed_targets.append(parsed_target)
         return parsed_targets
+
+    def generate_triggered_at(self):
+        now = datetime.utcnow()
+        triggered_at = datetime.combine(now.date(), datetime.min.time())
+        triggered_at = triggered_at.replace(hour=now.hour)
+        return triggered_at
 
     def get_url(self, target, api_key):
         data_type = 'json'
