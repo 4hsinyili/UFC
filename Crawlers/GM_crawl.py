@@ -18,7 +18,7 @@ import requests
 from urllib.parse import urlencode
 
 # home-made module
-from Crawlers import UF_combine
+from Crawlers import UF_match
 
 MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT
@@ -31,7 +31,7 @@ admin_client = MongoClient(MONGO_HOST,
                            password=MONGO_ADMIN_PASSWORD)
 
 db = admin_client['ufc']
-matched_checker = UF_combine.MatchedChecker(db, 'matched')
+matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
 
 
 class GMCrawler():
