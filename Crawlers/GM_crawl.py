@@ -226,7 +226,7 @@ class GMCrawler():
             records.append(record)
         return records
 
-    def save_to_gm_placed(self, db, collection, records):
+    def save_to_placed(self, db, collection, records):
         db[collection].bulk_write(records)
 
     def save_to_matched(self, db, collection, records):
@@ -249,9 +249,11 @@ class GMCrawler():
             else:
                 continue
         records = self.transfer_diners_to_records(diners)
-        self.save_to_matched(db, 'matched', records)
-        self.save_to_gm_placed(db, 'gm_placed', records)
-        pprint.pprint(diners[0])
+        try:
+            self.save_to_matched(db, 'matched', records)
+            self.save_to_placed(db, 'placed', records)
+        except Exception:
+            pprint.pprint('No new diner need to send to GM.')
         stop = time.time()
         print('Send ', len(diners), ' to place API and save to db took: ', stop - start, 's.')
 
