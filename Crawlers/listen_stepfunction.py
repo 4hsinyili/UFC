@@ -1,7 +1,7 @@
 #  for db control
 from pymongo import MongoClient
 import time
-from Crawlers import UF_combine
+from Crawlers import UF_match, GM_crawl
 
 # for file handling
 import env
@@ -10,7 +10,7 @@ MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT
 MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
 MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
+API_KEY = env.PLACE_API_KEY
 admin_client = MongoClient(MONGO_HOST,
                            MONGO_PORT,
                            username=MONGO_ADMIN_USERNAME,
@@ -29,22 +29,22 @@ def listen():
     ]
     result = db['stepfunction_log'].aggregate(pipeline=pipeline)
     result = list(result)
-    print(result)
     if result == []:
         return False
     else:
         return result[-1]
 
 
-def main(comparison):
+def main(matcher, crawler):
     result = listen()
     if result:
         result['matched'] = True
-        comparison.main(db, collection, data_range)
+        matcher.main(data_range)
         db['stepfunction_log'].update_one(
             {'_id': result['_id']},
             {'$set': {'matched': True}}
             )
+        crawler.main(db, API_KEY, 0)
         return True
     else:
         return False
@@ -53,10 +53,11 @@ def main(comparison):
 if __name__ == '__main__':
     collection = 'matched'
     data_range = 0
-    comparison = UF_combine.Comparison()
-    check_break = main(comparison)
+    macther = UF_match.Match(db, collection)
+    matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
+    crawler = GM_crawl.GMCrawler(db, 'matched', matched_checker)
     while True:
-        check_break = main(comparison)
+        check_break = main(macther, crawler)
         if check_break:
             break
         else:
