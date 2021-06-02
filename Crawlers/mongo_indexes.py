@@ -21,7 +21,7 @@ if __name__ == '__main__':
     db['matched'].create_index([
         ('uuid_ue', ASCENDING),
         ('uuid_fp', ASCENDING),
-        ('uuid_matched', ASCENDING)
+        ('uuid_matched', ASCENDING),
         ('triggered_at_ue', ASCENDING),
         ('triggered_at_fp', ASCENDING)
         ])
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         ('uuid_ue', ASCENDING),
         ('uuid_fp', ASCENDING),
         ('uuid_gm', ASCENDING),
-        ('uuid_matched', ASCENDING)
+        ('uuid_matched', ASCENDING),
         ('triggered_at_ue', ASCENDING),
         ('triggered_at_fp', ASCENDING),
         ('triggered_at_gm', ASCENDING)
