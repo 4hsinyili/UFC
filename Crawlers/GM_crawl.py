@@ -35,8 +35,11 @@ matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
 
 
 class GMCrawler():
-    def get_targets(self, db, collection, matched_checker, limit=0):
-        triggered_at = matched_checker.get_triggered_at()
+    def __init__(self, db, collection, matched_checker):
+        self.db = db
+        self.collection = collection
+        self.matched_checker = matched_checker
+
         start = time.time()
         last_week = triggered_at - timedelta(weeks=1)
         grand_last_week = triggered_at - timedelta(weeks=2)
