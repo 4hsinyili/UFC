@@ -1,49 +1,41 @@
+# from django.http import request
 from django.shortcuts import redirect, render
-from .forms import RegisterForm
-# from django.contrib.auth import login, logout
+from .forms import RegisterForm, LoginForm
 # Create your views here.
 
 
-def register(response):
-    if response.method == "POST":
-        form = RegisterForm(response.POST)
+def register(request):
+    if request.user.is_authenticated:
+        return redirect("/dinerlist")
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            login(request)
+        return redirect("/user/login")
+    else:
+        form = RegisterForm()
+
+    return render(request, 'User_app/register.html', {"form": form})
+
+
+def login(request):
+    if request.user.is_authenticated:
+        return redirect("/dinerlist")
+    if request.method == "POST":
+        form = LoginForm(request.POST)
         if form.is_valid():
             form.save()
         return redirect("/dinerlist")
     else:
-        form = RegisterForm()
+        form = LoginForm()
 
-    return render(response, 'User_app/register.html', {"form": form})
-
-
-# def custom_login(request):
-#     if request.user.is_authenticated:
-#         return redirect('/dinerlist')
-#     else:
-#         return login(request, request.user)
+    return render(request, 'User_app/login.html', {"form": form})
 
 
-# def custom_logout(request):
-#     if request.user.is_authenticated:
-#         return logout(request)
-#     else:
-#         return redirect('/dinerlist')
-
-# def login(response):
-#     if response.method == "POST":
-#         form = LoginForm(response.POST)
-#         if form.is_valid():
-#             form.save()
-#         return redirect("/dinerlist")
-#     else:
-#         form = RegisterForm()
-
-#     return render(response, 'User_app/login.html', {"form": form})
-
-
-def collection(response):
-    if response.user.is_authenticated:
-        return render(response, 'User_app/collection.html', {})
+def collection(request):
+    if request.user.is_authenticated:
+        return render(request, 'User_app/collection.html', {})
     else:
         return redirect('login')
 
