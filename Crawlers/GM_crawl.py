@@ -81,20 +81,17 @@ class GMCrawler():
         update_records = []
         loop_count = 0
         last_triggered_at = matched_checker.triggered_at
-        try:
-            datas = next(cursor)['data']
-            for data in datas:
-                loop_count += 1
-                record = UpdateOne(
-                    {
-                        'uuid_ue': data['uuid_ue'],
-                        'uuid_fp': data['uuid_fp'],
-                        'triggered_at': last_triggered_at
-                        }, {'$set': data}, upsert=True
-                )
-                update_records.append(record)
-        except Exception:
-            pass
+        datas = next(cursor)['data']
+        for data in datas:
+            loop_count += 1
+            record = UpdateOne(
+                {
+                    'uuid_ue': data['uuid_ue'],
+                    'uuid_fp': data['uuid_fp'],
+                    'triggered_at': last_triggered_at
+                    }, {'$set': data}
+            )
+            update_records.append(record)
         cursor.close()
         print('There are ', loop_count, ' diners updated using old records.')
         if len(update_records) > 0:
