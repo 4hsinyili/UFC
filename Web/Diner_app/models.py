@@ -48,7 +48,7 @@ class MatchChecker():
                     }
             }, {
                 '$sort': {'uuid': 1}
-                }
+            }
         ]
         if limit > 0:
             pipeline.append({'$limit': limit})
