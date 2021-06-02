@@ -26,6 +26,24 @@ class Match():
     def __init__(self, db, collectoin):
         self.db = db
         self.collectoin = collectoin
+        self.triggered_at = self.get_triggered_at()
+
+    def get_triggered_at(self, collection='stepfunction_log'):
+        db = self.db
+        pipeline = [
+            {
+                '$sort': {'ue_triggered_at': 1}
+            },
+            {
+                '$group': {
+                    '_id': None,
+                    'triggered_at': {'$last': '$ue_triggered_at'}
+                    }
+            }
+        ]
+        result = db[collection].aggregate(pipeline=pipeline)
+        result = list(result)[0]['triggered_at']
+        return result
 
     def get_records(self):
         db = self.db
@@ -218,10 +236,10 @@ class Match():
             records.append(record)
         db[collection].bulk_write(records)
         pprint.pprint('write into matched successed')
-        return triggered_at
 
-    def save_triggered_at(self, triggered_at, records_count):
+    def save_triggered_at(self, records_count):
         db = self.db
+        triggered_at = self.triggered_at
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -247,8 +265,8 @@ class Match():
         stop = time.time()
         print('process took: ', stop - start)
         print('Saved ', records_count, 'diners to db.matched.')
-        triggered_at = self.save_to_matched(matched_records)
-        self.save_triggered_at(triggered_at, records_count)
+        self.save_to_matched(matched_records)
+        self.save_triggered_at(records_count)
 
 
 class MatchedChecker():
@@ -300,6 +318,7 @@ if __name__ == '__main__':
     collection = 'matched'
     data_range = 0
     matcher = Match(db, collection)
+    print(matcher.triggered_at)
     matcher.main(data_range)
     # checker = MatchedChecker(db, collection, 'get_ue_detail')
     # records = checker.get_last_records(1)
