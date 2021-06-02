@@ -235,8 +235,9 @@ class GMCrawler():
     def main(self, db, api_key, limit=0):
         db = self.db
         triggered_at_gm = self.generate_triggered_at()
-        targets = self.get_targets(db, 'matched', matched_checker, limit)
+        self.update_from_previous()
         start = time.time()
+        targets = self.get_targets(limit)
         targets = self.parse_targets(targets)
         diners = []
         for target in targets:
@@ -246,9 +247,7 @@ class GMCrawler():
             diner.update(target)
             for key in ['title', 'gps']:
                 del diner[key]
-                diners.append(diner)
-            else:
-                continue
+            diners.append(diner)
         records = self.transfer_diners_to_records(diners)
         try:
             self.save_to_matched(db, 'matched', records)
