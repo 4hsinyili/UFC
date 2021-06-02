@@ -23,9 +23,9 @@ db = admin_client['ufc']
 
 
 class Match():
-    def __init__(self, db, collectoin):
+    def __init__(self, db, collection):
         self.db = db
-        self.collectoin = collectoin
+        self.collection = collection
         self.triggered_at = self.get_triggered_at()
 
     def get_triggered_at(self, collection='stepfunction_log'):
@@ -210,7 +210,7 @@ class Match():
 
     def save_to_matched(self, diners):
         db = self.db
-        collection = self.collectoin
+        collection = self.collection
         records = []
         for key in diners:
             diner = diners[key]
