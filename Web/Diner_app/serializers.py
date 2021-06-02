@@ -88,6 +88,17 @@ class MatchSerializer(serializers.Serializer):
     gps_fp = serializers.ListField()
     open_hours_fp = serializers.ListField()
     favorite = serializers.BooleanField()
+    title_gm = serializers.CharField(max_length=3000)
+    rating_gm = serializers.FloatField()
+    view_count_gm = serializers.IntegerField()
+    uuid_gm = serializers.CharField(max_length=3000)
+    link_gm = serializers.CharField(max_length=3000)
+    triggered_at_gm = serializers.DateTimeField()
+    item_pair_ue = serializers.ListField()
+    item_pair_fp = serializers.ListField()
+    similarity = serializers.FloatField()
+    cheaper_ue = serializers.ListField()
+    cheaper_fp = serializers.ListField()
 
 
 class FilterSerializer(serializers.Serializer):
