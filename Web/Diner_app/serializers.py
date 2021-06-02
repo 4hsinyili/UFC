@@ -101,6 +101,7 @@ class MatchSerializer(serializers.Serializer):
     cheaper_fp = serializers.ListField(required=False)
     not_found_gm = serializers.BooleanField(required=False)
 
+
 class FilterSerializer(serializers.Serializer):
     """Your data serializer, define your fields here."""
     rating_ue = serializers.ListField()
