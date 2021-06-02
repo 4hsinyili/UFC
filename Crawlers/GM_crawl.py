@@ -286,10 +286,8 @@ class GMChecker():
         pipeline = [
             {'$match': {
                 'triggered_at': triggered_at,
-                'uuid_gm': {"$ne": '', '$exists': True}
-                }}, {
-                '$sort': {'uuid_ue': 1}
-                }
+                'uuid_gm': {'$exists': True, '$ne': ''}
+                }}
         ]
         if limit > 0:
             pipeline.append({'$limit': limit})
@@ -299,13 +297,28 @@ class GMChecker():
 
 if __name__ == '__main__':
     crawler = GMCrawler(db, 'matched', matched_checker)
-    # crawler.update_from_previous()
-    crawler.main(db, API_KEY, 0)
-    # targets = crawler.get_targets(1)
-    # for target in targets:
-    #     pprint.pprint(target)
-    # targets = crawler.get_targets(0)
-    # print(len(list(targets)))
-    # checker = GMChecker(db, 'matched')
-    # cursor = checker.get_last_records(1)
-    # pprint.pprint(next(cursor))
+    print('-----------before-------------')
+    targets = crawler.get_targets(1)
+    for target in targets:
+        pprint.pprint(target)
+
+    targets = crawler.get_targets(0)
+    print(len(list(targets)))
+
+    crawler.main(db, API_KEY, 1)
+
+    print('-----------after-------------')
+    targets = crawler.get_targets(1)
+    for target in targets:
+        pprint.pprint(target)
+
+    targets = crawler.get_targets(0)
+    print(len(list(targets)))
+
+    print('----------should have gm------')
+    checker = GMChecker(db, 'matched')
+    cursor = checker.get_last_records(1)
+    for target in cursor:
+        del target['menu_ue']
+        del target['menu_fp']
+        pprint.pprint(target)
