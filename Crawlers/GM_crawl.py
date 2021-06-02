@@ -81,7 +81,12 @@ class GMCrawler():
         update_records = []
         loop_count = 0
         last_triggered_at = matched_checker.triggered_at
-        datas = next(cursor)['data']
+        try:
+            datas = next(cursor)['data']
+        except Exception:
+            print('No old records to update.')
+            cursor.close()
+            return None
         for data in datas:
             loop_count += 1
             record = UpdateOne(
