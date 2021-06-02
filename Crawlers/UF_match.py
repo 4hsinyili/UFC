@@ -35,14 +35,14 @@ class Match():
         for ue_record in ue_records:
             ue_record['choice'] = ue_record['UE_choice']
             del ue_record['UE_choice']
-
+        ue_cursor.close()
         fpchecker = FPChecker(db, 'fp_detail', 'get_fp_detail')
         fp_cursor = fpchecker.get_last_records()
         fp_records = list(fp_cursor)
         for fp_record in fp_records:
             fp_record['choice'] = fp_record['FP_choice']
             del fp_record['FP_choice']
-
+        fp_cursor.close()
         return ue_records, fp_records
 
     def compare(self, ue_records, fp_records):
@@ -274,8 +274,9 @@ class MatchedChecker():
                     }
             }
         ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]['triggered_at']
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        result = next(cursor)['triggered_at']
+        cursor.close()
         return result
 
     def get_last_records(self, limit=0):
@@ -291,8 +292,8 @@ class MatchedChecker():
         ]
         if limit > 0:
             pipeline.append({'$limit': limit})
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
-        return result
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        return cursor
 
 
 if __name__ == '__main__':

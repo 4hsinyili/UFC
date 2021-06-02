@@ -95,6 +95,7 @@ class GMCrawler():
                 update_records.append(record)
         except Exception:
             pass
+        cursor.close()
         print('There are ', loop_count, ' diners updated using old records.')
         if len(update_records) > 0:
             db[collection].bulk_write(update_records)
@@ -128,12 +129,12 @@ class GMCrawler():
         ]
         if limit > 0:
             pipeline.append({'$limit': limit})
-        result = db[collection].aggregate(pipeline=pipeline)
-        return result
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        return cursor
 
-    def parse_targets(self, targets):
+    def parse_targets(self, cursor):
         parsed_targets = []
-        for target in targets:
+        for target in cursor:
             if target['title_fp'] == '':
                 title = target['title_ue']
             else:
@@ -151,6 +152,7 @@ class GMCrawler():
             }
             parsed_targets.append(parsed_target)
         print('There are', len(parsed_targets), 'diners need to send to google map API')
+        cursor.close()
         return parsed_targets
 
     def generate_triggered_at(self):
@@ -238,8 +240,8 @@ class GMCrawler():
         triggered_at_gm = self.generate_triggered_at()
         self.update_from_previous()
         start = time.time()
-        targets = self.get_targets(limit)
-        targets = self.parse_targets(targets)
+        cursor = self.get_targets(limit)
+        targets = self.parse_targets(cursor)
         diners = []
         for target in targets:
             url = self.get_url(target, api_key)
@@ -279,8 +281,9 @@ class GMChecker():
                     }
             }
         ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]['triggered_at']
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        result = next(cursor)['triggered_at']
+        cursor.close()
         return result
 
     def get_last_records(self, limit=0):

@@ -27,8 +27,9 @@ def listen():
             '$sort': {'_id': 1}
         }
     ]
-    result = db['stepfunction_log'].aggregate(pipeline=pipeline)
-    result = list(result)
+    cursor = db['stepfunction_log'].aggregate(pipeline=pipeline)
+    result = list(cursor)
+    cursor.close()
     if result == []:
         return False
     else:
