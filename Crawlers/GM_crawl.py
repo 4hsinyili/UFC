@@ -40,32 +40,64 @@ class GMCrawler():
         self.collection = collection
         self.matched_checker = matched_checker
 
+    def update_from_previous(self):
         start = time.time()
+        db = self.db
+        collection = self.collection
+        matched_checker = self.matched_checker
+        triggered_at = self.generate_triggered_at()
+        print(triggered_at)
         last_week = triggered_at - timedelta(weeks=1)
-        grand_last_week = triggered_at - timedelta(weeks=2)
+        print(last_week)
         pipeline = [
             {
                 '$match': {
-                    "$or": [
-                        {'triggered_at': {
-                            '$lt': last_week,
-                            '$gte': grand_last_week
-                            }},
-                        {'triggered_at_gm': {'$exists': False}}
-                    ]}
+                    'triggered_at': {
+                                '$gte': last_week,
+                                '$lt': triggered_at
+                                },
+                    'uuid_gm': {"$exists": True}}
             }, {
-                '$sort': {'triggered_at': -1}
+                '$sort': {'triggered_at': 1}
             }, {
                 '$group': {
-                    '_id': '$uuid_ue',
+                    '_id': None,
+                    'triggered_at': {'$last': '$triggered_at'},
                     'data': {
-                        '$push': {
-                            'title_ue': '$title_ue',
-                            'title_fp': '$title_fp',
-                            'gps_ue': '$gps_ue',
-                            'gps_fp': '$gps_fp',
-                            'triggered_at': '$triggered_at'}
-                        }}
+                        "$addToSet": {
+                            "uuid_ue": "$uuid_ue",
+                            "uuid_fp": "$uuid_fp",
+                            "uuid_gm": "$uuid_gm",
+                            "title_gm": "$title_gm",
+                            "rating_gm": "$rating_gm",
+                            "view_count_gm": "$view_count_gm",
+                            "link_gm": "$link_gm",
+                        }
+                    }
+                }
+            }
+        ]
+        cursor = db[collection].aggregate(pipeline)
+        update_records = []
+        loop_count = 0
+        last_triggered_at = matched_checker.triggered_at
+        try:
+            datas = next(cursor)['data']
+            for data in datas:
+                loop_count += 1
+                record = UpdateOne(
+                    {
+                        'uuid_ue': data['uuid_ue'],
+                        'uuid_fp': data['uuid_fp'],
+                        'triggered_at': last_triggered_at
+                        }, {'$set': data}, upsert=True
+                )
+                update_records.append(record)
+        except Exception:
+            pass
+        print('There are ', loop_count, ' diners updated using old records.')
+        if len(update_records) > 0:
+            db[collection].bulk_write(update_records)
         stop = time.time()
         print('Update took ', stop - start, ' s.')
             }
