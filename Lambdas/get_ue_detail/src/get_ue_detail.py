@@ -201,6 +201,7 @@ class UEDinerDetailCrawler():
         sections = UE_API_response['sections']
         subsections_map = UE_API_response['subsectionsMap']
         items_map = UE_API_response['sectionEntitiesMap']
+        item_dict = {}
         for section in sections:
             section_uuid = section['uuid']
             section_title = section['title']
@@ -227,6 +228,7 @@ class UEDinerDetailCrawler():
                         'item_image_url': item_image_url,
                         'item_description': item_description,
                     })
+                    item_dict[item_title] = item_price
                 menu.append({
                     'section_id': section_uuid,
                     'section_title': section_title,
@@ -235,6 +237,7 @@ class UEDinerDetailCrawler():
                     'items': items_list
                 })
         diner['menu'] = menu
+        diner['item_pair'] = item_dict
         return diner
 
     def get_open_hours(self, UE_API_response, diner):

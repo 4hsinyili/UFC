@@ -608,6 +608,7 @@ class UEDinerDetailCrawler():
         sections = UE_API_response['sections']
         subsections_map = UE_API_response['subsectionsMap']
         items_map = UE_API_response['sectionEntitiesMap']
+        item_dict = {}
         for section in sections:
             section_uuid = section['uuid']
             section_title = section['title']
@@ -634,6 +635,7 @@ class UEDinerDetailCrawler():
                         'item_image_url': item_image_url,
                         'item_description': item_description,
                     })
+                    item_dict[item_title] = item_price
                 menu.append({
                     'section_id': section_uuid,
                     'section_title': section_title,
@@ -642,6 +644,7 @@ class UEDinerDetailCrawler():
                     'items': items_list
                 })
         diner['menu'] = menu
+        diner['item_pair'] = item_dict
         return diner
 
     def get_open_hours(self, UE_API_response, diner):
@@ -841,11 +844,16 @@ class UEChecker():
                 break
             pprint.pprint([record[field] for field in fields])
             loop_count += 1
+    
+    def check_duplicate(self, cursor):
+        results = list(cursor)
+        print(len(results))
+        print(len(set([i['uuid'] for i in results])))
 
 
 if __name__ == '__main__':
-    running = {'list': True, 'detail': True, 'check': True}
-    data_ranges = {'list': 0, 'detail': 10, 'check': 10}
+    running = {'list': False, 'detail': False, 'check': True}
+    data_ranges = {'list': 0, 'detail': 10, 'check': 0}
     check_collection = 'ue_detail'
     check_triggered_by = 'get_' + check_collection
 
@@ -863,7 +871,7 @@ if __name__ == '__main__':
     if running['detail']:
         start = time.time()
         data_range = data_ranges['detail']
-        detail_crawler = UEDinerDetailCrawler('ue_list_temp', db, offset=False, limit=False)
+        detail_crawler = UEDinerDetailCrawler(db, 'ue_list_temp', offset=False, limit=False)
         diners, error_logs = detail_crawler.main(collection='ue_detail', data_range=data_range)
         stop = time.time()
         pprint.pprint(stop - start)
@@ -872,6 +880,7 @@ if __name__ == '__main__':
         data_range = data_ranges['check']
         checker = UEChecker(db, check_collection, check_triggered_by)
         last_records = checker.get_last_records(data_range)
+        # checker.check_duplicate(last_records)
         last_records_count = checker.get_last_records_count()
         errorlogs = checker.get_last_errorlogs()
         checker.check_records(last_records, ['title', 'deliver_time', 'triggered_at'], data_range)

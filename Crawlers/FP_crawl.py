@@ -347,6 +347,7 @@ class FPDinerDetailCrawler():
 
     def get_diner_menu(self, FP_API_response, diner):
         menu = []
+        item_dict = {}
         sections = FP_API_response['menus']
         for section in sections:
             section_uuid = section['id']
@@ -374,6 +375,7 @@ class FPDinerDetailCrawler():
                         'item_image_url': item_image_url,
                         'item_description': item_description,
                     })
+                    item_dict[item_title] = item_price
                 menu.append({
                     'section_id': section_uuid,
                     'section_title': section_title,
@@ -382,6 +384,7 @@ class FPDinerDetailCrawler():
                     'items': items_list
                 })
         diner['menu'] = menu
+        diner['item_pair'] = item_dict
         return diner
 
     def get_open_hours(self, FP_API_response, diner):
