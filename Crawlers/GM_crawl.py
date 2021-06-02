@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 
 # for preview
 import pprint
+import time
 
 import requests
 from urllib.parse import urlencode
@@ -36,6 +37,7 @@ matched_checker = UF_combine.MatchedChecker(db, 'matched')
 class GMCrawler():
     def get_targets(self, db, collection, matched_checker, limit=0):
         triggered_at = matched_checker.get_triggered_at()
+        start = time.time()
         last_week = triggered_at - timedelta(weeks=1)
         grand_last_week = triggered_at - timedelta(weeks=2)
         pipeline = [
@@ -61,6 +63,8 @@ class GMCrawler():
                             'gps_fp': '$gps_fp',
                             'triggered_at': '$triggered_at'}
                         }}
+        stop = time.time()
+        print('Update took ', stop - start, ' s.')
             }
         ]
         if limit > 0:
@@ -162,6 +166,7 @@ class GMCrawler():
     def main(self, db, matched_checker, api_key, limit=0):
         triggered_at_gm = self.generate_triggered_at()
         targets = self.get_targets(db, 'matched', matched_checker, limit)
+        start = time.time()
         targets = self.parse_targets(targets)
         diners = []
         for target in targets:
@@ -178,6 +183,8 @@ class GMCrawler():
         self.save_to_matched(db, 'matched', records)
         self.save_to_gm_placed(db, 'gm_placed', records)
         pprint.pprint(diners[0])
+        stop = time.time()
+        print('Send ', len(diners), ' to place API and save to db took: ', stop - start, 's.')
 
 
 if __name__ == '__main__':
