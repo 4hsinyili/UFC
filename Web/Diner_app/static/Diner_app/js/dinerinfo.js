@@ -13,7 +13,7 @@ let tabDom = document.querySelector('[name=section-tab]')
 let tabPkDom = document.querySelector('[name=section-tab-pk]')
 
 
-
+ 
 $('#diner-info').hide()
 
 function ajaxGet(src, callback){
@@ -196,7 +196,6 @@ function renderMenu(sections, subsectionTitles, source){
         newSection.setAttribute('data-section-title', key)
         $(newSection).show()
         menuSectionsDom.appendChild(newSection)
-
         if (uuidUE & uuidFP){
             $(newPkTabDom).show()
             tabsPkDom.appendChild(newPkTabDom)
@@ -231,7 +230,6 @@ document.addEventListener('click', (e)=>{
 
 document.addEventListener('click', (e)=>{
     if (e.target.getAttribute('name') == 'section-tab'){
-        console.log('aab')
         let dataSectionTitle = e.target.innerText
         $(`[data-section-title="${dataSectionTitle}"]`).toggle()
     } else if (e.target.getAttribute('name') == 'section-tab-pk'){
