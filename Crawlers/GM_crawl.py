@@ -246,7 +246,7 @@ class GMCrawler():
         records = self.transfer_diners_to_records(diners)
         try:
             self.save_to_matched(db, 'matched', records)
-            self.save_to_placed(db, 'placed', records)
+            print('saved to db')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
         stop = time.time()
