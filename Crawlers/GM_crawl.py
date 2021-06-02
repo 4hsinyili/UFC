@@ -113,6 +113,7 @@ class GMCrawler():
             {
                 '$match': {
                     'triggered_at_gm': {'$exists': False},
+                    'not_found_gm': {'$exists': False},
                     'triggered_at': triggered_at}
             }, {
                 '$sort': {'_id': 1}
@@ -209,13 +210,13 @@ class GMCrawler():
                 return diner
         except Exception:
             diner = {
-                    'title_gm': '',
-                    'rating_gm': 0,
-                    'view_count_gm': 0,
-                    'uuid_gm': '',
-                    'link_gm': '',
-                    'triggered_at_gm': triggered_at_gm
-                }
+                'title_gm': '',
+                'rating_gm': 0,
+                'view_count_gm': 0,
+                'uuid_gm': '',
+                'link_gm': '',
+                'not_found_gm': True
+            }
             return diner
 
     def transfer_diners_to_records(self, diners):

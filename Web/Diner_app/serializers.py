@@ -99,7 +99,7 @@ class MatchSerializer(serializers.Serializer):
     similarity = serializers.FloatField(required=False)
     cheaper_ue = serializers.ListField(required=False)
     cheaper_fp = serializers.ListField(required=False)
-
+    not_found_gm = serializers.BooleanField(required=False)
 
 class FilterSerializer(serializers.Serializer):
     """Your data serializer, define your fields here."""
