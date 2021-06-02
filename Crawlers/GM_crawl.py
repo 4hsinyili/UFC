@@ -55,8 +55,8 @@ class GMCrawler():
                     'triggered_at_gm': {
                                 '$gte': last_week,
                                 '$lt': triggered_at
-                                },
-                    'uuid_gm': {"$exists": True}}
+                                }
+                        }
             }, {
                 '$sort': {'triggered_at': 1}
             }, {
