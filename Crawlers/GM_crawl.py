@@ -260,8 +260,10 @@ class GMCrawler():
 
 
 if __name__ == '__main__':
-    crawler = GMCrawler()
-    targets = crawler.get_targets(db, 'matched', matched_checker, 1)
-    pprint.pprint(next(targets))
     crawler = GMCrawler(db, 'matched', matched_checker)
     crawler.main(db, API_KEY, 0)
+    # targets = crawler.get_targets(1)
+    # for target in targets:
+    #     pprint.pprint(target)
+    # targets = crawler.get_targets(0)
+    # print(len(list(targets)))
