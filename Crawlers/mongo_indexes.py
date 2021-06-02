@@ -25,7 +25,7 @@ if __name__ == '__main__':
         ('triggered_at_ue', ASCENDING),
         ('triggered_at_fp', ASCENDING)
         ])
-    db['gm_placed'].create_index([
+    db['placed'].create_index([
         ('uuid_ue', ASCENDING),
         ('uuid_fp', ASCENDING),
         ('uuid_gm', ASCENDING),
