@@ -70,7 +70,9 @@ class DinerSearch(views.APIView):
         start = time.time()
         condition = request.data['condition']
         pprint.pprint(condition)
-        user_id = request.data['user_id']
+        user_id = request.user.id
+        if user_id is None:
+            user_id = 0
         offset = request.data['offset']
         triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
@@ -103,7 +105,9 @@ class DinerShuffle(views.APIView):
 
     def post(self, request):
         start = time.time()
-        user_id = request.data['user_id']
+        user_id = request.user.id
+        if user_id is None:
+            user_id = 0
         triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
             diners = match_searcher.get_random(triggered_at, user_id, favorites_model)
@@ -131,7 +135,9 @@ class DinerInfo(views.APIView):
         start = time.time()
         uuid_ue = self.request.query_params.get('uuid_ue', None)
         uuid_fp = self.request.query_params.get('uuid_fp', None)
-        user_id = self.request.query_params.get('user_id', None)
+        user_id = request.user.id
+        if user_id is None:
+            user_id = 0
         if uuid_ue:
             triggered_at = match_checker.get_triggered_at()
             if user_id == 0:
@@ -170,7 +176,9 @@ class Filters(views.APIView):
 class FavoritesAPI(views.APIView):
     def post(self, request):
         request_data = request.data
-        user_id = request_data['user_id']
+        user_id = request.user.id
+        if user_id is None:
+            user_id = 0
         source = request_data['source']
         if source == 'ue':
             uuid = request_data['uuid_ue']
@@ -182,7 +190,9 @@ class FavoritesAPI(views.APIView):
         return Response({'message': 'success'})
 
     def get(self, request):
-        user_id = int(self.request.query_params.get('user_id', None))
+        user_id = request.user.id
+        if user_id is None:
+            user_id = 0
         offset = int(self.request.query_params.get('offset', None))
         favorites = favorites_model.get_favorites(user_id)
         favorites_count = len(favorites)
@@ -233,14 +243,15 @@ def dinerlist(request):
     user_id = request.user.id
     if user_id is None:
         user_id = 0
-    return render(request, 'Diner_app/dinerlist.html', {'user_id': user_id})
+    print('user_id: ', user_id)
+    return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': True})
 
 
 def dinerinfo(request):
     user_id = request.user.id
     if user_id is None:
         user_id = 0
-    return render(request, 'Diner_app/dinerinfo.html', {'user_id': user_id})
+    return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': True})
 
 
 def favorites(request):
@@ -248,6 +259,6 @@ def favorites(request):
     if user_id is None:
         user_id = 0
     if request.user.is_authenticated:
-        return render(request, 'Diner_app/favorites.html', {'user_id': user_id})
+        return render(request, 'Diner_app/favorites.html', {'user_is_authenticated': True})
     else:
-        return redirect('login')
+        return redirect('/user/login')

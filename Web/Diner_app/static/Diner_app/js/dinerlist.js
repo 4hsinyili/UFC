@@ -1,12 +1,11 @@
 // API related variables
-let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
 let filtersAPI = 'api/v1/filters'
 let dinerSearchAPI = 'api/v1/dinersearch'
 let dinerShuffleAPI = 'api/v1/dinershuffle'
 let favoritesAPI = 'api/v1/favorites'
 let domain = window.location.origin
 let dinerInfoRoute = domain.concat('/dinerinfo')
-let initData = {'condition': {}, 'offset': 0, 'user_id': userId}
+let initData = {'condition': {}, 'offset': 0}
 let openDaysMap = {
     1: 'Mon.',
     2: 'Tue.',
@@ -157,7 +156,10 @@ function renderDiner(diner){
             "link_ue": diner["link_ue"],
             "redirect_url": redirectUrl
         }
-        if (userId > 0){collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)}
+        collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)
+        if (diner_favorite){ 
+            collectNode.setAttribute('data-favorite', 1)
+        }
     }
     if (diner_uuid_fp != ''){
         diner_info_fp = {
@@ -169,7 +171,10 @@ function renderDiner(diner){
             "link_fp": diner["link_fp"],
             "redirect_url": redirectUrl
         }
-        if (userId > 0){collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)}
+        collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)
+        if (diner_favorite){
+            collectNode.setAttribute('data-favorite', 1)
+        }
     }
     if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
     if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
@@ -178,18 +183,15 @@ function renderDiner(diner){
     if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()}
     else {collectNode.setAttribute('data-favorite', 0)}
     collectNode.addEventListener('click', (e)=>{
-        if (userId == 0){}
-        else{
-            let favorited = parseInt(e.target.getAttribute('data-favorite'))
-            let activate = 0
-            if (favorited == 0){activate = 1}
-            let uuid_ue = e.target.getAttribute('data-uuid-ue')
-            let uuid_fp = e.target.getAttribute('data-uuid-fp')
-            if (uuid_ue){changeFavorites(userId, uuid_ue, 'ue', activate)}
-            if (uuid_fp){changeFavorites(userId, uuid_fp, 'fp', activate)}
-            if (activate == 1){e.target.setAttribute('data-favorite', 1)}
-            if (activate == 0){e.target.setAttribute('data-favorite', 0)}
-        }
+        let favorited = parseInt(e.target.getAttribute('data-favorite'))
+        let activate = 0
+        if (favorited == 0){activate = 1}
+        let uuid_ue = e.target.getAttribute('data-uuid-ue')
+        let uuid_fp = e.target.getAttribute('data-uuid-fp')
+        if (uuid_ue){changeFavorites(uuid_ue, 'ue', activate)}
+        if (uuid_fp){changeFavorites(uuid_fp, 'fp', activate)}
+        if (activate == 1){e.target.setAttribute('data-favorite', 1)}
+        if (activate == 0){e.target.setAttribute('data-favorite', 0)}
     })
     return dinerNode
 }
@@ -491,8 +493,7 @@ function search(offset, showMore=false){
     conditions = turnFIltersToConditions(conditions, filterSet)
     conditions = turnSortersToConditions(conditions, sorterSet)
     console.log(conditions)
-    let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
-    data = {'condition': conditions, 'offset': offset, 'user_id': userId}
+    data = {'condition': conditions, 'offset': offset}
     if (showMore){
         ajaxPost(dinerSearchAPI, data, function(response){
             let height = document.body.scrollHeight
@@ -508,16 +509,14 @@ function search(offset, showMore=false){
 }
 
 function shuffle(){
-    let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
-    data = {'user_id': userId}
+    data = {}
     ajaxPost(dinerShuffleAPI, data, function(response){
         renderList(response)
     })
 }
 
-function changeFavorites(userId, diner_id, source, activate){
+function changeFavorites(diner_id, source, activate){
     let data = {
-        'user_id': userId,
         'source': source,
         'activate': activate
     }

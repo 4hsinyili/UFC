@@ -11,9 +11,6 @@
 
 {% block content %}
     <h1 class="page-title">Diner List</h1>
-    {% if user.is_authenticated %}
-        <h2>logined</h2>
-    {% endif %}
     <div>
         <div id="search" data-hover="yes" class="row text-center">
             <div class="col-8">
@@ -250,7 +247,7 @@
                     <a class="redirect-href_fp col-5" href="">
                         <h4 class="title_fp"></h4>
                     </a>
-                    {% if user_id > 0 %}
+                    {% if user_is_authenticated %}
                         <img name="collect" class="col-1 icon" data-hover="yes" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart.svg" data-uuid-ue="" data-uuid-fp="">
                     {% else %}
                         <div name="collect" class="col-1"></div>

@@ -12,7 +12,7 @@
     <body>
         <nav class="nav-bar">
             <a class="nav-tab" href='/dinerlist' class="diner-list-link">Diner List</a>
-            {% if user.is_authenticated %}
+            {% if user_is_authenticated %}
                 <a class="nav-tab" href="/logout" class="logout-link">Logout</a>
                 <a class="nav-tab" href="/favorites" class="favorites-link">Favorites</a>
             {% else %}
@@ -23,7 +23,6 @@
             {% block content %}
             {% endblock %}
         </div>
-        <div id="user-id" data-user-id="{{ user_id }}" style="display: none;"></div>
     {% block javascript %}
         <script src="{% static 'Diner_app/js/dinerlist.js' %}"></script>
     {% endblock %}

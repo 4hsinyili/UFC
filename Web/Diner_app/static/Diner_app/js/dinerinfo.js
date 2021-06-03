@@ -1,9 +1,8 @@
 let queryString = window.location.search;
 let urlParams = new URLSearchParams(queryString);
-let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
 let uuidUE = urlParams.get('uuid_ue')
 let uuidFP = urlParams.get('uuid_fp')
-let dinerInfoAPI = 'api/v1/dinerinfo'.concat('?uuid_ue=').concat(uuidUE).concat('&uuid_fp=').concat(uuidFP).concat('&user_id=').concat(userId)
+let dinerInfoAPI = 'api/v1/dinerinfo'.concat('?uuid_ue=').concat(uuidUE).concat('&uuid_fp=').concat(uuidFP)
 
 let dinerSection = document.querySelector('[name=section]')
 let dinerSubsection = document.querySelector('[name=subsection]')

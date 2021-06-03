@@ -1,12 +1,11 @@
 // API related variables
-let userId = parseInt(document.getElementById('user-id').getAttribute('data-user-id'))
 let dinerSearchAPI = 'api/v1/dinersearch'
 let dinerShuffleAPI = 'api/v1/dinershuffle'
 let favoritesAPI = 'api/v1/favorites'
-let getFavoritesAPI = favoritesAPI.concat('?user_id=').concat(userId)
+let getFavoritesAPI = favoritesAPI
 let domain = window.location.origin
 let dinerInfoRoute = domain.concat('/dinerinfo')
-let initData = {'condition': {}, 'offset': 0, 'user_id': userId}
+let initData = {'condition': {}, 'offset': 0}
 let openDaysMap = {
     1: 'Mon.',
     2: 'Tue.',
@@ -120,8 +119,10 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
 function renderDiner(diner){
     let dinerNode = dinerTemplate.cloneNode(true)
     let collectNode = dinerNode.querySelector('[name=collect]')
+    collectNode.setAttribute('data-favorite', 0)
     let diner_uuid_ue = diner['uuid_ue']
     let diner_uuid_fp = diner['uuid_fp']
+    let diner_favorite = diner['favorite']
     dinerNode.setAttribute('data-uuid_ue', diner_uuid_ue)
     dinerNode.setAttribute('data-uuid_fp', diner_uuid_fp)
     let redirectUrl = dinerInfoRoute.concat('?uuid_ue=').concat(diner_uuid_ue).concat('&uuid_fp=').concat(diner_uuid_fp)
@@ -137,7 +138,7 @@ function renderDiner(diner){
             "link_ue": diner["link_ue"],
             "redirect_url": redirectUrl
         }
-        if (userId > 0){collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)}
+        collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)
     }
     if (diner_uuid_fp != ''){
         diner_info_fp = {
@@ -149,27 +150,23 @@ function renderDiner(diner){
             "link_fp": diner["link_fp"],
             "redirect_url": redirectUrl
         }
-        if (userId > 0){collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)}
+        collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)
     }
     if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
     if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
-    if (diner['favorite']){collectNode.setAttribute('data-favorite', 1)}
+    if (diner_favorite){collectNode.setAttribute('data-favorite', 1)}
     else {collectNode.setAttribute('data-favorite', 0)}
     collectNode.addEventListener('click', (e)=>{
-        if (userId == 0){alert('login la')}
-        else{
-            let favorited = parseInt(e.target.getAttribute('data-favorite'))
+        console.log('a')
+        if ('icon' == e.target.className){
             let activate = 0
-            if (favorited == 0){activate = 1}
             let uuid_ue = e.target.getAttribute('data-uuid-ue')
             let uuid_fp = e.target.getAttribute('data-uuid-fp')
-            if (uuid_ue){changeFavorites(userId, uuid_ue, 'ue', activate)}
-            if (uuid_fp){changeFavorites(userId, uuid_fp, 'fp', activate)}
-            if (activate == 1){e.target.setAttribute('data-favorite', 1)}
+            if (uuid_ue){changeFavorites(uuid_ue, 'ue', activate)}
+            if (uuid_fp){changeFavorites(uuid_fp, 'fp', activate)}
             if (activate == 0){
                 e.target.setAttribute('data-favorite', 0)
-                if(uuid_ue)(document.querySelector(`[data-uuid_ue="${uuid_ue}"]`).remove())
-                else if(uuid_fp)(document.querySelector(`[data-uuid_fp="${uuid_fp}"]`).remove())
+                e.target.parentNode.parentNode.remove()
             }
         }
     })
@@ -199,9 +196,8 @@ function renderMore(data){
 }
 
 
-function changeFavorites(userId, diner_id, source, activate){
+function changeFavorites(diner_id, source, activate){
     let data = {
-        'user_id': userId,
         'source': source,
         'activate': activate
     }
@@ -211,7 +207,7 @@ function changeFavorites(userId, diner_id, source, activate){
 }
 
 // start to render
-ajaxGet(getFavoritesAPI.concat('&offset=0'), function(response){
+ajaxGet(getFavoritesAPI.concat('?offset=0'), function(response){
     if (response.is_data == true){renderList(response)}
 })
 
