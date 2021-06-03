@@ -128,7 +128,7 @@ class Match():
         float_fields = ['rating_ue', 'rating_fp']
         dict_fields = ['menu_ue', 'menu_fp']
         bool_fields = ['choice_ue', 'choice_fp']
-        datetime_fields = ['triggered_at_ue', 'triggered_at_fp', 'triggered_at_fp']
+        datetime_fields = ['triggered_at_ue', 'triggered_at_fp']
         for record in records:
             keys = list(record.keys())
             new_keys = [i + source for i in keys]
