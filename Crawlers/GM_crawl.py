@@ -53,17 +53,18 @@ class GMCrawler():
                 '$match': {
                     'triggered_at_gm': {
                                 '$gte': last_week,
-                                '$lt': triggered_at
+                                '$lt': triggered_at,
+                                "$exists": True
                                 }
                         }
             }, {
-                '$sort': {'triggered_at': 1}
+                '$sort': {'triggered_at_gm': 1}
             }, {
                 '$group': {
                     '_id': None,
-                    'triggered_at': {'$last': '$triggered_at'},
+                    'triggered_at_gm': {'$last': '$triggered_at_gm'},
                     'data': {
-                        "$addToSet": {
+                        "$push": {
                             "uuid_ue": "$uuid_ue",
                             "uuid_fp": "$uuid_fp",
                             "uuid_gm": "$uuid_gm",
@@ -79,9 +80,9 @@ class GMCrawler():
         cursor = db[collection].aggregate(pipeline)
         update_records = []
         loop_count = 0
-        last_triggered_at = matched_checker.triggered_at
         try:
             datas = next(cursor)['data']
+            print(datas[0])
         except Exception:
             print('No old records to update.')
             cursor.close()
@@ -92,14 +93,15 @@ class GMCrawler():
                 {
                     'uuid_ue': data['uuid_ue'],
                     'uuid_fp': data['uuid_fp'],
-                    'triggered_at': last_triggered_at
-                    }, {'$set': data}
+                    'triggered_at': matched_checker.triggered_at
+                }, {'$set': data}
             )
             update_records.append(record)
         cursor.close()
         print('There are ', loop_count, ' diners updated using old records.')
         if len(update_records) > 0:
-            db[collection].bulk_write(update_records)
+            result = db[collection].bulk_write(update_records)
+        print(result.bulk_api_result)
         stop = time.time()
         print('Update took ', stop - start, ' s.')
 
