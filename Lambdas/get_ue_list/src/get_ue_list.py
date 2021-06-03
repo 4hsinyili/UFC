@@ -312,6 +312,7 @@ class UEDinerListCrawler():
             db[info_collection].bulk_write(records)
             print('There are ', len(records), ' diners successfully paresed.')
         else:
+            diners_info = []
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
         stop = time.time()
