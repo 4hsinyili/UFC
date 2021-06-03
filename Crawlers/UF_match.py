@@ -327,8 +327,9 @@ if __name__ == '__main__':
     data_range = 0
     matcher = Match(db, collection)
     print(matcher.triggered_at)
-    matcher.main(data_range)
-    # checker = MatchedChecker(db, collection, 'get_ue_detail')
+    # matcher.main(data_range)
+    checker = MatchedChecker(db, collection, 'match')
+    print(checker.triggered_at)
     # records = checker.get_last_records(1)
     # for record in records:
     #     pprint.pprint(record)
