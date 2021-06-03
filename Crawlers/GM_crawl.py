@@ -13,7 +13,6 @@ from datetime import datetime, timedelta
 # for preview
 import pprint
 import time
-
 import requests
 from urllib.parse import urlencode
 
@@ -135,6 +134,23 @@ class GMCrawler():
         cursor = db[collection].aggregate(pipeline=pipeline)
         return cursor
 
+    def parse_troublesome_title(self, title):
+        if title.startswith('麥當勞'):
+            title = title.split(' ')[0]
+        elif title.startswith('原果_Juice'):
+            title = '原果_Juice'
+        elif title.startswith('品川蘭'):
+            title = title.split(' ')[0]
+        elif title.startswith('拿坡里'):
+            title = title.split(' ')[0]
+        elif title.startswith('-55°C沙西米'):
+            title = title.split(' (')[0]
+        elif title.endswith('★)'):
+            title = title.replace('★)', '')
+        elif title.endswith('Ⓟ)'):
+            title = title.replace('Ⓟ)', '')
+        return title
+
     def parse_targets(self, cursor):
         parsed_targets = []
         for target in cursor:
@@ -146,6 +162,7 @@ class GMCrawler():
                 gps = target['gps_ue']
             else:
                 gps = target['gps_fp']
+            title = self.parse_troublesome_title(title)
             parsed_target = {
                 'title': title,
                 'gps': tuple(gps),
@@ -305,7 +322,7 @@ if __name__ == '__main__':
     targets = crawler.get_targets(0)
     print(len(list(targets)))
 
-    crawler.main(db, API_KEY, 1)
+    crawler.main(db, API_KEY, 0)
 
     print('-----------after-------------')
     targets = crawler.get_targets(1)
