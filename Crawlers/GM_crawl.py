@@ -113,6 +113,7 @@ class GMCrawler():
         pipeline = [
             {
                 '$match': {
+                    'uuid_gm': {'$exists': False},
                     'triggered_at_gm': {'$exists': False},
                     'not_found_gm': {'$exists': False},
                     'triggered_at': triggered_at}
