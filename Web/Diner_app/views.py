@@ -72,7 +72,7 @@ class DinerSearch(views.APIView):
         pprint.pprint(condition)
         user_id = request.data['user_id']
         offset = request.data['offset']
-        triggered_at = match_checker.triggered_at
+        triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
             diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset, user_id, favorites_model)
         else:
@@ -104,7 +104,7 @@ class DinerShuffle(views.APIView):
     def post(self, request):
         start = time.time()
         user_id = request.data['user_id']
-        triggered_at = match_checker.triggered_at
+        triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
             diners = match_searcher.get_random(triggered_at, user_id, favorites_model)
         else:
@@ -133,7 +133,7 @@ class DinerInfo(views.APIView):
         uuid_fp = self.request.query_params.get('uuid_fp', None)
         user_id = self.request.query_params.get('user_id', None)
         if uuid_ue:
-            triggered_at = match_checker.triggered_at
+            triggered_at = match_checker.get_triggered_at()
             if user_id == 0:
                 diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
             else:
@@ -143,7 +143,7 @@ class DinerInfo(views.APIView):
             print('get DinerInfo took: ', stop - start, 's.')
             return Response({'data': results})
         if uuid_fp:
-            triggered_at = match_checker.triggered_at
+            triggered_at = match_checker.get_triggered_at()
             if user_id == 0:
                 diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
             else:
@@ -159,7 +159,7 @@ class DinerInfo(views.APIView):
 class Filters(views.APIView):
     def get(self, request):
         start = time.time()
-        triggered_at = match_checker.triggered_at
+        triggered_at = match_checker.get_triggered_at()
         filters = match_filters.get_filters(triggered_at)
         data = FilterSerializer(filters, many=False).data
         stop = time.time()
@@ -191,7 +191,7 @@ class FavoritesAPI(views.APIView):
                 'is_data': False
             })
         diners = []
-        triggered_at = match_checker.triggered_at
+        triggered_at = match_checker.get_triggered_at()
         if offset + 6 < favorites_count:
             has_more = True
         else:
