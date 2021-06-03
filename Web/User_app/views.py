@@ -33,13 +33,6 @@ def login(request):
     return render(request, 'User_app/login.html', {"form": form})
 
 
-def collection(request):
-    if request.user.is_authenticated:
-        return render(request, 'User_app/collection.html', {})
-    else:
-        return redirect('login')
-
-
 test_users = [
     {
         'name': 'test_1',
