@@ -39,7 +39,6 @@ def listen():
 def main(matcher, crawler):
     result = listen()
     if result:
-        result['matched'] = True
         matcher.main(data_range)
         db['stepfunction_log'].update_one(
             {'_id': result['_id']},
