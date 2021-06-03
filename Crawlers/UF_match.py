@@ -28,16 +28,19 @@ class Match():
         self.collection = collection
         self.triggered_at = self.get_triggered_at()
 
-    def get_triggered_at(self, collection='stepfunction_log'):
+    def get_triggered_at(self, collection='trigger_log'):
         db = self.db
         pipeline = [
             {
-                '$sort': {'ue_triggered_at': 1}
+                '$match': {'triggered_by': 'get_ue_detail'}
+            },
+            {
+                '$sort': {'triggered_at': 1}
             },
             {
                 '$group': {
                     '_id': None,
-                    'triggered_at': {'$last': '$ue_triggered_at'}
+                    'triggered_at': {'$last': '$triggered_at'}
                     }
             }
         ]
