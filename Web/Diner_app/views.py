@@ -141,22 +141,36 @@ class DinerInfo(views.APIView):
             user_id = request.user.id
         else:
             user_id = 0
-        if uuid_ue:
-            triggered_at = match_checker.get_triggered_at()
-            if user_id == 0:
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
-            else:
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, user_id, favorites_model)
-            results = MatchSerializer(diner, many=False).data
-            stop = time.time()
-            print('get DinerInfo took: ', stop - start, 's.')
-            return Response({'data': results})
-        if uuid_fp:
-            triggered_at = match_checker.get_triggered_at()
+        if uuid_ue and uuid_fp:
             if user_id == 0:
                 diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
             else:
                 diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, request.user)
+            if (not diner) and (user_id == 0):
+                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
+            else:
+                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at, request.user)
+            if not diner:
+                return Response({'data': '404'})
+            results = MatchSerializer(diner, many=False).data
+            stop = time.time()
+            print('get DinerInfo took: ', stop - start, 's.')
+            return Response({'data': results})
+        elif uuid_ue:
+            if user_id == 0:
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
+            else:
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, request.user)
+            if diner:
+                results = MatchSerializer(diner, many=False).data
+                stop = time.time()
+                print('get DinerInfo took: ', stop - start, 's.')
+                return Response({'data': results})
+        elif uuid_fp:
+            if user_id == 0:
+                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
+            else:
+                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at, request.user)
             results = MatchSerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
