@@ -45,11 +45,13 @@ def listen():
 def main(matcher, crawler):
     result = listen()
     if result:
+        time.sleep(120)
         matcher.main(data_range)
         db['stepfunction_log'].update_one(
             {'_id': result['_id']},
             {'$set': {'matched': True}}
             )
+        time.sleep(300)
         crawler.main(db, API_KEY, 0)
         return True
     else:
