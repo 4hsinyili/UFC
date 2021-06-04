@@ -1,7 +1,6 @@
 import pprint
 import copy
 import time
-
 from django.db import models
 from User_app.models import CustomUser
 # Create your models here.
@@ -235,7 +234,6 @@ class MatchSearcher():
                 conditions.append(sort_conditions)
         except Exception:
             pass
-        pprint.pprint(conditions)
         pipeline = [condition for condition in conditions if condition != {}]
         result_count = self.get_count(db, collection, pipeline)
         pprint.pprint(result_count)
