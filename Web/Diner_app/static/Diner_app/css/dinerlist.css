@@ -4,12 +4,9 @@
 } */
 
 .image{
-    height: auto;
-    overflow: auto;
     width: 100%;
-    max-width: 100%;
-    max-height: 250px;
-    object-fit: none;
+    height: 300px;
+    object-fit: cover;
 }
 
 .filters-buttons{
@@ -86,6 +83,8 @@
 
 #diner-template{
     margin-bottom: 20px;
+    min-width: 640px;
+    /* max-width: 960px; */
 }
 
 .title_ue{
@@ -129,4 +128,14 @@ a:link {
     height: 1px;
     margin-top: 10px;
     background-color: #E5E5E5;
+}
+
+[name=collect]{
+    margin-right: 10px;
+}
+
+.text-align-center{
+    text-align: center;
+    height: 75px;
+    vertical-align: middle;
 }

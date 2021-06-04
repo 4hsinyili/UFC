@@ -106,31 +106,13 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
     let image = dinerInfo['image_'.concat(source)]
     let rating = dinerInfo['rating_'.concat(source)]
     let viewCount = dinerInfo['view_count_'.concat(source)]
-    let budget = dinerInfo['budget_'.concat(source)]
     let link = dinerInfo['link_'.concat(source)]
     let redirectUrl = dinerInfo['redirect_url']
     let titleNode = dinerNode.querySelector('.title_'.concat(source))
     titleNode.innerText = title
-    let imageNodeUe = dinerNode.querySelector('.image_ue')
     let imageNode = dinerNode.querySelector('.image_'.concat(source))
-    if (imageNodeUe.getAttribute('src') == ""){imageNode.setAttribute('src', image)}
-    let ratingNode = dinerNode.querySelector('.rating_'.concat(source))
-    ratingNode.querySelector('.rating_value_'.concat(source)).innerText = rating
-    let newRatingSvg = ratingSvg.cloneNode(true)
-    $(newRatingSvg).show()
-    $(ratingNode).prepend(newRatingSvg)
-    let viewCountNode = dinerNode.querySelector('.view_count_'.concat(source))
-    viewCountNode.querySelector('.view_count_value_'.concat(source)).innerText = viewCount
-    let newViewCountSvg = viewCountSvg.cloneNode(true)
-    $(newViewCountSvg).show()
-    $(viewCountNode).prepend(newViewCountSvg)
-    let budgetNode = dinerNode.querySelector('.budget_'.concat(source))
-    budgetNode.querySelector('.budget_value_'.concat(source)).innerText = '$'.repeat(budget)
-    let newBudgetSvg = budgetSvg.cloneNode(true)
-    $(newBudgetSvg).show()
-    $(budgetNode).prepend(newBudgetSvg)
-    let infoNode = dinerNode.querySelector('.info_'.concat(source))
-    infoNode.setAttribute('href', link)
+    imageNode.setAttribute('src', image)
+    dinerNode.querySelector('.rating_view_count_value_'.concat(source)).innerText = `${rating} / ${viewCount}`
     let redirectHrefNode = dinerNode.querySelectorAll('.redirect-href_'.concat(source))
     for (let i = 0; i < redirectHrefNode.length; i++){
         redirectHrefNode[i].setAttribute('href', redirectUrl)
@@ -140,12 +122,14 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
 
 function renderDiner(diner){
     let dinerNode = dinerTemplate.cloneNode(true)
-    let collectNode = dinerNode.querySelector('[name=collect]')
+    let collectNode = dinerNode.querySelector('[name=collect].icon')
+    collectNode.setAttribute('data-favorite', 0)
     let diner_uuid_ue = diner['uuid_ue']
     let diner_uuid_fp = diner['uuid_fp']
     let redirectUrl = dinerInfoRoute.concat('?uuid_ue=').concat(diner_uuid_ue).concat('&uuid_fp=').concat(diner_uuid_fp)
     let diner_info_ue = false
     let diner_info_fp = false
+    let diner_favorite = diner['favorite']
     if (diner_uuid_ue != ''){
         diner_info_ue = {
             "title_ue": diner['title_ue'],
@@ -163,7 +147,7 @@ function renderDiner(diner){
     }
     if (diner_uuid_fp != ''){
         diner_info_fp = {
-            "title_fp": diner['title_ue'],
+            "title_fp": diner['title_fp'],
             "rating_fp": diner['rating_fp'],
             "view_count_fp": diner['view_count_fp'],
             "budget_fp": diner['budget_fp'],
@@ -176,11 +160,18 @@ function renderDiner(diner){
             collectNode.setAttribute('data-favorite', 1)
         }
     }
-    if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
-    if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
-    if (diner['favorite']){collectNode.setAttribute('data-favorite', 1)}
     let imageNodeFp = dinerNode.querySelector('.image_fp')
-    if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()}
+    let imageNodeUe = dinerNode.querySelector('.image_ue')
+    imageNodeFp.setAttribute('src', '')
+    imageNodeUe.setAttribute('src', '')
+    if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
+    else {}
+    if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
+    if (diner_favorite){collectNode.setAttribute('data-favorite', 1)}
+    if ((imageNodeUe.getAttribute('src')) && (imageNodeFp.getAttribute('src'))){
+        imageNodeFp.remove()
+    } else if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()
+    } else if (imageNodeUe.getAttribute('src') == ""){imageNodeUe.remove()}
     else {collectNode.setAttribute('data-favorite', 0)}
     collectNode.addEventListener('click', (e)=>{
         let favorited = parseInt(e.target.getAttribute('data-favorite'))
