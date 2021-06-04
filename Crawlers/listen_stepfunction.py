@@ -1,7 +1,12 @@
 #  for db control
 from pymongo import MongoClient
 import time
-from Crawlers import UF_match, GM_crawl
+from datetime import datetime
+
+try:
+    from Crawlers import UF_match, GM_crawl
+except Exception:
+    print('Import Error at: ', datetime.utcnow())
 
 # for file handling
 import env
@@ -16,6 +21,7 @@ admin_client = MongoClient(MONGO_HOST,
                            username=MONGO_ADMIN_USERNAME,
                            password=MONGO_ADMIN_PASSWORD)
 db = admin_client['ufc']
+print('Listen Starts at: ', datetime.utcnow())
 
 
 def listen():
