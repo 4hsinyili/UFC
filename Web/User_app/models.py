@@ -41,6 +41,7 @@ class CustomUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    password = models.CharField(max_length=500)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

@@ -172,3 +172,5 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 LOGIN_REDIRECT_URL = '/dinerlist'
 LOGOUT_REDIRECT_URL = '/dinerlist'
+
+AUTH_USER_MODEL = 'User_app.CustomUser'
