@@ -2,7 +2,48 @@ import pprint
 import copy
 import time
 
+from django.db import models
+from User_app.models import CustomUser
 # Create your models here.
+
+
+class FavoritesManager(models.Manager):
+    def update_favorite(self, user, uuid, activate):
+        favorite_sqlrecord = self.update_or_create(
+            user=user,
+            uuid=uuid,
+            defaults={'activate': activate})
+        return favorite_sqlrecord
+
+    def get_favorites(self, user, offset=0):
+        favorite_records = self.filter(user=user)
+        print(user)
+        if favorite_records:
+            favorites = []
+            for i in favorite_records:
+                favorites.append(i.uuid)
+            print(favorites)
+            return list(set(favorites))
+        else:
+            return False
+
+
+class Favorites(models.Model):
+    uuid = models.CharField(max_length=40, default=None, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    activate = models.BooleanField(default=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+    objects = models.Manager()
+    manager = FavoritesManager()
+
+    def __str__(self):
+        if len(self.uuid) > 8:
+            source = 'ue'
+        else:
+            source = 'fp'
+        return f'user: {self.user.email} likes {self.uuid} on {source} == {self.activate}'
 
 
 class MatchChecker():
@@ -148,7 +189,7 @@ class MatchSearcher():
         self.db = db
         self.collection = collection
 
-    def get_search_result(self, condition, triggered_at, offset=0, user_id=0, favorites_model=False):
+    def get_search_result(self, condition, triggered_at, offset=0, user=False):
         db = self.db
         collection = self.collection
         match_condition = {
@@ -208,18 +249,19 @@ class MatchSearcher():
         pprint.pprint(pipeline)
         start = time.time()
         cursor = db[collection].aggregate(pipeline=pipeline)
-        favorites = False
-        if favorites_model:
-            favorites = favorites_model.get_favorites(user_id)
+        if user:
+            favorites = Favorites.manager.get_favorites(user)
+        else:
+            favorites = False
         diners = []
         if favorites:
-            favorites = set(favorites)
             for diner in cursor:
                 if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
                     diner['favorite'] = True
+                    diners.append(diner)
                 else:
                     diner['favorite'] = False
-                diners.append(diner)
+                    diners.append(diner)
         else:
             for diner in cursor:
                 diner['favorite'] = False
@@ -245,7 +287,7 @@ class MatchSearcher():
             diners_count = 0
         return diners_count
 
-    def get_random(self, triggered_at, user_id=0, favorites_model=False):
+    def get_random(self, triggered_at, user=False):
         db = self.db
         collection = self.collection
         pipeline = [
@@ -253,18 +295,18 @@ class MatchSearcher():
             {"$sample": {"size": 6}}
         ]
         cursor = db[collection].aggregate(pipeline)
-        favorites = False
-        if favorites_model:
-            favorites = favorites_model.get_favorites(user_id)
+        if user:
+            favorites = Favorites.manager.get_favorites(user)
+        else:
         diners = []
         if favorites:
-            favorites = set(favorites)
             for diner in cursor:
                 if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
                     diner['favorite'] = True
+                    diners.append(diner)
                 else:
                     diner['favorite'] = False
-                diners.append(diner)
+                    diners.append(diner)
         else:
             for diner in cursor:
                 diner['favorite'] = False
@@ -278,7 +320,7 @@ class MatchDinerInfo():
         self.db = db
         self.collection = collection
 
-    def get_diner(self, diner_id, source, triggered_at, user_id=0, favorites_model=False):
+    def get_diner(self, diner_id, source, triggered_at, user=False):
         db = self.db
         collection = self.collection
         match_conditions = {
@@ -297,12 +339,13 @@ class MatchDinerInfo():
         cursor = db[collection].aggregate(pipeline=pipeline)
         stop = time.time()
         print('mongodb query took: ', stop - start, 's.')
+        if user:
+            favorites = Favorites.manager.get_favorites(user)
+        else:
+            favorites = False
         try:
             diner = next(cursor)
-            if favorites_model:
-                favorites = favorites_model.get_favorites(user_id)
             if favorites:
-                favorites = set(favorites)
                 if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
                     diner['favorite'] = True
                 else:
@@ -313,77 +356,6 @@ class MatchDinerInfo():
             return False
         cursor.close()
         return diner
-
-
-class Favorites():
-    def __init__(self, db, collection):
-        self.db = db
-        self.collection = collection
-
-    def change_favorites(self, user_id, diner_id, source, activate):
-        db = self.db
-        collection = self.collection
-        field = 'uuid_' + source
-        db[collection].update_one(
-            {
-                field: diner_id,
-                'user_id': user_id
-            },
-            {
-                "$set": {'activate': activate}
-            }, upsert=True)
-
-    def get_favorites(self, user_id):
-        if user_id == 0:
-            return False
-        db = self.db
-        collection = self.collection
-        pipeline = [
-            {
-                '$match': {
-                    'user_id': user_id,
-                    'activate': 1,
-                    'uuid_ue': {"$exists": True}
-                    }
-            },
-            {
-                '$project': {
-                    '_id': 0,
-                    'uuid_ue': 1
-                }}
-        ]
-        cursor = db[collection].aggregate(pipeline)
-        results = list(cursor)
-        cursor.close()
-        if results != [{}]:
-            uuid_ues = [result['uuid_ue'] for result in results if result['uuid_ue'] != '']
-        else:
-            uuid_ues = []
-        pipeline = [
-            {
-                '$match': {
-                    'user_id': user_id,
-                    'activate': 1,
-                    'uuid_fp': {"$exists": True}
-                    }
-            },
-            {
-                '$project': {
-                    '_id': 0,
-                    'uuid_fp': 1
-                }}
-        ]
-        cursor = db[collection].aggregate(pipeline)
-        results = list(cursor)
-        cursor.close()
-        if results != [{}]:
-            uuid_fps = [result['uuid_fp'] for result in results if result['uuid_fp'] != '']
-        else:
-            uuid_fps = []
-        favorites = uuid_ues + uuid_fps
-        if favorites == []:
-            return False
-        return favorites
 
 
 class Pipeline():

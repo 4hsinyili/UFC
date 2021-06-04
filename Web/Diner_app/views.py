@@ -76,7 +76,7 @@ class DinerSearch(views.APIView):
         offset = request.data['offset']
         triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
-            diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset, user_id, favorites_model)
+            diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset, request.user)
         else:
             diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset)
         if offset + 6 < diners_count:
@@ -110,7 +110,7 @@ class DinerShuffle(views.APIView):
             user_id = 0
         triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
-            diners = match_searcher.get_random(triggered_at, user_id, favorites_model)
+            diners = match_searcher.get_random(triggered_at, request.user)
         else:
             diners = match_searcher.get_random(triggered_at)
         has_more = False
@@ -153,7 +153,7 @@ class DinerInfo(views.APIView):
             if user_id == 0:
                 diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
             else:
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, user_id, favorites_model)
+                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, request.user)
             results = MatchSerializer(diner, many=False).data
             stop = time.time()
             print('get DinerInfo took: ', stop - start, 's.')
@@ -185,8 +185,8 @@ class FavoritesAPI(views.APIView):
         if source == 'fp':
             uuid = request_data['uuid_fp']
         activate = request_data['activate']
-        print(user_id, uuid, source, activate)
-        favorites_model.change_favorites(user_id, uuid, source, activate)
+        favorite_sqlrecord = Favorites.manager.update_favorite(request.user, uuid, activate)
+        print(favorite_sqlrecord)
         return Response({'message': 'success'})
 
     def get(self, request):
@@ -194,9 +194,8 @@ class FavoritesAPI(views.APIView):
         if user_id is None:
             user_id = 0
         offset = int(self.request.query_params.get('offset', None))
-        favorites = favorites_model.get_favorites(user_id)
-        favorites_count = len(favorites)
-        if favorites_count == 0:
+        favorites = Favorites.manager.get_favorites(request.user, offset)
+        if not favorites:
             return Response({
                 'is_data': False
             })
