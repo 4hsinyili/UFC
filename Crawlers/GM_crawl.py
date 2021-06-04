@@ -168,7 +168,7 @@ class GMCrawler():
             title = self.parse_troublesome_title(title)
             parsed_target = {
                 'title': title,
-                'gps': tuple(gps),
+                'gps': f'{gps[0]},{gps[1]}',
                 'triggered_at': target['triggered_at'],
                 'uuid_ue': target['uuid_ue'],
                 'uuid_fp': target['uuid_fp'],
