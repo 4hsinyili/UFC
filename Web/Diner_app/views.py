@@ -27,7 +27,6 @@ match_checker = MatchChecker(db, 'matched', 'match')
 match_searcher = MatchSearcher(db, 'matched')
 match_dinerinfo = MatchDinerInfo(db, 'matched')
 match_filters = MatchFilters(db, 'matched')
-favorites_model = Favorites(db, 'favorites')
 
 
 class DinerList(views.APIView):
