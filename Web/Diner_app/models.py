@@ -296,6 +296,7 @@ class MatchSearcher():
         if user:
             favorites = Favorites.manager.get_favorites(user)
         else:
+            favorites = False
         diners = []
         if favorites:
             for diner in cursor:
