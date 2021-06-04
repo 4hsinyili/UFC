@@ -5,9 +5,16 @@
         <link rel="icon" type="image/png" href="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/favicon.png" />
         {% load static %}
         <link rel="stylesheet" href="{% static 'Diner_app/css/styles.css' %}">
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'Diner_app/css/bootstrap.css' %}">
+        {% load static %}
+        <script src="{% static 'Diner_app/js/bootstrap.bundle.js' %}"></script>
         {% block js_and_css %}
         {% endblock %}
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        {% load static %}
+        <script src="{% static 'Diner_app/js/jquery.js' %}"></script>
+        {% load static %}
+        <script src="{% static 'Diner_app/js/sweetalert2.all.min.js' %}"></script>
     </head>
     <body>
         <nav class="nav-bar">
