@@ -9,109 +9,159 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Diner Info</h1>
     <div id="diner-info" class="container">
+        <h1>Diner Info</h1>
         <div id="title-row" class="row">
-            <a id="title_ue" class="col" href=""></a>
-            <a id="title_fp" class="col" href=""></a>
+            <a id="title_ue" data-source-css='ue' class="col" href=""></a>
+            <a id="title_fp" data-source-css='fp'class="col" href=""></a>
         </div>
         <div id="image-row" class="row">
-            <img id="image_ue" class="col" src="">
-            <img id="image_fp" class="col" src="">
+            <img id="image_ue" data-source-css='ue' class="col" src="">
+            <img id="image_fp" data-source-css='fp' class="col" src="">
+        </div>
+        <div name="divider-container" class="row">
+            <hr name="divider">
         </div>
         <div id="info-rows" class="row">
-            <div id="info_ue" class="col" style="display: none;">
-                <div name="thumbnail" class="row">
-                    <div class="col">
-                        <div id="rating_ue" class="row"></div>
-                        <div id="view_count_ue" class="row"></div>
-                        <div id="budget_ue" class="row"></div>
-                        <div id="deliver_fee_ue" class="row"></div>
-                        <div id="deliver_time_ue" class="row"></div>
-                        <div id="show-more-info_ue" class="row">顯示營業時間</div>
-                    </div>
-                </div>
-                <div name="more-info" class="row" style="display: none;">
-                    <div id="open_hours_row" class="col">
-                        <div id="open_hours_ue" class="col">
-                            <div name="open_hour_ue" class="row" style="display: none;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="info_fp" class="col" style="display: none;">
-                <div name="thumbnail" class="row">
-                    <div class="col">
-                        <div id="rating_fp" class="row"></div>
-                        <div id="view_count_fp" class="row"></div>
-                        <div id="budget_fp" class="row"></div>
-                        <div id="deliver_fee_fp" class="row"></div>
-                        <div id="deliver_time_fp" class="row"></div>
-                        <div id="show-more-info_fp" class="row">顯示營業時間</div>
-                    </div>
-                </div>
-                <div name="more-info" class="row" style="display: none;">
-                    <div id="open_hours_row" class="col">
-                        <div id="open_hours_fp" class="col">
-                            <div name="open_hour_fp" class="row" style="display: none;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="info_gm" class="row" style="display: none;">
-                <div id="rating_gm"></div>
-                <div id="view_count_gm"></div>
-                <div id="link_gm"></div>
-            </div>
-        </div>
-        <div id="menu">
-            <div id="menu_ue" class="row">
-                <div>Uber Eats Menu</div>
-                <div id="section-tabs_ue"></div>
-                <div name="sections_ue" class="col">
-                </div>
-            </div>
-            <div id="menu_fp" class="row">
-                <div>Food Panda Menu</div>
-                <div id="section-tabs_fp"></div>
-                <div name="sections_fp" class="col">
-                </div>
-            </div>
-        </div>
-        <div id="menu_pk row">
             <div class="col">
-                <div class="row">
-                    <div id="section-tabs_pk_ue" class="col"></div>
-                    <div id="section-tabs_pk_fp" class="col"></div>
+                <div class="row" name="column_names">
+                    <div class="col-3" name="row_name">平台</div>
+                    <a class="col" data-source-css='ue' id="column_name_ue">Uber Eats</a>
+                    <a class="col" data-source-css='fp' id="column_name_fp">Food Panda</a>
+                    <a class="col" data-source-css='gm' id="column_name_gm">Google Map</a>
                 </div>
-                <div class="row">
-                    <div name="sections_pk_ue" class="col-6"></div>
-                    <div name="sections_pk_fp" class="col-6"></div>
+                <div name="table-divider-container" class="row">
+                    <hr name="table-divider">
                 </div>
+                <div class="row" name="ratings">
+                    <div class="col-3" name="row_name">評價</div>
+                    <div id="rating_ue" data-source-css='ue' class="col"></div>
+                    <div id="rating_fp" data-source-css='fp' class="col"></div>
+                    <div id="rating_gm" data-source-css='gm' class="col"></div>
+                </div>
+                <div name="table-divider-container" class="row">
+                    <hr name="table-divider">
+                </div>
+                <div class="row" name="view_counts">
+                    <div class="col-3" name="row_name">評分次數</div>
+                    <div id="view_count_ue" data-source-css='ue' class="col"></div>
+                    <div id="view_count_fp" data-source-css='fp' class="col"></div>
+                    <div id="view_count_gm" data-source-css='gm' class="col"></div>
+                </div>
+                <div name="table-divider-container" class="row">
+                    <hr name="table-divider">
+                </div>
+                <div class="row" name="deliver_times">
+                    <div class="col-3" name="row_name">外送時間</div>
+                    <div id="deliver_time_ue" data-source-css='ue' class="col"> 分鐘</div>
+                    <div id="deliver_time_fp" data-source-css='fp' class="col"> 分鐘</div>
+                    <div id="deliver_time_gm" data-source-css='gm' class="col"></div>
+                </div>
+                <div name="table-divider-container" class="row">
+                    <hr name="table-divider">
+                </div>
+                <div class="row" name="deliver_fees">
+                    <div class="col-3" name="row_name">外送費用</div>
+                    <div id="deliver_fee_ue" data-source-css='ue' class="col">$ </div>
+                    <div id="deliver_fee_fp" data-source-css='fp' class="col">$ </div>
+                    <div id="deliver_fee_gm" data-source-css='gm' class="col"></div>
+                </div>
+                <div name="table-divider-container" class="row">
+                    <hr name="table-divider">
+                </div>
+                <div class="row" name="open_hours">
+                    <div class="col-3" name="row_name"></div>
+                    <div id="detail_ue" class="col">
+                        <div id="show-more-info_ue" data-source-css='ue' class="btn btn-light btn-md">服務時間</div>
+                        <div id="cheaper-item_ue" data-source-css='ue' class="btn btn-light btn-md">優勢品項</div>
+                    </div>
+                    <div id="detail_fp" class="col">
+                        <div id="show-more-info_fp" data-source-css='fp' class="btn btn-light btn-md">服務時間</div>
+                        <div id="cheaper-item_fp" data-source-css='fp' class="btn btn-light btn-md">優勢品項</div>
+                    </div>
+                    <div id="show-more-info_gm" class="col"></div>
+                </div>
+            </div>
+        </div>
+        <div name="divider-container" class="row">
+            <hr name="divider">
+        </div>
+        <div id="menu_ue" class="row">
+            <div class="col-12">
+                <div data-source-css='ue'>Uber Eats 菜單</div>
+            </div>
+            <div class="col-12">
+                <div id="section-tabs_ue" class="row"></div>
+            </div>
+            <div name="sections_ue" class="col">
+            </div>
+        </div>
+        <div name="divider-container" id="divider_ue" class="row">
+            <hr name="divider">
+        </div>
+        <div id="menu_fp" class="row">
+            <div class="col-12">
+                <div data-source-css='fp'>Food Panda 菜單</div>
+            </div>
+            <div class="col-12">
+                <div id="section-tabs_fp" class="row"></div>
+            </div>
+            <div name="sections_fp" class="col">
+            </div>
+        </div>
+        <div name="divider-container" id="divider_fp" class="row">
+            <hr name="divider">
+        </div>
+        <div id="menu_pk" class="row">
+            <div>菜單比較</div>
+            <div class="col-6">
+                <div id="section-tabs_pk_ue" data-source-css='ue' class="row"></div>
+                <div name="sections_pk_ue" class="row"></div>
+            </div>
+            <div class="col-6">
+                <div id="section-tabs_pk_fp" data-source-css='fp' class="row"></div>
+                <div name="sections_pk_fp" class="row"></div>
             </div>
         </div>
     </div>
     <div name="item" class="col-12" style="display: none">
-        <div class="row">
+        <div class="row" name="item-title-price">
             <div class="col-8">
-                <div name="item-title" class="row"></div>
-                <div name="item-price" class="row"></div>
-                <div name="item-description" class="row"></div>
+                <h6 name="item-title"></h6>  
             </div>
-            <img name="item-image" class="col-4">
+            <div class="col-4">
+                <div name="item-price"></div>
+            </div>
         </div>
-        <div class="row inner-line"></div>
+        <div class="row" name="item-description-image">
+            <div class="col-8">
+                <div name="item-description"></div>
+            </div>
+            <div class="col-4">
+                <img name="item-image">
+            </div>
+        </div>
     </div>
-    <div name="items" class="row" style="display: none"></div>
+    <div name="items" class="row justify-content-center" style="display: none"></div>
     <div name="subsection" class="col-12" style="display: none">
-        <div class="row line"></div>
-        <div name="subsection-title" class="row"></div>
+        <div class="row">
+            <div class="line"></div>
+        </div>
+        <div class="row">
+            <div name="subsection-title"></div>
+        </div>
     </div>
     <div name="section" class="row" style="display: none">
         <div name="section-title"></div>
     </div>
     <div name="section-tab" class="col" style="display: none;"></div>
     <div name="section-tab-pk" class="col" style="display: none;"></div>
+    <div name=hide-pre style="display: none;">
+        <pre id="open_hours_ue"></pre>
+        <pre id="open_hours_fp"></pre>
+        <pre id="cheaper_ue"></pre>
+        <pre id="cheaper_fp"></pre>
+    </div>
 {% endblock %}
 
 {% block javascript %}
