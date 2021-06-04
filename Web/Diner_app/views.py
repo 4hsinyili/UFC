@@ -238,8 +238,18 @@ class FavoritesAPI(views.APIView):
                 uuid_fp = favorite
                 match = {"uuid_fp": uuid_fp}
                 or_conditions.append(match)
-        match_condition = {"$match": {"$or": or_conditions, "triggered_at": triggered_at}}
-        diners = list(db['matched'].aggregate([match_condition]))
+        match_condition = [
+            {
+                "$match": {
+                    "triggered_at": triggered_at
+                }
+            }, {
+                "$match": {
+                    "$or": or_conditions
+                }
+            }
+            ]
+        diners = list(db['matched'].aggregate(match_condition))
         if len(diners) == 0:
             return Response({
                 'is_data': False
