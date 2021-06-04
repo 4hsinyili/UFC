@@ -1,12 +1,16 @@
-.nav-bar{
-    margin: 1rem;
-    align-self: flex-end;
-}
-
-.nav-tab{
-    float: right;
-}
-
 #content{
     margin-bottom: 4rem;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.button{
+    height: 24px;
+    width: 24px;
+}
+
+.nav-item{
+    max-width: 120px;
 }

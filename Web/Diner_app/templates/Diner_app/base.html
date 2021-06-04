@@ -17,13 +17,21 @@
         <script src="{% static 'Diner_app/js/sweetalert2.all.min.js' %}"></script>
     </head>
     <body>
-        <nav class="nav-bar">
-            <a class="nav-tab" href='/dinerlist' class="diner-list-link">Diner List</a>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-end">
+            <div class="nav-item col">
+                <a class="nav-link" href="/dinerlist">Diner List</a>
+            </div>
             {% if user_is_authenticated %}
-                <a class="nav-tab" href="/logout" class="logout-link">Logout</a>
-                <a class="nav-tab" href="/favorites" class="favorites-link">Favorites</a>
+            <div class="nav-item col">
+                <a class="nav-link" href="/favorites">Favorites</a>
+            </div>
+            <div class="nav-item col">
+                <a class="nav-link" href="/user/logout">Logout</a>
+            </div>
             {% else %}
-                <a class="nav-tab" href="/user/login" class="login-link">Login</a>
+            <div class="nav-item col">
+                <a class="nav-link" href="/user/login" class="login-link">Login</a>
+            </div>
             {% endif %}
         </nav>
         <div id="content" name="content" class="container">
