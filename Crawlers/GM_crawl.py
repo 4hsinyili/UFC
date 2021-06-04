@@ -98,7 +98,7 @@ class GMCrawler():
             )
             update_records.append(record)
         cursor.close()
-        print('There are ', loop_count, ' diners updated using old records.')
+        print('There are ', loop_count, ' old records that could be used to update.')
         if len(update_records) > 0:
             result = db[collection].bulk_write(update_records)
         print(result.bulk_api_result)
