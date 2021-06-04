@@ -68,10 +68,11 @@ class DinerSearch(views.APIView):
     def post(self, request):
         start = time.time()
         condition = request.data['condition']
-        pprint.pprint(condition)
-        user_id = request.user.id
-        if user_id is None:
+        if request.user.is_authenticated:
+            user_id = request.user.id
+        else:
             user_id = 0
+        print('User id is: ', user_id)
         offset = request.data['offset']
         triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
@@ -104,8 +105,9 @@ class DinerShuffle(views.APIView):
 
     def post(self, request):
         start = time.time()
-        user_id = request.user.id
-        if user_id is None:
+        if request.user.is_authenticated:
+            user_id = request.user.id
+        else:
             user_id = 0
         triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
@@ -134,8 +136,10 @@ class DinerInfo(views.APIView):
         start = time.time()
         uuid_ue = self.request.query_params.get('uuid_ue', None)
         uuid_fp = self.request.query_params.get('uuid_fp', None)
-        user_id = request.user.id
-        if user_id is None:
+        triggered_at = match_checker.get_triggered_at()
+        if request.user.is_authenticated:
+            user_id = request.user.id
+        else:
             user_id = 0
         if uuid_ue:
             triggered_at = match_checker.get_triggered_at()
@@ -175,9 +179,10 @@ class Filters(views.APIView):
 class FavoritesAPI(views.APIView):
     def post(self, request):
         request_data = request.data
-        user_id = request.user.id
-        if user_id is None:
-            user_id = 0
+        if request.user.is_authenticated:
+            pass
+        else:
+            return Response({'message': 'need login'})
         source = request_data['source']
         if source == 'ue':
             uuid = request_data['uuid_ue']
@@ -189,9 +194,10 @@ class FavoritesAPI(views.APIView):
         return Response({'message': 'success'})
 
     def get(self, request):
-        user_id = request.user.id
-        if user_id is None:
-            user_id = 0
+        if request.user.is_authenticated:
+            pass
+        else:
+            return Response({'message': 'need login'})
         offset = int(self.request.query_params.get('offset', None))
         favorites = Favorites.manager.get_favorites(request.user, offset)
         if not favorites:
@@ -238,24 +244,21 @@ class FavoritesAPI(views.APIView):
 
 
 def dinerlist(request):
-    user_id = request.user.id
-    if user_id is None:
-        user_id = 0
-    print('user_id: ', user_id)
-    return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': True})
+    if request.user.is_authenticated:
+        pprint.pprint(request.user)
+        return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': True})
+    else:
+        return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': False})
 
 
 def dinerinfo(request):
-    user_id = request.user.id
-    if user_id is None:
-        user_id = 0
-    return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': True})
+    if request.user.is_authenticated:
+        return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': True})
+    else:
+        return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': False})
 
 
 def favorites(request):
-    user_id = request.user.id
-    if user_id is None:
-        user_id = 0
     if request.user.is_authenticated:
         return render(request, 'Diner_app/favorites.html', {'user_is_authenticated': True})
     else:
