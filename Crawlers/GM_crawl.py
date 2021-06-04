@@ -157,14 +157,14 @@ class GMCrawler():
     def parse_targets(self, cursor):
         parsed_targets = []
         for target in cursor:
-            if target['title_fp'] == '':
-                title = target['title_ue']
-            else:
+            if target['title_ue'] == '':
                 title = target['title_fp']
-            if target['gps_fp'] == []:
-                gps = target['gps_ue']
             else:
+                title = target['title_ue']
+            if target['gps_ue'] == []:
                 gps = target['gps_fp']
+            else:
+                gps = target['gps_ue']
             title = self.parse_troublesome_title(title)
             parsed_target = {
                 'title': title,
