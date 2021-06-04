@@ -62,6 +62,7 @@ if __name__ == '__main__':
     macther = UF_match.Match(db, collection)
     matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
     crawler = GM_crawl.GMCrawler(db, 'matched', matched_checker)
+    loop_count = 0
     while True:
         check_break = main(macther, crawler)
         if check_break:
@@ -69,4 +70,7 @@ if __name__ == '__main__':
         else:
             pass
         print('Sleep now')
+        loop_count += 1
+        if loop_count > 12:
+            break
         time.sleep(600)
