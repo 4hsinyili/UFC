@@ -220,7 +220,7 @@ class FavoritesAPI(views.APIView):
             })
         diners = []
         triggered_at = match_checker.get_triggered_at()
-        if offset + 6 < favorites_count:
+        if offset + 6 < len(favorites):
             has_more = True
         else:
             has_more = False
