@@ -111,9 +111,9 @@ class Match():
             item_price_ue = item_pair_ue[item_ue]
             item_price_fp = item_pair_fp[item_fp]
             if (item_price_ue - item_price_fp > 0):
-                cheaper_fp.append({item_fp: int(item_price_ue - item_price_fp)})
+                cheaper_fp.append([item_fp, int(item_price_ue - item_price_fp)])
             elif (item_price_ue - item_price_fp < 0):
-                cheaper_ue.append({item_ue: int(item_price_fp - item_price_ue)})
+                cheaper_ue.append([item_ue, int(item_price_fp - item_price_ue)])
         return cheaper_ue, cheaper_fp
 
     def transfer_records(self, records, source):

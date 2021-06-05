@@ -182,16 +182,15 @@ function renderCheaper(diner){
     let cheaperFPDom = document.getElementById('cheaper_fp')
     let text = ''
     for (let i=0; i < cheaperUE.length; i++){
-        console.log(Object.keys(cheaperUE[i]))
-        let key = Object.keys(cheaperUE[i])[0]
-        let value = Object.values(cheaperUE[i])[0]
+        let key = cheaperUE[i][0]
+        let value = cheaperUE[i][1]
         if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperUEDom.innerText = text
     text = ''
     for (let i=0; i < cheaperFP.length; i++){
-        let key = Object.keys(cheaperFP[i])[0]
-        let value = Object.values(cheaperFP[i])[0]
+        let key = cheaperFP[i][0]
+        let value = cheaperFP[i][1]
         if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperFPDom.innerText = text
