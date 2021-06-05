@@ -67,7 +67,17 @@ class Match():
         fp_cursor.close()
         return ue_records, fp_records
 
+    def filter_need_compare_records(self, records):
+        needed_fields = ['uuid', 'title', 'gps', 'item_pair']
+        filtered_records = []
+        for record in records:
+            filtered_record = {i: record[i] for i in needed_fields}
+            filtered_records.append(filtered_record)
+        return filtered_records
+
     def compare(self, ue_records, fp_records):
+        ue_records = self.filter_need_compare_records(ue_records)
+        fp_records = self.filter_need_compare_records(fp_records)
         all_combinations = product(ue_records, fp_records)
         similarities = []
         loop_count = 0
