@@ -220,30 +220,48 @@ class Match():
     def save_to_matched(self, diners):
         db = self.db
         collection = self.collection
-        records = []
-        for key in diners:
-            diner = diners[key]
-            diner['uuid_matched'] = {
-                'uuid_fp': diner['uuid_fp'],
-                'uuid_ue': diner['uuid_ue']
-            }
-            if diner['triggered_at_ue'] == datetime.min:
-                triggered_at = diner['triggered_at_fp']
-            else:
-                triggered_at = diner['triggered_at_ue']
-            diner['triggered_at'] = triggered_at
-            record = UpdateOne(
-                {
-                    'uuid_ue': diner['uuid_ue'],
+        keys = list(diners.keys())
+        diners_count = len(keys)
+        divider = diners_count // 4
+        limits = [divider for i in range(diners_count - 1)]
+        offsets = [i * divider for i in range(diners_count)]
+        remainder = diners_count - offsets[-1]
+        limits.append(remainder)
+        indexes = [{'offset': offsets[i], 'limit': limits[i]} for i in range(diners_count)]
+        loop_count = 0
+        for index in indexes:
+            offset = index['offset']
+            limit = index['limit']
+            keys_slice = keys[offset: offset+limit]
+            records = []
+            for key in keys_slice:
+                diner = diners[key]
+                diner['uuid_matched'] = {
                     'uuid_fp': diner['uuid_fp'],
-                    'uuid_matched': diner['uuid_matched'],
-                    'triggered_at_ue': diner['triggered_at_ue'],
-                    'triggered_at_fp': diner['triggered_at_fp'],
-                    'triggered_at': triggered_at
-                    }, {'$set': diner}, upsert=True
-            )
-            records.append(record)
-        db[collection].bulk_write(records)
+                    'uuid_ue': diner['uuid_ue']
+                }
+                if diner['triggered_at_ue'] == datetime.min:
+                    triggered_at = diner['triggered_at_fp']
+                else:
+                    triggered_at = diner['triggered_at_ue']
+                diner['triggered_at'] = triggered_at
+                record = UpdateOne(
+                    {
+                        'uuid_ue': diner['uuid_ue'],
+                        'uuid_fp': diner['uuid_fp'],
+                        'uuid_matched': diner['uuid_matched'],
+                        'triggered_at_ue': diner['triggered_at_ue'],
+                        'triggered_at_fp': diner['triggered_at_fp'],
+                        'triggered_at': triggered_at
+                        }, {'$set': diner}, upsert=True
+                )
+                records.append(record)
+                loop_count += 1
+            db[collection].bulk_write(records)
+            print('Saved ', len(records), 'diners to db.matched in this slice.')
+            gc.collect()
+        print('Totally saved ', loop_count, 'diners to db.matched.')
+        gc.collect()
         pprint.pprint('write into matched successed')
 
     def save_triggered_at(self, records_count):
@@ -277,7 +295,6 @@ class Match():
         records_count = len(list(matched_records.keys()))
         stop = time.time()
         print('process took: ', stop - start)
-        print('Saved ', records_count, 'diners to db.matched.')
         self.save_to_matched(matched_records)
         self.save_triggered_at(records_count)
 
