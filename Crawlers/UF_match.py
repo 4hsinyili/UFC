@@ -78,6 +78,7 @@ class Match():
     def compare(self, ue_records, fp_records):
         ue_records = self.filter_need_compare_records(ue_records)
         fp_records = self.filter_need_compare_records(fp_records)
+        gc.collect()
         all_combinations = product(ue_records, fp_records)
         similarities = []
         loop_count = 0
