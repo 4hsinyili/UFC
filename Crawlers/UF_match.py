@@ -234,8 +234,22 @@ class Match():
                 triggered_at = diner['triggered_at_ue']
             diner['triggered_at'] = triggered_at
             records.append(diner)
-        print('Going to save ', len(records), 'diners to db.matched in this slice.')
-        db[collection].insert_many(records)
+        diners_count = len(records)
+        divider = diners_count // 10
+        limits = [divider for i in range(diners_count - 1)]
+        offsets = [i * divider for i in range(diners_count)]
+        remainder = diners_count - offsets[-1]
+        limits.append(remainder)
+        indexes = [{'offset': offsets[i], 'limit': limits[i]} for i in range(diners_count)]
+        for index in indexes:
+            offset = index['offset']
+            limit = index['limit']
+            record_slice = records[offset: offset+limit]
+            print('Going to save ', len(record_slice), 'diners to db.matched in this slice.')
+            db[collection].insert_many(record_slice)
+            del record_slice
+            gc.collect()
+        print('Totally savee ', len(records), 'diners to db.matched in this slice.')
         pprint.pprint('write into matched successed')
 
     def save_triggered_at(self, records_count):
