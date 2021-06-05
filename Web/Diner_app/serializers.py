@@ -94,8 +94,6 @@ class MatchSerializer(serializers.Serializer):
     uuid_gm = serializers.CharField(max_length=3000, required=False)
     link_gm = serializers.CharField(max_length=3000, required=False)
     triggered_at_gm = serializers.DateTimeField(required=False)
-    item_pair_ue = serializers.ListField(required=False)
-    item_pair_fp = serializers.ListField(required=False)
     similarity = serializers.FloatField(required=False)
     cheaper_ue = serializers.ListField(required=False)
     cheaper_fp = serializers.ListField(required=False)

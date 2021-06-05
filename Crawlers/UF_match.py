@@ -131,6 +131,7 @@ class Match():
         bool_fields = ['choice_ue', 'choice_fp']
         datetime_fields = ['triggered_at_ue', 'triggered_at_fp']
         for record in records:
+            del record['item_pair']
             keys = list(record.keys())
             new_keys = [i + source for i in keys]
             for new_key in new_keys:
