@@ -8,6 +8,7 @@ from difflib import SequenceMatcher
 from geopy import distance
 import time
 import pprint
+import gc
 
 MONGO_HOST = env.MONGO_HOST
 MONGO_PORT = env.MONGO_PORT
@@ -269,6 +270,10 @@ class Match():
         c_stop = time.time()
         print('compare took: ', c_stop - c_start)
         matched_records = self.merge_records(ue_records, fp_records, similarities)
+        del ue_records
+        del fp_records
+        del similarities
+        gc.collect()
         records_count = len(list(matched_records.keys()))
         stop = time.time()
         print('process took: ', stop - start)
