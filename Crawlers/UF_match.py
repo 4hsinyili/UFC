@@ -1,7 +1,7 @@
 from datetime import datetime
 from Crawlers.FP_crawl import FPChecker
 from Crawlers.UE_crawl import UEChecker
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 import env
 from itertools import product
 from difflib import SequenceMatcher
@@ -246,8 +246,6 @@ class Match():
             diner['triggered_at'] = triggered_at
             records.append(diner)
         diners_count = len(records)
-        divider = diners_count // 10
-        limits = [divider for i in range(diners_count - 1)]
         slice_count = 10
         divider = diners_count // slice_count
         limits = [divider for i in range(slice_count - 1)]
@@ -260,8 +258,20 @@ class Match():
             limit = index['limit']
             record_slice = records[offset: offset+limit]
             print('Going to save ', len(record_slice), 'diners to db.matched in this slice.')
-            db[collection].insert_many(record_slice)
-            del record_slice
+            upsert_records = []
+            for diner in record_slice:
+                record = UpdateOne(
+                    {
+                        'uuid_ue': diner['uuid_ue'],
+                        'uuid_fp': diner['uuid_fp'],
+                        'uuid_matched': diner['uuid_matched'],
+                        'triggered_at_ue': diner['triggered_at_ue'],
+                        'triggered_at_fp': diner['triggered_at_fp'],
+                        'triggered_at': triggered_at
+                        }, {'$set': diner}, upsert=True
+                )
+                upsert_records.append(record)
+            db[collection].bulk_write(upsert_records)
             gc.collect()
         print('Totally savee ', len(records), 'diners to db.matched in this slice.')
         pprint.pprint('write into matched successed')
