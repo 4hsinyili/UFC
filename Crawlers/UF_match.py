@@ -248,10 +248,13 @@ class Match():
         diners_count = len(records)
         divider = diners_count // 10
         limits = [divider for i in range(diners_count - 1)]
-        offsets = [i * divider for i in range(diners_count)]
+        slice_count = 10
+        divider = diners_count // slice_count
+        limits = [divider for i in range(slice_count - 1)]
+        offsets = [i * divider for i in range(slice_count)]
         remainder = diners_count - offsets[-1]
         limits.append(remainder)
-        indexes = [{'offset': offsets[i], 'limit': limits[i]} for i in range(diners_count)]
+        indexes = [{'offset': offsets[i], 'limit': limits[i]} for i in range(slice_count)]
         for index in indexes:
             offset = index['offset']
             limit = index['limit']
