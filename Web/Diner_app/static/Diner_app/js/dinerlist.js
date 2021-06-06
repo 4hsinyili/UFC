@@ -51,7 +51,23 @@ let toggleSortersDom = $('[data-trigger="toggle-sorters"]')[0]
 
 let collectDom = $('[name="collect"]')[0]
 
+
 // Define functions
+
+function showLoading(){
+    Swal.fire({
+        title: "",
+        text: "Please wait.",
+        didOpen: ()=>{
+            Swal.showLoading()
+        }
+    });
+}
+
+function endLoading() {
+    Swal.close()
+}
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -212,6 +228,7 @@ function renderDiner(diner){
 }
 
 function renderList(data){
+    showLoading()
     let results = data.data
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
@@ -226,6 +243,7 @@ function renderList(data){
     } else {
         $(showMoreDom).hide()
     }
+    endLoading()
 }
 
 function renderMore(data){
@@ -498,6 +516,7 @@ function turnSortersToConditions(conditions, sorterSet){
 }
 
 function search(offset, showMore=false){
+    showLoading()
     $(showMoreDom).hide()
     let keyWord = document.getElementById('search-box')
     let filterSet = $('div[name="filter"]')
@@ -512,19 +531,23 @@ function search(offset, showMore=false){
             let height = document.body.scrollHeight
             renderList(response)
             window.scrollTo(0,height);
+            endLoading()
         })
         }
     else{
         ajaxPost(dinerSearchAPI, data, function(response){
             renderList(response)
         })
+            endLoading()
     }
 }
 
 function shuffle(){
+    showLoading()
     data = {}
     ajaxPost(dinerShuffleAPI, data, function(response){
         renderList(response)
+        endLoading()
     })
 }
 
@@ -539,8 +562,10 @@ function changeFavorites(diner_id, source, activate){
 }
 
 // start to render
+showLoading()
 ajaxPost(dinerSearchAPI, initData, function(response){
     renderList(response)
+    endLoading()
 })
 
 ajaxGet(filtersAPI, function(response){
