@@ -293,8 +293,5 @@ def favorites(request):
 
 
 def forSSL(request):
-    filepath = 'F6B43E81B6BB7366178E7DE03B1BB0FC.txt'
-    f = open(filepath, 'r')
-    file_content = f.read()
-    f.close()
+    file_content = env.VERIFY_DOMAIN
     return HttpResponse(file_content, content_type='text/plain')
