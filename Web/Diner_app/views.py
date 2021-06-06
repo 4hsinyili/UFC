@@ -186,7 +186,7 @@ class Filters(views.APIView):
         filters = match_filters.get_filters(triggered_at)
         data = FilterSerializer(filters, many=False).data
         stop = time.time()
-        print('get DinerInfo took: ', stop - start, 's.')
+        print('get Filters took: ', stop - start, 's.')
         return Response({'data': data})
 
 
