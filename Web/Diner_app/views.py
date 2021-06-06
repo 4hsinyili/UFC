@@ -293,7 +293,7 @@ def favorites(request):
 
 
 def forSSL(request):
-    filepath = 'Diner_app/static/Diner_app/F6B43E81B6BB7366178E7DE03B1BB0FC.txt'
+    filepath = 'F6B43E81B6BB7366178E7DE03B1BB0FC.txt'
     f = open(filepath, 'r')
     file_content = f.read()
     f.close()
