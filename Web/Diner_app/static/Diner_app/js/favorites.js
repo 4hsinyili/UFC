@@ -33,7 +33,7 @@ let collectDom = $('[name="collect"]')[0]
 function showLoading(){
     Swal.fire({
         title: "",
-        text: "Please wait.",
+        text: "Loading...",
         didOpen: ()=>{
             Swal.showLoading()
         }

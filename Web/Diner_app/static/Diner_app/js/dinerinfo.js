@@ -17,7 +17,7 @@ $('#diner-info').hide()
 function showLoading(){
     Swal.fire({
         title: "",
-        text: "Please wait.",
+        text: "Loading...",
         didOpen: ()=>{
             Swal.showLoading()
         }
@@ -355,7 +355,6 @@ document.addEventListener('click', (e)=>{
         let openHoursDomUe = document.getElementById('open_hours_ue').cloneNode(true) 
         Swal.fire(
             {
-            icon: 'info',
             title: '服務時間',
             html: openHoursDomUe,
             customClass: 'justify-content-center'
@@ -363,7 +362,6 @@ document.addEventListener('click', (e)=>{
     } else if (e.target.getAttribute('id') == 'show-more-info_fp'){
         let openHoursDomFp = document.getElementById('open_hours_fp').cloneNode(true)
         Swal.fire({
-            icon: 'info',
             title: '服務時間',
             html: openHoursDomFp,
             customClass: 'justify-content-center'
