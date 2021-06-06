@@ -63,6 +63,12 @@
 
 #diner-template{
     min-width: 640px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#diner-template:hover{
+    box-shadow: 2px 2px 4px 1px #bbbbbb;
 }
 
 .title_ue{
