@@ -40,7 +40,7 @@ let addNewSorterDom = $('div[name="add-new-sorter"]')[0]
 let clearSorterDom = $('div[name="clear-sorter"]')[0]
 let clearAllSorterDom = $('div[name="clear-all-sorter"]')[0]
 
-let sendFilterDom = $('div[name="send-filters"]')[0]
+let sendFilterDom = $('div[name="send-all-filter-sorter"]')[0]
 let showMoreDom = $('div[id="show-more"]')[0]
 
 let searchBox = $('#search-box')[0]
@@ -277,7 +277,6 @@ function clearFilter(target){
 }
 
 function clearAllFilter(){
-    $(filtersSection).hide()
     clearFilter(clearFilterDom)
     let removeFilters = $('[class*="remove-filter"]')
     for( let i = 0; i < removeFilters.length; i ++){
@@ -430,7 +429,6 @@ function clearSorter(target){
 
 
 function clearAllSorter(){
-    $(sortersSection).hide()
     clearSorter(clearSorterDom)
     let removeSorters = $('[class*="remove-sorter"]')
     for( let i = 0; i < removeSorters.length; i ++){
@@ -560,12 +558,10 @@ sorters.addEventListener('change', (e)=>{
 })
 
 $(toggleFiltersDom).click(function(){
-    // $(sortersSection).hide()
     $(fsSection).toggle()
 })
 
 $(toggleSortersDom).click(function(){
-    // $(filtersSection).hide()
     $(fsSection).toggle()
 })
 
@@ -599,23 +595,20 @@ clearAllSorterDom.addEventListener('click', (e)=>{
 
 $(sendFilterDom).click(function(){
     clearDIners()
-    $(filtersSection).hide()
-    $(sortersSection).hide()
+    $(fsSection).hide()
     search(0)
 })
 
 $(searchButton).click(function(){
     clearDIners()
-    $(filtersSection).hide()
-    $(sortersSection).hide()
+    $(fsSection).hide()
     search(0)
 })
 
 $(searchBox).keydown(function(e){
     if (e.keyCode == 13){
-        $(filtersSection).hide()
-        $(sortersSection).hide()
         clearDIners()
+        $(fsSection).hide()
         search(0)
     }
 })
@@ -623,8 +616,7 @@ $(searchBox).keydown(function(e){
 $(shuffleButton).click(function(){
     clearDIners()
     $(showMoreDom).hide()
-    $(filtersSection).hide()
-    $(sortersSection).hide()
+    $(fsSection).hide()
     shuffle()
 })
 
