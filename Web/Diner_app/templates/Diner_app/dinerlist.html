@@ -14,28 +14,28 @@
         <div id="search" data-hover="yes" class="row text-center">
             <div class="col input-group input-group-lg">
                 <input id="search-box" class="form-control input-lg" placeholder="今天想吃什麼？">
-                <span class="input-group-text" data-trigger="search-button" id="basic-addon2"><img id="search-button" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/search.svg" data-number=0></span>
-                <span class="input-group-text" data-trigger="toggle-filters" id="basic-addon2"><img id="toggle-filters" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter.svg" data-number=0></span>
-                <span class="input-group-text" data-trigger="shuffle" id="basic-addon2"><img id="shuffle" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/shuffle.svg" data-number=0></span>
-                <span class="input-group-text" data-trigger="so-many-buttons" id="basic-addon2"><img id="so-many-buttons" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/question.svg" data-number=0></span>
+                <span title="搜尋" class="input-group-text" data-trigger="search-button" id="basic-addon2"><img id="search-button" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/search.svg" data-number=0></span>
+                <span title="篩選與排序" class="input-group-text" data-trigger="toggle-filters" id="basic-addon2"><img id="toggle-filters" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter.svg" data-number=0></span>
+                <span title="隨機" class="input-group-text" data-trigger="shuffle" id="basic-addon2"><img id="shuffle" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/shuffle.svg" data-number=0></span>
+                <span title="說明" class="input-group-text" data-trigger="so-many-buttons" id="basic-addon2"><img id="so-many-buttons" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/question.svg" data-number=0></span>
             </div>
         </div>
     </div>
     <div id='filters-sorters-section' class="container" style="display: none;">
         <div id='fs-trigger-section' class="row"  data-padding-12>
-            <div name='add-new-filter' data-hover="yes"  class="btn btn-light btn-sm col-2">
-                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_filter.svg">
-            </div>
-            <div name='clear-all-filter' data-hover="yes" class="btn btn-light btn-sm col-2">
+            <div title="清除所有篩選" name='clear-all-filter' data-hover="yes" class="btn btn-danger btn-sm col-2">
                 <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_all_filter.svg">
             </div>
-            <div name='add-new-sorter' data-hover="yes"  class="btn btn-light btn-sm col-2  offset-md-1">
-                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_sorter.svg">
+            <div title="新增篩選" name='add-new-filter' data-hover="yes"  class="btn btn-light btn-sm col-2">
+                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_filter.svg">
             </div>
-            <div name='clear-all-sorter' data-hover="yes" class="btn btn-light btn-sm col-2">
+            <div title="清除所有排序" name='clear-all-sorter' data-hover="yes" class="btn btn-danger btn-sm col-2 offset-1">
                 <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_all_sorter.svg">
             </div>
-            <div name='send-all-filter-sorter' data-hover="yes" class="btn btn-success btn-sm col-2 offset-md-1">
+            <div title="新增排序" name='add-new-sorter' data-hover="yes"  class="btn btn-light btn-sm col-2">
+                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_sorter.svg">
+            </div>
+            <div title="送出篩選與排序" name='send-all-filter-sorter' data-hover="yes" class="btn btn-success btn-sm col-2 offset-1">
                 <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/check.svg">
             </div>
         </div>
@@ -44,8 +44,9 @@
                 <div id='filters-section' class="row">
                     <div id='filters' class="col-12">
                         <div name='filter' class="row" data-number=0>
-                            <div name="clear-filter" class="col-1 btn btn-sm btn-danger" data-hover="yes" data-number=0>
-                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_filter.svg" data-number=0>
+                            <div title="清除篩選" name="clear-filter" class="col-1 btn btn-sm btn-light" data-hover="yes" data-number=0>
+                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter_wide.svg" data-number=0>
+                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/clear_filter.svg" data-number=0>
                             </div>
                             <div class="col-3" data-select-nopadding>
                                 <select name="filter-source" data-number=0 class="form-select form-select-lg">
@@ -136,13 +137,13 @@
                                 </select>
                                 <select name="filter-value" class="ue open_days_ue form-select form-select-lg" data-number=0 data-type='number'>
                                     <option value="default" disabled selected></option>
-                                    <option value=1>Mon.</option>
-                                    <option value=2>Tue.</option>
-                                    <option value=3>Wed.</option>
-                                    <option value=4>Thu.</option>
-                                    <option value=5>Fri.</option>
-                                    <option value=6>Sat.</option>
-                                    <option value=7>Sun.</option>
+                                    <option value=1>星期一</option>
+                                    <option value=2>星期二</option>
+                                    <option value=3>星期三</option>
+                                    <option value=4>星期四</option>
+                                    <option value=5>星期五</option>
+                                    <option value=6>星期六</option>
+                                    <option value=7>星期日</option>
                                 </select>
                                 <select name="filter-value" class="fp deliver_fee_fp form-select form-select-lg" data-number=0 data-type='number'>
                                     <option value="default" disabled selected></option>
@@ -169,13 +170,13 @@
                                 </select>
                                 <select name="filter-value" class="fp open_days_fp form-select form-select-lg" data-number=0 data-type='number'>
                                     <option value="default" disabled selected></option>
-                                    <option value=1>Mon.</option>
-                                    <option value=2>Tue.</option>
-                                    <option value=3>Wed.</option>
-                                    <option value=4>Thu.</option>
-                                    <option value=5>Fri.</option>
-                                    <option value=6>Sat.</option>
-                                    <option value=7>Sun.</option>
+                                    <option value=1>星期一</option>
+                                    <option value=2>星期二</option>
+                                    <option value=3>星期三</option>
+                                    <option value=4>星期四</option>
+                                    <option value=5>星期五</option>
+                                    <option value=6>星期六</option>
+                                    <option value=7>星期日</option>
                                 </select>
                             </div>
                         </div>
@@ -186,8 +187,9 @@
                 <div id="sorters-section" class="row">
                     <div id='sorters' class="col-12">
                         <div name='sorter' data-number=0 class="row">
-                            <div name="clear-sorter" class="btn btn-danger btn-sm col-1" data-number=0>
-                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_sorter.svg" data-number=0>
+                            <div title="清除排序" name="clear-sorter" class="btn btn-light btn-sm col-1" data-number=0>
+                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/sorter_wide.svg" data-number=0>
+                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/clear_sorter.svg" data-number=0>
                             </div>
                             <div class="col-3" data-select-nopadding>
                                 <select name="sorter-source" data-number=0 class="form-select form-select-lg">
@@ -199,31 +201,31 @@
                             <div name="filter-types" data-select-nopadding data-number=0 class="col-3">
                                 <select name="sorter-type" data-number=0 class="ue form-select form-select-lg">
                                     <option value='default'></option>
-                                    <option value="deliver_fee_ue">deliver_fee</option>
-                                    <option value="deliver_time_ue">deliver_time</option>
-                                    <option value="budget_ue">budget</option>
-                                    <option value="rating_ue">rating</option>
-                                    <option value="view_count_ue">view_count</option>
+                                    <option value="deliver_fee_ue">外送費用</option>
+                                    <option value="deliver_time_ue">外送時間</option>
+                                    <option value="budget_ue">預算</option>
+                                    <option value="rating_ue">評價</option>
+                                    <option value="view_count_ue">評分次數</option>
                                 </select>
                                 <select name="sorter-type" data-number=0 data-select-nopadding class="fp form-select form-select-lg">
                                     <option value='default'></option>
-                                    <option value="deliver_fee_fp">deliver_fee</option>
-                                    <option value="deliver_time_fp">deliver_time</option>
-                                    <option value="budget_fp">budget</option>
-                                    <option value="rating_fp">rating</option>
-                                    <option value="view_count_fp">view_count</option>
+                                    <option value="deliver_fee_fp">外送費用</option>
+                                    <option value="deliver_time_fp">外送時間</option>
+                                    <option value="budget_fp">預算</option>
+                                    <option value="rating_fp">評價</option>
+                                    <option value="view_count_fp">評分次數</option>
                                 </select>
                             </div>
                             <div name="sorter-operator" data-number=0 data-select-nopadding class="col-5">
                                 <select name="sorter-operator" class="ue deliver_fee_ue deliver_time_ue budget_ue rating_ue view_count_ue form-select form-select-lg" data-number=0>
                                     <option value='default'></option>
-                                    <option value=1>ASC</option>
-                                    <option value=-1>DESC</option>
+                                    <option value=1>由低到高</option>
+                                    <option value=-1>由高到低</option>
                                 </select>
                                 <select name="sorter-operator" class="fp deliver_fee_fp deliver_time_fp budget_fp rating_fp view_count_fp form-select form-select-lg" data-number=0>
                                     <option value='default'></option>
-                                    <option value=1>ASC</option>
-                                    <option value=-1>DESC</option>
+                                    <option value=1>由低到高</option>
+                                    <option value=-1>由高到低</option>
                                 </select>
                             </div> 
                         </div>
@@ -259,7 +261,7 @@
                 <div class="row">
                     {% if user_is_authenticated %}
                         <div class="col d-flex justify-content-end">
-                            <img name="collect" class="col-2 icon" data-hover="yes" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart.svg" data-uuid-ue="" data-uuid-fp="">
+                            <img title="收藏" name="collect" class="col-2 icon" data-hover="yes" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart.svg" data-uuid-ue="" data-uuid-fp="">
                         </div>
                     {% else %}
                         <div class="col d-flex justify-content-end">
@@ -269,8 +271,12 @@
                 </div>
                 <div class="row align-self-center text-align-center" name="column_names">
                     <div class="col-4 align-self-center"></div>
-                    <div class="col-4 align-self-center">評價</div>
-                    <div class="col-4 align-self-center">評分次數</div>
+                    <div title="評價" class="col-4 align-self-center">
+                        <img name="rating_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/rating.svg" data-number=0>
+                    </div>
+                    <div title="評分次數" class="col-4 align-self-center">
+                        <img name="view_count_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/view_count.svg" data-number=0>
+                    </div>
                 </div>
                 <div class="info_ue align-self-center text-align-center row">
                     <a id='link_ue' class="icon_ue col-4 align-self-center">Uber Eats</a>
