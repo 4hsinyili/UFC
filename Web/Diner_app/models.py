@@ -15,7 +15,7 @@ class FavoritesManager(models.Manager):
         return favorite_sqlrecord
 
     def get_favorites(self, user, offset=0):
-        favorite_records = self.filter(user=user)
+        favorite_records = self.filter(user=user, activate=1)
         if favorite_records:
             favorites = []
             for i in favorite_records:
