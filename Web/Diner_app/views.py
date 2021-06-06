@@ -5,8 +5,6 @@ from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from .serializers import MatchSerializer, FilterSerializer
-from django.conf import settings
-import os
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
 from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, Pipeline
@@ -292,6 +290,6 @@ def favorites(request):
         return redirect('/user/login')
 
 
-def forSSL(request):
-    file_content = env.VERIFY_DOMAIN
-    return HttpResponse(file_content, content_type='text/plain')
+# def forSSL(request):
+#     file_content = env.VERIFY_DOMAIN
+#     return HttpResponse(file_content, content_type='text/plain')
