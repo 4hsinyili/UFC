@@ -11,5 +11,6 @@ urlpatterns = [
     path('api/v1/favorites', views.FavoritesAPI.as_view()),
     path('dinerlist', views.dinerlist, name='dinerlist'),
     path('dinerinfo', views.dinerinfo, name='dinerinfo'),
-    path('favorites', views.favorites, name='favorites')
+    path('favorites', views.favorites, name='favorites'),
+    path('.well-known/pki-validation/', views.forSSL, name='test')
 ]

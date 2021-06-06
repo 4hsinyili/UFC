@@ -1,9 +1,12 @@
+from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
 # from django.http import HttpResponse
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from .serializers import MatchSerializer, FilterSerializer
+from django.conf import settings
+import os
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
 from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, Pipeline
@@ -287,3 +290,11 @@ def favorites(request):
         return render(request, 'Diner_app/favorites.html', {'user_is_authenticated': True, 'current_page': '收藏'})
     else:
         return redirect('/user/login')
+
+
+def forSSL(request):
+    filepath = 'Diner_app/static/Diner_app/F6B43E81B6BB7366178E7DE03B1BB0FC.txt'
+    f = open(filepath, 'r')
+    file_content = f.read()
+    f.close()
+    return HttpResponse(file_content, content_type='text/plain')
