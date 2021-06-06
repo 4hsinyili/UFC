@@ -15,12 +15,12 @@ def register(request):
         if form.is_valid():
             user = form.save()
             auth.login(request, user)
-            return redirect("/dinerlist")
+            return redirect("/")
 
 
 def login(request):
     if request.user.is_authenticated:
-        return redirect("/dinerlist")
+        return redirect("/")
     if request.method == "POST":
         form = LoginForm(data=request.POST)
         email = request.POST.get('email')
@@ -30,7 +30,7 @@ def login(request):
         user = auth.authenticate(email=email, password=password)
         if user:
             auth.login(request, user)
-            return redirect("/dinerlist")
+            return redirect("/")
         else:
             print('invalid')
             print(form.errors)
@@ -45,4 +45,4 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
-    return redirect("/dinerlist")
+    return redirect("/")
