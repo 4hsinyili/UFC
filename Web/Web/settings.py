@@ -30,7 +30,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '54.179.123.235'
+    '54.179.123.235',
     '.4hsinyili-ufc.xyz'
 ]
 
