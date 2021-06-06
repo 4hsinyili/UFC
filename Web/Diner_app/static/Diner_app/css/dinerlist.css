@@ -231,3 +231,13 @@ a:link {
     background-color: black;
     color: white;
 }
+
+.btn-danger{
+    background-color: #DB625A !important;
+    border-color: #DB625A !important;
+}
+
+.btn-danger:hover{
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
