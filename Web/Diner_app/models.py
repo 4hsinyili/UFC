@@ -16,12 +16,10 @@ class FavoritesManager(models.Manager):
 
     def get_favorites(self, user, offset=0):
         favorite_records = self.filter(user=user)
-        print(user)
         if favorite_records:
             favorites = []
             for i in favorite_records:
                 favorites.append(i.uuid)
-            print(favorites)
             return list(set(favorites))
         else:
             return False
@@ -148,9 +146,7 @@ class MatchFilters():
         pipeline = [
             {"$match": {"triggered_at": triggered_at}},
             {"$unwind": "$tags_ue"},
-            {"$unwind": "$open_days_ue"},
             {"$unwind": "$tags_fp"},
-            {"$unwind": "$open_days_fp"},
             {
                 '$group': {
                     '_id': None,
@@ -160,14 +156,12 @@ class MatchFilters():
                     'budget_ue': {'$addToSet': '$budget_ue'},
                     'view_count_ue': {'$addToSet': {'$round': ['$view_count_ue', -2]}},
                     'tags_ue': {'$addToSet': '$tags_ue'},
-                    'open_days_ue': {'$addToSet': '$open_days_ue'},
                     'rating_fp': {'$addToSet': '$rating_fp'},
                     'deliver_fee_fp': {'$addToSet': '$deliver_fee_fp'},
                     'deliver_time_fp': {'$addToSet': '$deliver_time_fp'},
                     'budget_fp': {'$addToSet': '$budget_fp'},
                     'view_count_fp': {'$addToSet': {'$round': ['$view_count_fp', -2]}},
                     'tags_fp': {'$addToSet': '$tags_fp'},
-                    'open_days_fp': {'$addToSet': '$open_days_fp'},
                     }
             }, {
                 '$project': {'_id': 0}
@@ -176,8 +170,7 @@ class MatchFilters():
         cursor = db[collection].aggregate(pipeline=pipeline)
         filters = next(cursor)
         cursor.close()
-        filters['open_days_fp'] = [i for i in filters['open_days_fp'] if type(i) == int]
-        need_sorts = ['rating_ue', 'deliver_time_ue', 'budget_ue', 'view_count_ue', 'open_days_ue', 'rating_fp', 'deliver_time_fp', 'budget_fp', 'view_count_fp', 'open_days_fp']
+        need_sorts = ['rating_ue', 'deliver_time_ue', 'budget_ue', 'view_count_ue', 'rating_fp', 'deliver_time_fp', 'budget_fp', 'view_count_fp']
         for need_sort in need_sorts:
             filters[need_sort].sort()
         return filters
