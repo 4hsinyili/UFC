@@ -156,6 +156,7 @@ function renderDiner(diner){
         collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)
         if (diner_favorite){ 
             collectNode.setAttribute('data-favorite', 1)
+            collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
     }
     if (diner_uuid_fp != ''){
@@ -171,6 +172,7 @@ function renderDiner(diner){
         collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)
         if (diner_favorite){
             collectNode.setAttribute('data-favorite', 1)
+            collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
     }
     if (!diner_uuid_ue){removeInfo(dinerNode, 'ue')}
@@ -197,8 +199,14 @@ function renderDiner(diner){
         let uuid_fp = e.target.getAttribute('data-uuid-fp')
         if (uuid_ue){changeFavorites(uuid_ue, 'ue', activate)}
         if (uuid_fp){changeFavorites(uuid_fp, 'fp', activate)}
-        if (activate == 1){e.target.setAttribute('data-favorite', 1)}
-        if (activate == 0){e.target.setAttribute('data-favorite', 0)}
+        if (activate == 1){
+            e.target.setAttribute('data-favorite', 1)
+            e.target.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
+        }
+        if (activate == 0){
+            e.target.setAttribute('data-favorite', 0)
+            e.target.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart.svg")
+        }
     })
     return dinerNode
 }
@@ -244,7 +252,7 @@ function appendFilter(){
     filters.appendChild(newFilter)
     let removeButton = document.querySelector(`[name="clear-filter"][data-number="${newFilterNumber}"]`)
     removeButton.classList.add('remove-filter')
-    removeButton.innerHTML = `<img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_filter.svg" data-number=${newFilterNumber}>`
+    removeButton.innerHTML = `<img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter_wide.svg" data-number=${newFilterNumber}><img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_filter.svg" data-number=${newFilterNumber}>`
     renderFilters()
     removeButton.addEventListener('click', (e)=>{
         removeFilter(e.target)
@@ -395,7 +403,7 @@ function appendSorter(){
     sorters.appendChild(newSorter)
     let removeButton = document.querySelector(`[name="clear-sorter"][data-number="${newSorterNumber}"]`)
     removeButton.classList.add('remove-sorter')
-    removeButton.innerHTML = `<img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_sorter.svg" data-number=${newSorterNumber}>`
+    removeButton.innerHTML = `<img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/sorter_wide.svg" data-number=${newSorterNumber}><img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_sorter.svg" data-number=${newSorterNumber}>`
     renderSorters()
     removeButton.addEventListener('click', (e)=>{
         removeSorter(e.target)
