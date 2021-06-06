@@ -8,7 +8,7 @@ from django.contrib import auth
 def register(request):
     if request.method == 'GET':
         form = RegisterForm()
-        context = {'form': form}
+        context = {'form': form, 'current_page': '註冊'}
         return render(request, 'User_app/register.html', context)
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -35,11 +35,11 @@ def login(request):
             print('invalid')
             print(form.errors)
             form = LoginForm()
-            context = {'form': form}
+            context = {'form': form, 'current_page': '登入'}
             return render(request, 'User_app/login.html', context)
     if request.method == 'GET':
         form = LoginForm()
-        context = {'form': form}
+        context = {'form': form, 'current_page': '登入'}
         return render(request, 'User_app/login.html', context)
 
 

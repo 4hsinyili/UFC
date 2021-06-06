@@ -17,22 +17,49 @@
         <script src="{% static 'Diner_app/js/sweetalert2.all.min.js' %}"></script>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light justify-content-end">
-            <div class="nav-item col">
-                <a class="nav-link" href="/dinerlist">Diner List</a>
+        <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-light">
+            <div class="col">
+                <div class="row justify-content-start">
+                    <div class="nav-item nav-bar-end-padding"></div>
+                    <div class="nav-item col-xl-1 col-lg-2">
+                        <a id='brand' name="bread-crumb-no-padding" class="nav-link disabled" href="">UFC</a>
+                    </div>
+                    <div name="bread-crumb-line-no-padding" class="nav-item col-xl-1 col-lg-2">
+                        <a name="bread-crumb-line-no-padding" class="nav-link disabled" href="">/</a>
+                    </div>
+                    <div class="nav-item col-xl-2 col-lg-3">
+                        <a id='current-page' name="bread-crumb-no-padding" class="nav-link disabled" href="">{{current_page}}</a>
+                    </div>
+                </div>
             </div>
-            {% if user_is_authenticated %}
-            <div class="nav-item col">
-                <a class="nav-link" href="/favorites">Favorites</a>
+            <div class="col">
+                <div class="row justify-content-end">
+                    <div class="nav-item col-xl-2 col-lg-3">
+                        <a id='back-to-top' name="nav-link-no-padding" class="nav-link" href="#top">回到頂端</a>
+                    </div>
+                    {% if current_page != '店家列表' %}
+                    <div class="nav-item col-xl-2 col-lg-3">
+                        <a name="nav-link-no-padding" class="nav-link" href="/dinerlist">店家列表</a>
+                    </div>
+                    {% endif %}
+                    {% if user_is_authenticated and current_page != '收藏' %}
+                    <div class="nav-item col-xl-1 col-lg-2">
+                        <a name="nav-link-no-padding" class="nav-link" href="/favorites">收藏</a>
+                    </div>
+                    {% endif %}
+                    {% if user_is_authenticated%}
+                    <div class="nav-item col-xl-1 col-lg-2">
+                        <a name="nav-link-no-padding" class="nav-link" href="/user/logout">登出</a>
+                    </div>
+                    {% endif %}
+                    {% if not user_is_authenticated and current_page != '登入'%}
+                    <div class="nav-item col-xl-1 col-lg-2">
+                        <a name="nav-link-no-padding" class="nav-link" href="/user/login" class="login-link">登入</a>
+                    </div>
+                    {% endif %}
+                    <div class="nav-item nav-bar-end-padding"></div>
+                </div>
             </div>
-            <div class="nav-item col">
-                <a class="nav-link" href="/user/logout">Logout</a>
-            </div>
-            {% else %}
-            <div class="nav-item col">
-                <a class="nav-link" href="/user/login" class="login-link">Login</a>
-            </div>
-            {% endif %}
         </nav>
         <div id="content" name="content" class="container">
             {% block content %}
@@ -41,5 +68,7 @@
     {% block javascript %}
         <script src="{% static 'Diner_app/js/dinerlist.js' %}"></script>
     {% endblock %}
+    {% load static %}
+    <script src="{% static 'Diner_app/js/base.js' %}"></script>
     </body>
 </html>

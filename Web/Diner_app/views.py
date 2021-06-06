@@ -270,20 +270,20 @@ class FavoritesAPI(views.APIView):
 def dinerlist(request):
     if request.user.is_authenticated:
         pprint.pprint(request.user)
-        return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': True})
+        return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': True, 'current_page': '店家列表'})
     else:
-        return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': False})
+        return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': False, 'current_page': '店家列表'})
 
 
 def dinerinfo(request):
     if request.user.is_authenticated:
-        return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': True})
+        return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': True, 'current_page': '店家資訊'})
     else:
-        return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': False})
+        return render(request, 'Diner_app/dinerinfo.html', {'user_is_authenticated': False, 'current_page': '店家資訊'})
 
 
 def favorites(request):
     if request.user.is_authenticated:
-        return render(request, 'Diner_app/favorites.html', {'user_is_authenticated': True})
+        return render(request, 'Diner_app/favorites.html', {'user_is_authenticated': True, 'current_page': '收藏'})
     else:
         return redirect('/user/login')
