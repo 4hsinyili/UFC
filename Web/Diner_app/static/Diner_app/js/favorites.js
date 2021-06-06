@@ -30,6 +30,20 @@ let showMoreDom = $('div[id="show-more"]')[0]
 let collectDom = $('[name="collect"]')[0]
 
 // Define functions
+function showLoading(){
+    Swal.fire({
+        title: "",
+        text: "Please wait.",
+        didOpen: ()=>{
+            Swal.showLoading()
+        }
+    });
+}
+
+function endLoading() {
+    Swal.close()
+}
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -227,8 +241,10 @@ function changeFavorites(diner_id, source, activate){
 }
 
 // start to render
+showLoading()
 ajaxGet(getFavoritesAPI.concat('?offset=0'), function(response){
     if (response.is_data == true){renderList(response)}
+    endLoading()
 })
 
 
