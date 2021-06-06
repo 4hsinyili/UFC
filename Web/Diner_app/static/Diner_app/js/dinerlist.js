@@ -248,7 +248,10 @@ function renderList(data){
 
 function renderMore(data){
     renderList(data)
-    window.scrollTo(0,document.body.scrollHeight);
+    console.log(document.body.scrollHeight)
+    console.log(window.innerHeight)
+    console.log((document.body.scrollHeight - window.innerHeight))
+    window.scrollTo(0,(document.body.scrollHeight - window.innerHeight));
 }
 
 function createConditions(keyWord){
@@ -527,18 +530,18 @@ function search(offset, showMore=false){
     console.log(conditions)
     data = {'condition': conditions, 'offset': offset}
     if (showMore){
-        ajaxPost(dinerSearchAPI, data, function(response){
-            let height = document.body.scrollHeight
-            renderList(response)
-            window.scrollTo(0,height);
-            endLoading()
-        })
-        }
-    else{
+        let height = $(document).height()
         ajaxPost(dinerSearchAPI, data, function(response){
             renderList(response)
-        })
+            window.scrollTo(0,(height - (200)));
             endLoading()
+        })
+    }
+    else {
+        ajaxPost(dinerSearchAPI, data, function(response){
+            renderList(response)
+            endLoading()
+    })
     }
 }
 
@@ -655,6 +658,7 @@ $(shuffleButton).click(function(){
 
 $(showMoreDom).click(function(){
     let offset = parseInt(showMoreDom.getAttribute('data-offset'))
+    let height = $(document).height()
     search(offset, true)
 })
 
