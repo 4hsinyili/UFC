@@ -10,231 +10,229 @@
 {% endblock %}
 
 {% block content %}
-    <h1 class="page-title">Diner List</h1>
-    <div>
+    <div class="container">
         <div id="search" data-hover="yes" class="row text-center">
-            <div class="col-8">
-                <input id="search-box" class="form-control input-sm" placeholder="search">
-            </div>
-            <div id="shuffle" data-hover="yes" class="col-1">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/shuffle.svg" data-number=0>
-            </div>
-            <div id="toggle-filters" data-hover="yes" class="col-1">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter.svg" data-number=0>
-            </div>
-            <div id="toggle-sorters" data-hover="yes" class="col-1">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/sorter.svg" data-number=0>
-            </div>
-            <div id="search-button" data-hover="yes" class="col-1">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/search.svg" data-number=0>
+            <div class="col input-group input-group-lg">
+                <input id="search-box" class="form-control input-lg" placeholder="今天想吃什麼？">
+                <span class="input-group-text" data-trigger="search-button" id="basic-addon2"><img id="search-button" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/search.svg" data-number=0></span>
+                <span class="input-group-text" data-trigger="toggle-filters" id="basic-addon2"><img id="toggle-filters" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter.svg" data-number=0></span>
+                <span class="input-group-text" data-trigger="shuffle" id="basic-addon2"><img id="shuffle" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/shuffle.svg" data-number=0></span>
+                <span class="input-group-text" data-trigger="so-many-buttons" id="basic-addon2"><img id="so-many-buttons" class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/question.svg" data-number=0></span>
             </div>
         </div>
     </div>
-    <div id='filters-section' class="col text-center justify-content-center" style="display: none;">
-        <div id='filters' class="justify-content-center">
-            <div name='filter' class="row justify-content-end" data-number=0>
-                <div class="col-3">
-                    <select name="filter-source" data-number=0 class="form-select">
-                        <option value='default'></option>
-                        <option value="ue">Uber Eats</option>
-                        <option value="fp">Food Panda</option>
-                    </select>
-                </div>
-                <div name="filter-types" data-number=0 class="col-3">
-                    <select name="filter-type" data-number=0 class="ue form-select">
-                        <option value='default'></option>
-                        <option value="deliver_fee_ue">deliver_fee</option>
-                        <option value="deliver_time_ue">deliver_time</option>
-                        <option value="UE_choice">UE_choice</option>
-                        <option value="budget_ue">budget</option>
-                        <option value="rating_ue">rating</option>
-                        <option value="view_count_ue">view_count</option>
-                        <option value="tags_ue">tags</option>
-                        <option value="open_days_ue">open_days</option>
-                    </select>
-                    <select name="filter-type" data-number=0 class="fp form-select">
-                        <option value='default'></option>
-                        <option value="deliver_fee_fp">deliver_fee</option>
-                        <option value="deliver_time_fp">deliver_time</option>
-                        <option value="FP_choice">FP_choice</option>
-                        <option value="budget_fp">budget</option>
-                        <option value="rating_fp">rating</option>
-                        <option value="view_count_fp">view_count</option>
-                        <option value="tags_fp">tags</option>
-                        <option value="open_days_fp">open_days</option>
-                    </select>
-                </div>
-                <div name="filter-operator" data-number=0 class="col-2">
-                    <select name="filter-operator" class="ue deliver_fee_ue deliver_time_ue budget_ue rating_ue view_count_ue form-select" data-number=0>
-                        <option value='default'></option>
-                        <option value='$gt'>></option>
-                        <option value='$gte'>>=</option>
-                        <option value='$eq'>=</option>
-                        <option value='$lte'><=</option>
-                        <option value='$lt'><</option>
-                    </select>
-                    <select name="filter-operator" class="ue UE_choice form-select" data-number=0>
-                        <option value='$eq'>=</option>
-                    </select>
-                    <select name="filter-operator" class="ue tags_ue form-select" data-number=0>
-                        <option value='$in'>=</option>
-                    </select>
-                    <select name="filter-operator" class="ue open_days_ue form-select" data-number=0>
-                        <option value='$in'>=</option>
-                    </select>
-                    <select name="filter-operator" class="fp deliver_fee_fp deliver_time_fp budget_fp rating_fp view_count_fp form-select" data-number=0>
-                        <option value='default'></option>
-                        <option value='$gt'>></option>
-                        <option value='$gte'>>=</option>
-                        <option value='$eq'>=</option>
-                        <option value='$lte'><=</option>
-                        <option value='$lt'><</option>
-                    </select>
-                    <select name="filter-operator" class="fp FP_choice form-select" data-number=0>
-                        <option value='$eq'>=</option>
-                    </select>
-                    <select name="filter-operator" class="fp tags_fp form-select" data-number=0>
-                        <option value='$in'>=</option>
-                    </select>
-                    <select name="filter-operator" class="fp open_days_fp form-select" data-number=0>
-                        <option value='$in'>=</option>
-                    </select>
-                </div> 
-                <div name="filter-value" data-number=0 class="col-2">
-                    <select name="filter-value" class="ue deliver_fee_ue form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>deliver_fee</option>
-                    </select>
-                    <select name="filter-value" class="ue deliver_time_ue form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>deliver_time</option>
-                    </select>
-                    <select name="filter-value" class="ue UE_choice form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>UE_choice</option>
-                        <option value=1>Yes</option>
-                        <option value=0>No</option>
-                    </select>
-                    <select name="filter-value" class="ue budget_ue form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>budget</option>
-                    </select>
-                    <select name="filter-value" class="ue rating_ue form-select" data-number=0 data-type='float'>
-                        <option value="default" disabled selected>rating</option>
-                    </select>
-                    <select name="filter-value" class="ue view_count_ue form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>view_count</option>
-                    </select>
-                    <select name="filter-value" class="ue tags_ue form-select" data-number=0 data-type='string'>
-                        <option value="default" disabled selected>tags</option>
-                    </select>
-                    <select name="filter-value" class="ue open_days_ue form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>open_days</option>
-                        <option value=1>Mon.</option>
-                        <option value=2>Tue.</option>
-                        <option value=3>Wed.</option>
-                        <option value=4>Thu.</option>
-                        <option value=5>Fri.</option>
-                        <option value=6>Sat.</option>
-                        <option value=7>Sun.</option>
-                    </select>
-                    <select name="filter-value" class="fp deliver_fee_fp form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>deliver_fee</option>
-                    </select>
-                    <select name="filter-value" class="fp deliver_time_fp form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>deliver_time</option>
-                    </select>
-                    <select name="filter-value" class="fp FP_choice form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>FP_choice</option>
-                        <option value=1>Yes</option>
-                        <option value=0>No</option>
-                    </select>
-                    <select name="filter-value" class="fp budget_fp form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>budget</option>
-                    </select>
-                    <select name="filter-value" class="fp rating_fp form-select" data-number=0 data-type='float'>
-                        <option value="default" disabled selected>rating</option>
-                    </select>
-                    <select name="filter-value" class="fp view_count_fp form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>view_count</option>
-                    </select>
-                    <select name="filter-value" class="fp tags_fp form-select" data-number=0 data-type='string'>
-                        <option value="default" disabled selected>tags</option>
-                    </select>
-                    <select name="filter-value" class="fp open_days_fp form-select" data-number=0 data-type='number'>
-                        <option value="default" disabled selected>open_days</option>
-                        <option value=1>Mon.</option>
-                        <option value=2>Tue.</option>
-                        <option value=3>Wed.</option>
-                        <option value=4>Thu.</option>
-                        <option value=5>Fri.</option>
-                        <option value=6>Sat.</option>
-                        <option value=7>Sun.</option>
-                    </select>
-                </div> 
-                <div name="clear-filter" class="col-1" data-hover="yes" data-number=0>
-                    <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/erase.svg" data-number=0>
-                </div>
-            </div>
-        </div>
-        <div class="filters-buttons row justify-content-center">
+    <div id='filters-sorters-section' class="container">
+        <div id='fs-trigger-section' class="row"  data-padding-12>
             <div name='add-new-filter' data-hover="yes"  class="btn btn-light btn-sm col-2">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_filter.svg">
+                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_filter.svg">
             </div>
-            <div name='clear-all-filter' data-hover="yes" class="col-2">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/erase_all.svg">
+            <div name='clear-all-filter' data-hover="yes" class="btn btn-light btn-sm col-2">
+                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_all_filter.svg">
             </div>
-        </div>
-    </div>
-    <div id="sorters-section" class="col text-center justify-content-center" style="display: none;">
-        <div id='sorters' class="justify-content-center">
-            <div name='sorter' data-number=0 class="row justify-content-end">
-                <div class="col-3">
-                    <select name="sorter-source" data-number=0 class="form-select">
-                        <option value='default'></option>
-                        <option value="ue">Uber Eats</option>
-                        <option value="fp">Food Panda</option>
-                    </select>
-                </div>
-                <div name="filter-types" data-number=0 class="col-3">
-                    <select name="sorter-type" data-number=0 class="ue form-select">
-                        <option value='default'></option>
-                        <option value="deliver_fee_ue">deliver_fee</option>
-                        <option value="deliver_time_ue">deliver_time</option>
-                        <option value="budget_ue">budget</option>
-                        <option value="rating_ue">rating</option>
-                        <option value="view_count_ue">view_count</option>
-                    </select>
-                    <select name="sorter-type" data-number=0 class="fp form-select">
-                        <option value='default'></option>
-                        <option value="deliver_fee_fp">deliver_fee</option>
-                        <option value="deliver_time_fp">deliver_time</option>
-                        <option value="budget_fp">budget</option>
-                        <option value="rating_fp">rating</option>
-                        <option value="view_count_fp">view_count</option>
-                    </select>
-                </div>
-                <div name="sorter-operator" data-number=0 class="col-2">
-                    <select name="sorter-operator" class="ue deliver_fee_ue deliver_time_ue budget_ue rating_ue view_count_ue form-select" data-number=0>
-                        <option value='default'></option>
-                        <option value=1>ASC</option>
-                        <option value=-1>DESC</option>
-                    </select>
-                    <select name="sorter-operator" class="fp deliver_fee_fp deliver_time_fp budget_fp rating_fp view_count_fp form-select" data-number=0>
-                        <option value='default'></option>
-                        <option value=1>ASC</option>
-                        <option value=-1>DESC</option>
-                    </select>
-                </div> 
-                <div name="clear-sorter" class="btn btn-warning btn-sm col-2" data-number=0>
-                    <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/erase.svg" data-number=0>
-                </div>
+            <div name='add-new-sorter' data-hover="yes"  class="btn btn-light btn-sm col-2  offset-md-1">
+                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_sorter.svg">
+            </div>
+            <div name='clear-all-sorter' data-hover="yes" class="btn btn-light btn-sm col-2">
+                <img class="button-wider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_all_sorter.svg">
+            </div>
+            <div name='send-all-filter-sorter' data-hover="yes" class="btn btn-success btn-sm col-2 offset-md-1">
+                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/check.svg">
             </div>
         </div>
-        <div class="sorters-buttons  row justify-content-center">
-            <div name='add-new-sorter' data-hover="yes"  class="btn btn-light btn-sm col-2">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/add_sorter.svg">
+        <div class="row" data-padding-12>
+            <div class="col-12">
+                <div id='filters-section' class="row">
+                    <div id='filters' class="col-12">
+                        <div name='filter' class="row" data-number=0>
+                            <div name="clear-filter" class="col-1 btn btn-sm btn-danger" data-hover="yes" data-number=0>
+                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_filter.svg" data-number=0>
+                            </div>
+                            <div class="col-3" data-select-nopadding>
+                                <select name="filter-source" data-number=0 class="form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="ue">Uber Eats</option>
+                                    <option value="fp">Food Panda</option>
+                                </select>
+                            </div>
+                            <div name="filter-types" data-select-nopadding data-number=0 class="col-3">
+                                <select name="filter-type" data-number=0 class="ue form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="deliver_fee_ue">外送費用</option>
+                                    <option value="deliver_time_ue">外送時間</option>
+                                    <option value="UE_choice">優選</option>
+                                    <option value="budget_ue">預算</option>
+                                    <option value="rating_ue">評價</option>
+                                    <option value="view_count_ue">評分次數</option>
+                                    <option value="tags_ue">標籤</option>
+                                    <option value="open_days_ue">服務時間</option>
+                                </select>
+                                <select name="filter-type" data-number=0 class="fp form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="deliver_fee_fp">外送費用</option>
+                                    <option value="deliver_time_fp">外送時間</option>
+                                    <option value="FP_choice">優選</option>
+                                    <option value="budget_fp">預算</option>
+                                    <option value="rating_fp">評價</option>
+                                    <option value="view_count_fp">評分次數</option>
+                                    <option value="tags_fp">標籤</option>
+                                    <option value="open_days_fp">服務時間</option>
+                                </select>
+                            </div>
+                            <div name="filter-operator" data-select-nopadding data-number=0 class="col-2">
+                                <select name="filter-operator" class="ue deliver_fee_ue deliver_time_ue budget_ue rating_ue view_count_ue form-select form-select-lg" data-number=0>
+                                    <option value='default'></option>
+                                    <option value='$gte'>>=</option>
+                                    <option value='$eq'>=</option>
+                                    <option value='$lte'><=</option>
+                                </select>
+                                <select name="filter-operator" class="ue UE_choice form-select form-select-lg" data-number=0>
+                                    <option value='$eq'>=</option>
+                                </select>
+                                <select name="filter-operator" class="ue tags_ue form-select form-select-lg" data-number=0>
+                                    <option value='$in'>=</option>
+                                </select>
+                                <select name="filter-operator" class="ue open_days_ue form-select form-select-lg" data-number=0>
+                                    <option value='$in'>=</option>
+                                </select>
+                                <select name="filter-operator" class="fp deliver_fee_fp deliver_time_fp budget_fp rating_fp view_count_fp form-select form-select-lg" data-number=0>
+                                    <option value='default'></option>
+                                    <option value='$gte'>>=</option>
+                                    <option value='$eq'>=</option>
+                                    <option value='$lte'><=</option>
+                                </select>
+                                <select name="filter-operator" class="fp FP_choice form-select form-select-lg" data-number=0>
+                                    <option value='$eq'>=</option>
+                                </select>
+                                <select name="filter-operator" class="fp tags_fp form-select form-select-lg" data-number=0>
+                                    <option value='$in'>=</option>
+                                </select>
+                                <select name="filter-operator" class="fp open_days_fp form-select form-select-lg" data-number=0>
+                                    <option value='$in'>=</option>
+                                </select>
+                            </div> 
+                            <div name="filter-value" data-select-nopadding data-number=0 class="col-3">
+                                <select name="filter-value" class="ue deliver_fee_ue form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="ue deliver_time_ue form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="ue UE_choice form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                    <option value=1>是</option>
+                                    <option value=0>否</option>
+                                </select>
+                                <select name="filter-value" class="ue budget_ue form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="ue rating_ue form-select form-select-lg" data-number=0 data-type='float'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="ue view_count_ue form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="ue tags_ue form-select form-select-lg" data-number=0 data-type='string'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="ue open_days_ue form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                    <option value=1>Mon.</option>
+                                    <option value=2>Tue.</option>
+                                    <option value=3>Wed.</option>
+                                    <option value=4>Thu.</option>
+                                    <option value=5>Fri.</option>
+                                    <option value=6>Sat.</option>
+                                    <option value=7>Sun.</option>
+                                </select>
+                                <select name="filter-value" class="fp deliver_fee_fp form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="fp deliver_time_fp form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="fp FP_choice form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                    <option value=1>是</option>
+                                    <option value=0>否</option>
+                                </select>
+                                <select name="filter-value" class="fp budget_fp form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="fp rating_fp form-select form-select-lg" data-number=0 data-type='float'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="fp view_count_fp form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="fp tags_fp form-select form-select-lg" data-number=0 data-type='string'>
+                                    <option value="default" disabled selected></option>
+                                </select>
+                                <select name="filter-value" class="fp open_days_fp form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                    <option value=1>Mon.</option>
+                                    <option value=2>Tue.</option>
+                                    <option value=3>Wed.</option>
+                                    <option value=4>Thu.</option>
+                                    <option value=5>Fri.</option>
+                                    <option value=6>Sat.</option>
+                                    <option value=7>Sun.</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div name='clear-all-sorter' data-hover="yes" class="col-2">
-                <img class="button" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/erase_all.svg">
+            <div class="col-12">
+                <div id="sorters-section" class="row">
+                    <div id='sorters' class="col-12">
+                        <div name='sorter' data-number=0 class="row">
+                            <div name="clear-sorter" class="btn btn-danger btn-sm col-1" data-number=0>
+                                <img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_sorter.svg" data-number=0>
+                            </div>
+                            <div class="col-3" data-select-nopadding>
+                                <select name="sorter-source" data-number=0 class="form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="ue">Uber Eats</option>
+                                    <option value="fp">Food Panda</option>
+                                </select>
+                            </div>
+                            <div name="filter-types" data-select-nopadding data-number=0 class="col-3">
+                                <select name="sorter-type" data-number=0 class="ue form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="deliver_fee_ue">deliver_fee</option>
+                                    <option value="deliver_time_ue">deliver_time</option>
+                                    <option value="budget_ue">budget</option>
+                                    <option value="rating_ue">rating</option>
+                                    <option value="view_count_ue">view_count</option>
+                                </select>
+                                <select name="sorter-type" data-number=0 data-select-nopadding class="fp form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="deliver_fee_fp">deliver_fee</option>
+                                    <option value="deliver_time_fp">deliver_time</option>
+                                    <option value="budget_fp">budget</option>
+                                    <option value="rating_fp">rating</option>
+                                    <option value="view_count_fp">view_count</option>
+                                </select>
+                            </div>
+                            <div name="sorter-operator" data-number=0 data-select-nopadding class="col-5">
+                                <select name="sorter-operator" class="ue deliver_fee_ue deliver_time_ue budget_ue rating_ue view_count_ue form-select form-select-lg" data-number=0>
+                                    <option value='default'></option>
+                                    <option value=1>ASC</option>
+                                    <option value=-1>DESC</option>
+                                </select>
+                                <select name="sorter-operator" class="fp deliver_fee_fp deliver_time_fp budget_fp rating_fp view_count_fp form-select form-select-lg" data-number=0>
+                                    <option value='default'></option>
+                                    <option value=1>ASC</option>
+                                    <option value=-1>DESC</option>
+                                </select>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
             </div>
-            </div>
+        </div>
+        <div class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg" data-number=0>
         </div>
     </div>
     <div id='diners' class="container justify-content-center">
@@ -270,26 +268,35 @@
                     {% endif %}
                 </div>
                 <div class="row align-self-center text-align-center" name="column_names">
-                    <a class="col-3 align-self-center">平台</a>
-                    <a class="col-9 align-self-center">評價 / 評分次數</a>
+                    <div class="col-4 align-self-center"></div>
+                    <div class="col-4 align-self-center">評價</div>
+                    <div class="col-4 align-self-center">評分次數</div>
                 </div>
                 <div class="info_ue align-self-center text-align-center row">
-                    <div class="icon_ue col-3 align-self-center">Uber Eats</div>
-                    <div class="rating_view_count_value_ue col-9 align-self-center"></div>
+                    <a id='link_ue' class="icon_ue col-4 align-self-center">Uber Eats</a>
+                    <div class="rating_value_ue col-4 align-self-center"></div>
+                    <div class="view_count_value_ue col-4 align-self-center"></div>
                 </div>
                 <div class="info_fp align-self-center text-align-center row">
-                    <div class="icon_fp col-3 align-self-center">Food Panda</div>
-                    <div class="rating_view_count_value_fp col-9 align-self-center"></div>
+                    <a id='link_fp' class="icon_fp col-4 align-self-center">Food Panda</a>
+                    <div class="rating_value_fp col-4 align-self-center"></div>
+                    <div class="view_count_value_fp col-4 align-self-center"></div>
                 </div>
                 <div class="info_gm align-self-center text-align-center row">
-                    <div class="icon_gm col-3 align-self-center">Google Map</div>
-                    <div class="rating_view_count_value_gm col-9 align-self-center"></div>
+                    <a id='link_gm' class="icon_gm col-4 align-self-center">Google Map</a>
+                    <div class="rating_value_gm col-4 align-self-center"></div>
+                    <div class="view_count_value_gm col-4 align-self-center"></div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="row justify-content-center">
+                    <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg" data-number=0>
                 </div>
             </div>
         </div>
     </div>
-    <div class="d-grid gap-2">
-        <div id='show-more' class="btn btn-dark btn-sm" data-offset=0 style="display: none;">顯示更多</div>
+    <div class="d-grid gap-2" data-padding-12>
+        <div id='show-more' class="btn btn-light btn-lg" data-offset=0 style="display: none;">顯示更多</div>
     </div>
     <img name="rating_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/rating.svg" data-number=0 style="display: none;">
     <img name="view_count_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/view_count.svg" data-number=0  style="display: none;">

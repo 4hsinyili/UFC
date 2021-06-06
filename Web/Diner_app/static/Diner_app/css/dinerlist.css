@@ -15,7 +15,15 @@
 }
 
 .button{
-    max-height: 36px;
+    height: 24px;
+}
+
+.button-smaller{
+    height: 22px;
+}
+
+.button-wider{
+    height: 24px;
 }
 
 .page-title{
@@ -82,7 +90,7 @@
 } */
 
 #diner-template{
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
     min-width: 640px;
     /* max-width: 960px; */
 }
@@ -138,4 +146,37 @@ a:link {
     text-align: center;
     height: 75px;
     vertical-align: middle;
+}
+
+[data-select-nopadding]{
+    padding: 0 !important;
+}
+
+[data-padding-12]{
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+#fs-trigger-section{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#filters-section{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#sorters-section{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+
+
+[name=divider]{
+    width: 120px;
+    height: 8px;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }

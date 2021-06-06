@@ -30,6 +30,7 @@ let filter0 = $('div[name=filter][data-number=0]')[0]
 let sorter0 = $('div[name=sorter][data-number=0]')[0]
 let filtersSection = $('div[id="filters-section"]')[0]
 let sortersSection = $('div[id="sorters-section"]')[0]
+let fsSection = $('#filters-sorters-section')
 
 let addNewFilterDom = $('div[name="add-new-filter')[0]
 let clearFilterDom = $('div[name="clear-filter"]')[0]
@@ -43,10 +44,10 @@ let sendFilterDom = $('div[name="send-filters"]')[0]
 let showMoreDom = $('div[id="show-more"]')[0]
 
 let searchBox = $('#search-box')[0]
-let searchButton = $('#search-button')[0]
-let shuffleButton = $('#shuffle')[0]
-let toggleFiltersDom = $('#toggle-filters')[0]
-let toggleSortersDom = $('#toggle-sorters')[0]
+let searchButton = $('[data-trigger="search-button"]')[0]
+let shuffleButton = $('[data-trigger="shuffle"]')[0]
+let toggleFiltersDom = $('[data-trigger="toggle-filters"]')[0]
+let toggleSortersDom = $('[data-trigger="toggle-sorters"]')[0]
 
 let collectDom = $('[name="collect"]')[0]
 
@@ -112,12 +113,23 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
     titleNode.innerText = title
     let imageNode = dinerNode.querySelector('.image_'.concat(source))
     imageNode.setAttribute('src', image)
-    dinerNode.querySelector('.rating_view_count_value_'.concat(source)).innerText = `${rating} / ${viewCount}`
+    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = rating
+    dinerNode.querySelector('.view_count_value_'.concat(source)).innerText = viewCount
+    dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
     let redirectHrefNode = dinerNode.querySelectorAll('.redirect-href_'.concat(source))
     for (let i = 0; i < redirectHrefNode.length; i++){
         redirectHrefNode[i].setAttribute('href', redirectUrl)
     }
     return dinerNode
+}
+
+function removeInfo(dinerNode, source){
+    if (source != 'gm'){
+        let titleDom = dinerNode.querySelector('.redirect-href_'.concat(source))
+        titleDom.remove()
+    }
+    let infoRow = dinerNode.querySelector('.info_'.concat(source))
+    infoRow.remove()
 }
 
 function renderDiner(diner){
@@ -126,6 +138,7 @@ function renderDiner(diner){
     collectNode.setAttribute('data-favorite', 0)
     let diner_uuid_ue = diner['uuid_ue']
     let diner_uuid_fp = diner['uuid_fp']
+    let diner_uuid_gm = diner['uuid_gm']
     let redirectUrl = dinerInfoRoute.concat('?uuid_ue=').concat(diner_uuid_ue).concat('&uuid_fp=').concat(diner_uuid_fp)
     let diner_info_ue = false
     let diner_info_fp = false
@@ -160,6 +173,9 @@ function renderDiner(diner){
             collectNode.setAttribute('data-favorite', 1)
         }
     }
+    if (!diner_uuid_ue){removeInfo(dinerNode, 'ue')}
+    if (!diner_uuid_fp){removeInfo(dinerNode, 'fp')}
+    if (!diner_uuid_gm){removeInfo(dinerNode, 'gm')}
     let imageNodeFp = dinerNode.querySelector('.image_fp')
     let imageNodeUe = dinerNode.querySelector('.image_ue')
     imageNodeFp.setAttribute('src', '')
@@ -202,7 +218,7 @@ function renderList(data){
     } else {
         $(showMoreDom).hide()
     }
-    }
+}
 
 function renderMore(data){
     renderList(data)
@@ -544,13 +560,13 @@ sorters.addEventListener('change', (e)=>{
 })
 
 $(toggleFiltersDom).click(function(){
-    $(sortersSection).hide()
-    $(filtersSection).toggle()
+    // $(sortersSection).hide()
+    $(fsSection).toggle()
 })
 
 $(toggleSortersDom).click(function(){
-    $(filtersSection).hide()
-    $(sortersSection).toggle()
+    // $(filtersSection).hide()
+    $(fsSection).toggle()
 })
 
 addNewFilterDom.addEventListener('click', (e)=>{
@@ -607,6 +623,8 @@ $(searchBox).keydown(function(e){
 $(shuffleButton).click(function(){
     clearDIners()
     $(showMoreDom).hide()
+    $(filtersSection).hide()
+    $(sortersSection).hide()
     shuffle()
 })
 
