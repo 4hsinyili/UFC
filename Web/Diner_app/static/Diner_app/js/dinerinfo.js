@@ -14,6 +14,20 @@ let tabPkDom = document.querySelector('[name=section-tab-pk]')
 
 $('#diner-info').hide()
 
+function showLoading(){
+    Swal.fire({
+        title: "",
+        text: "Please wait.",
+        didOpen: ()=>{
+            Swal.showLoading()
+        }
+    });
+}
+
+function endLoading() {
+    Swal.close()
+}
+
 function ajaxGet(src, callback){
     let initialUrl = src;
     let initaialXhr = new XMLHttpRequest();
@@ -301,6 +315,7 @@ function toggleItems(subsectionTitleDom){
     $(itemsDom).toggle()
 }
 
+showLoading()
 ajaxGet(dinerInfoAPI, function(response){
     console.log(response)
     let uuidGM = response.data.uuid_gm
@@ -332,6 +347,7 @@ ajaxGet(dinerInfoAPI, function(response){
     }
     $('#diner-info').show()
     $('[data-section-title]').hide()
+    endLoading()
 })
 
 document.addEventListener('click', (e)=>{
