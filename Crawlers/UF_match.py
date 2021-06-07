@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from Crawlers.FP_crawl import FPChecker
 from Crawlers.UE_crawl import UEChecker
 from pymongo import MongoClient, UpdateOne
@@ -279,6 +279,14 @@ class Match():
             'triggered_by': 'match'
             })
 
+    def remove_old_records(self):
+        db = self.db
+        triggered_at = self.triggered_at
+        last_week = triggered_at - timedelta(weeks=1)
+        db.ue_detail.delete_many({"triggered_at": {"$lt": last_week}})
+        db.fp_detail.delete_many({"triggered_at": {"$lt": last_week}})
+        db.matched.delete_many({"triggered_at": {"$lt": last_week}})
+
     def main(self, data_range=0):
         print('Start comparsion')
         start = time.time()
@@ -302,6 +310,7 @@ class Match():
         print('process took: ', stop - start)
         self.save_to_matched(matched_records)
         self.save_triggered_at(records_count)
+        self.remove_old_records()
 
 
 class MatchedChecker():
@@ -353,8 +362,9 @@ if __name__ == '__main__':
     collection = 'matched'
     data_range = 0
     matcher = Match(db, collection)
-    print(matcher.triggered_at)
-    matcher.main(data_range)
+    matcher.remove_old_records()
+    # print(matcher.triggered_at)
+    # matcher.main(data_range)
     # checker = MatchedChecker(db, collection, 'match')
     # print(checker.triggered_at)
     # records = checker.get_last_records(1)
