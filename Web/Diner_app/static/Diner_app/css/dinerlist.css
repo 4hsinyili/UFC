@@ -41,7 +41,7 @@
 }
 
 .icon{
-    max-height: 36px;
+    max-height: 28px;
 }
 
 [data-hover=yes]{
@@ -57,9 +57,6 @@
     margin-bottom: 1rem;
 }
 
-[data-favorite]{
-    max-height: 36px;
-}
 
 #diner-template{
     min-width: 640px;
@@ -246,4 +243,8 @@ a:link {
 .btn-danger:hover{
     background-color: #dc3545 !important;
     border-color: #dc3545 !important;
+}
+
+#empty-collect{
+    height: 24px;
 }
