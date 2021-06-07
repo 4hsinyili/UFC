@@ -10,12 +10,21 @@
 {% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <form method="POST" class="form-group">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <button type="submit" class="btn btn-success">Register</button>
-        <p>Have an account? Login <a href="/user/login">here</a></p>
-    </form>
+    <div id='margin-before-form'></div>
+    <div class="container d-flex justify-content-center">
+        <div id="form-container">
+            <form method="POST" class="form-group" id='form'>
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="row justify-content-center">
+                    <div class="col-6 d-flex justify-content-around">
+                        <button type="submit" class="btn btn-success">註冊</button>
+                        <a href="/user/login" class="btn btn-light">登入</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascript %}
