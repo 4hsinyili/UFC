@@ -21,19 +21,19 @@
             <div class="col">
                 <div class="row justify-content-start">
                     <div class="nav-item nav-bar-end-padding"></div>
-                    <div class="nav-item col-1">
+                    <div class="nav-item col-1" data-fix-content>
                         <a id='brand' name="bread-crumb-no-padding" class="nav-link disabled" href="">UFC</a>
                     </div>
-                    <div name="bread-crumb-line-no-padding" class="nav-item col-1">
+                    <div name="bread-crumb-line-no-padding" class="nav-item col-1" data-fix-content>
                         <a name="bread-crumb-line-no-padding" class="nav-link disabled" href="">/</a>
                     </div>
-                    <div class="nav-item col-2">
+                    <div class="nav-item col-2" data-fix-content>
                         <a id='current-page' name="bread-crumb-no-padding" class="nav-link disabled" href="">{{current_page}}</a>
                     </div>
-                    <div name="bread-crumb-line-no-padding" class="nav-item col-1">
+                    <div name="bread-crumb-line-no-padding" class="nav-item col-1" data-fix-content>
                         <a name="bread-crumb-line-no-padding" class="nav-link disabled" href="">/</a>
                     </div>
-                    <div class="nav-item col-2">
+                    <div class="nav-item col-2" data-fix-content>
                         <a id='back-to-top' name="bread-crumb-no-padding" class="nav-link" href="#top">回到頂端</a>
                     </div>
                 </div>
@@ -41,22 +41,22 @@
             <div class="col">
                 <div class="row justify-content-end">
                     {% if current_page != '店家列表' %}
-                    <div class="nav-item col-2">
+                    <div class="nav-item col-2" data-fix-content>
                         <a name="nav-link-no-padding" class="nav-link" href="/">店家列表</a>
                     </div>
                     {% endif %}
                     {% if user_is_authenticated and current_page != '收藏' %}
-                    <div class="nav-item col-1">
+                    <div class="nav-item col-1" data-fix-content>
                         <a name="nav-link-no-padding" class="nav-link" href="/favorites">收藏</a>
                     </div>
                     {% endif %}
                     {% if user_is_authenticated%}
-                    <div class="nav-item col-1">
+                    <div class="nav-item col-1" data-fix-content>
                         <a name="nav-link-no-padding" class="nav-link" href="/user/logout">登出</a>
                     </div>
                     {% endif %}
                     {% if not user_is_authenticated and current_page != '登入'%}
-                    <div class="nav-item col-1">
+                    <div class="nav-item col-1" data-fix-content>
                         <a name="nav-link-no-padding" class="nav-link" href="/user/login" class="login-link">登入</a>
                     </div>
                     {% endif %}

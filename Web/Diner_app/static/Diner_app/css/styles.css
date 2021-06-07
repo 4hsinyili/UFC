@@ -44,3 +44,7 @@ html {
 #current-page{
     text-align: center;
 }
+
+[data-fix-content]{
+    width: fit-content !important;
+}
