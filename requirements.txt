@@ -95,3 +95,7 @@ selenium == 3.141.0
 # UFC/Crawlers/UE_crawl.py: 5
 # UFC/Crawlers/Uber_Eats_crawl.ipynb: 8
 selenium_wire == 4.3.0
+
+dnspython == 2.1.0
+
+whitenoise == 5.2.0
