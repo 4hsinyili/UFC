@@ -8,22 +8,26 @@ from .models import CustomUser
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(
+            label="信箱",
             required=True,
             help_text='Enter email',
             widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
         )
     username = forms.CharField(
+        label="暱稱",
         max_length=200,
         required=True,
         help_text='Enter Username',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
         )
     password1 = forms.CharField(
+        label="密碼",
         help_text='Enter Password',
         required=True,
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
         )
     password2 = forms.CharField(
+        label="確認密碼",
         required=True,
         help_text='Enter Password Again',
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password Again'}),
@@ -35,9 +39,11 @@ class RegisterForm(UserCreationForm):
 
 
 class LoginForm(forms.Form):
-    email = EmailField(widget=forms.TextInput(attrs={'autofocus': True}))
+    email = EmailField(
+        label="信箱",
+        widget=forms.TextInput(attrs={'autofocus': True}))
     password = forms.CharField(
-        label="Password",
+        label="密碼",
         strip=False,
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password'}),
     )

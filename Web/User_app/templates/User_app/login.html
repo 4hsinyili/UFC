@@ -13,8 +13,8 @@
     <form method="POST" class="form-group">
         {% csrf_token %}
         {{ form|crispy }}
-        <button type="submit" class="btn btn-success">Login</button>
-        <p>Don't have an account? Create One! <a href="/user/register">here</a></p>
+        <button type="submit" class="btn btn-success">登入</button>
+        <p>還沒有帳號嗎？<a href="/user/register">點此註冊</a></p>
     </form>
 {% endblock %}
 
