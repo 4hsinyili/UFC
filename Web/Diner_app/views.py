@@ -14,15 +14,8 @@ import time
 import pprint
 
 # Create your views here.
-MONGO_HOST = env.MONGO_HOST
-MONGO_PORT = env.MONGO_PORT
-MONGO_ADMIN_USERNAME = env.MONGO_ADMIN_USERNAME
-MONGO_ADMIN_PASSWORD = env.MONGO_ADMIN_PASSWORD
-
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
+MONGO_ATLAS_URI = env.MONGO_ATLAS_URI
+admin_client = MongoClient(MONGO_ATLAS_URI)
 db = admin_client['ufc']
 match_checker = MatchChecker(db, 'matched', 'match')
 match_searcher = MatchSearcher(db, 'matched')

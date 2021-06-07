@@ -10,7 +10,7 @@ from lxml import etree
 
 # for file handling
 import os
-from dotenv import load_dotenv
+import env
 
 # for timing and not to get caught
 import time
@@ -24,16 +24,9 @@ import pprint
 # home-made module
 from Crawlers import UE_crawl
 
-load_dotenv()
-MONGO_HOST = os.getenv("MONGO_HOST")
-MONGO_PORT = int(os.getenv("MONGO_PORT"))
-MONGO_ADMIN_USERNAME = os.getenv("MONGO_ADMIN_USERNAME")
-MONGO_ADMIN_PASSWORD = os.getenv("MONGO_ADMIN_PASSWORD")
 
-admin_client = MongoClient(MONGO_HOST,
-                           MONGO_PORT,
-                           username=MONGO_ADMIN_USERNAME,
-                           password=MONGO_ADMIN_PASSWORD)
+MONGO_ATLAS_URI = env.MONGO_ATLAS_URI
+admin_client = MongoClient(MONGO_ATLAS_URI)
 
 db = admin_client['ufc']
 driver_path = os.getenv("DRIVER_PATH")

@@ -3,3 +3,4 @@ python_dotenv == 0.17.0
 requests == 2.24.0
 chardet == 3.0.4
 urllib3 == 1.25.11
+dnspython == 2.1.0
