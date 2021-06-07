@@ -10,32 +10,29 @@ class RegisterForm(UserCreationForm):
     email = forms.EmailField(
             label="信箱",
             required=True,
-            help_text='Enter email',
             widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
         )
     username = forms.CharField(
-        label="暱稱",
+        label="使用者名稱",
         max_length=200,
         required=True,
-        help_text='Enter Username',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
+        help_text='輸入姓名或其他希望被稱呼的方式',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '使用者名稱'}),
         )
     password1 = forms.CharField(
         label="密碼",
-        help_text='Enter Password',
         required=True,
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '密碼'}),
         )
     password2 = forms.CharField(
         label="確認密碼",
         required=True,
-        help_text='Enter Password Again',
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password Again'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '確認密碼'}),
         )
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['email', 'username', 'password1', 'password2']
 
 
 class LoginForm(forms.Form):
