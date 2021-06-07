@@ -16,6 +16,9 @@ def register(request):
             user = form.save()
             auth.login(request, user)
             return redirect("/")
+        else:
+            context = {'form': form, 'current_page': '註冊'}
+            return render(request, 'User_app/register.html', context)
 
 
 def login(request):
@@ -32,9 +35,6 @@ def login(request):
             auth.login(request, user)
             return redirect("/")
         else:
-            print('invalid')
-            print(form.errors)
-            form = LoginForm()
             context = {'form': form, 'current_page': '登入'}
             return render(request, 'User_app/login.html', context)
     if request.method == 'GET':
