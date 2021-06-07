@@ -20,5 +20,5 @@ VERIFY_DOMAIN = os.getenv('VERIFY_DOMAIN')
 DEVELOP = bool(os.getenv('DEVELOP'))
 if DEVELOP == 'True':
     DEVELOP = True
-else: 
+else:
     DEVELOP = False
