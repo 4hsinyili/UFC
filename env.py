@@ -17,7 +17,7 @@ driver_path = os.getenv('DRIVER_PATH')
 SECRET_KEY = os.getenv('SECRET_KEY')
 PLACE_API_KEY = os.getenv("PLACE_API_KEY")
 VERIFY_DOMAIN = os.getenv('VERIFY_DOMAIN')
-DEVELOP = bool(os.getenv('DEVELOP'))
+DEVELOP = os.getenv('DEVELOP')
 if DEVELOP == 'True':
     DEVELOP = True
 else:
