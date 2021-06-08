@@ -14,8 +14,8 @@ import time
 import pprint
 
 # Create your views here.
-MONGO_ATLAS_URI = env.MONGO_ATLAS_URI
-admin_client = MongoClient(MONGO_ATLAS_URI)
+MONGO_EC2_URI = env.MONGO_EC2_URI
+admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client['ufc']
 match_checker = MatchChecker(db, 'matched', 'match')
 match_searcher = MatchSearcher(db, 'matched')
