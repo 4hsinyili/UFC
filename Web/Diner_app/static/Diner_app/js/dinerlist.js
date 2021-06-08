@@ -147,6 +147,15 @@ function removeInfo(dinerNode, source){
     infoRow.remove()
 }
 
+function renderGM(dinerInfo, dinerNode, source){
+    let rating = dinerInfo['rating_'.concat(source)]
+    let viewCount = dinerInfo['view_count_'.concat(source)]
+    let link = dinerInfo['link_'.concat(source)]
+    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = rating
+    dinerNode.querySelector('.view_count_value_'.concat(source)).innerText = viewCount
+    dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
+}
+
 function renderDiner(diner){
     let dinerNode = dinerTemplate.cloneNode(true)
     let collectNode = dinerNode.querySelector('[name=collect].icon')
@@ -189,6 +198,14 @@ function renderDiner(diner){
             collectNode.setAttribute('data-favorite', 1)
             collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
+    }
+    if (diner_uuid_gm){
+        diner_info_gm = {
+            "rating_gm": diner['rating_gm'],
+            "view_count_gm": diner['view_count_gm'],
+            "link_gm": diner["link_gm"]
+        }
+        renderGM(diner_info_gm, dinerNode, 'gm')
     }
     if (!diner_uuid_ue){removeInfo(dinerNode, 'ue')}
     if (!diner_uuid_fp){removeInfo(dinerNode, 'fp')}
