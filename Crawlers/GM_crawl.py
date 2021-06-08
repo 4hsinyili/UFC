@@ -20,8 +20,8 @@ from urllib.parse import urlencode
 from Crawlers import UF_match
 
 API_KEY = env.PLACE_API_KEY
-MONGO_ATLAS_URI = env.MONGO_ATLAS_URI
-admin_client = MongoClient(MONGO_ATLAS_URI)
+MONGO_EC2_URI = env.MONGO_EC2_URI
+admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client['ufc']
 matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
 
