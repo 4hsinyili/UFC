@@ -570,6 +570,7 @@ function bringConditionBack(){
         }
         if (conditionsKeys.includes('keyword')){
             keywordExist = bringKeywordBack(conditions.keyword)
+            console.log(conditions.keyword)
         }
     }
     if (ufc_offset > 0){
@@ -647,6 +648,7 @@ function bringSortersBack(cookieSorters){
 function bringKeywordBack(cookieKeyword){
     let keyword = cookieKeyword
     document.getElementById('search-box').value = keyword
+    return true
 }
 
 function shuffle(){
