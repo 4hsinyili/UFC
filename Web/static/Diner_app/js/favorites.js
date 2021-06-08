@@ -255,9 +255,10 @@ ajaxGet(getFavoritesAPI.concat('?offset=0'), function(response){
             {
             title: '目前還沒有收藏喔！',
             html: hintDom,
-            confirmButtonText: '<a style="color:" href="/">店家列表</a>',
-            confirmButtonColor: '#cfcfcf'
-        })
+        },
+        function(){
+            window.location.href = "/";
+          })
     }
 })
 
