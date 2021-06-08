@@ -288,7 +288,7 @@ class Match():
         db.matched.delete_many({"triggered_at": {"$lt": last_week}})
 
     def main(self, data_range=0):
-        print('Start comparsion')
+        print('Start comparsion, using', self.triggered_at, "'s records.")
         start = time.time()
         ue_records, fp_records = self.get_records()
         if data_range == 0:
