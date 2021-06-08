@@ -15,6 +15,8 @@ class FavoritesManager(models.Manager):
         return favorite_sqlrecord
 
     def get_favorites(self, user, offset=0):
+        if user.id is None:
+            return False
         favorite_records = self.filter(user=user, activate=1)
         if favorite_records:
             favorites = []
@@ -69,7 +71,7 @@ class MatchChecker():
                 "$limit": 1
             }
         ]
-        cursor = db[collection].aggregate(pipeline=pipeline)
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         result = next(cursor)['triggered_at']
         cursor.close()
         return result
@@ -189,6 +191,7 @@ class MatchSearcher():
                 "triggered_at": triggered_at
             }}
         conditions = [match_condition]
+        sort_stage = False
         try:
             keyword = condition['keyword']
             keyword_condition = {
@@ -225,6 +228,7 @@ class MatchSearcher():
                 sort_conditions['$sort'][sorter['field']] = sorter['sorter']
             if sort_conditions != {"$sort": {}}:
                 conditions.append(sort_conditions)
+                sort_stage = True
         except Exception:
             pass
         project_stage = {
@@ -234,9 +238,14 @@ class MatchSearcher():
                 'menu_fp': 0
             }
         }
+        if sort_stage:
+            count_pipeline = conditions[:-1]
+        else:
+            count_pipeline = conditions
         conditions.append(project_stage)
         pipeline = [condition for condition in conditions if condition != {}]
-        result_count = self.get_count(db, collection, pipeline)
+        print('get count?')
+        result_count = self.get_count(db, collection, count_pipeline)
         pprint.pprint(result_count)
         if offset > 0:
             pipeline.append({'$skip': offset})
@@ -247,7 +256,7 @@ class MatchSearcher():
         print("below is the pipeline")
         pprint.pprint(pipeline)
         start = time.time()
-        cursor = db[collection].aggregate(pipeline=pipeline)
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         if user:
             favorites = Favorites.manager.get_favorites(user)
         else:
@@ -277,7 +286,7 @@ class MatchSearcher():
         count_pipeline.extend([
             {'$count': 'triggered_at'}
         ])
-        cursor = db[collection].aggregate(pipeline=count_pipeline)
+        cursor = db[collection].aggregate(pipeline=count_pipeline, allowDiskUse=True)
         result = list(cursor)
         cursor.close()
         if len(result) > 0:
