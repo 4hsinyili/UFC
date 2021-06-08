@@ -310,7 +310,7 @@ class Match():
         print('process took: ', stop - start)
         self.save_to_matched(matched_records)
         self.save_triggered_at(records_count)
-        self.remove_old_records()
+        # self.remove_old_records()
 
 
 class MatchedChecker():
