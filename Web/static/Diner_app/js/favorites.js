@@ -243,8 +243,22 @@ function changeFavorites(diner_id, source, activate){
 // start to render
 showLoading()
 ajaxGet(getFavoritesAPI.concat('?offset=0'), function(response){
-    if (response.is_data == true){renderList(response)}
-    endLoading()
+    if (response.is_data == true){
+        renderList(response)
+        endLoading()
+    }
+    else {
+        endLoading()
+        let hintDom = document.getElementById('no-diners').cloneNode(true) 
+        $(hintDom).show()
+        Swal.fire(
+            {
+            title: '目前還沒有收藏喔！',
+            html: hintDom,
+            confirmButtonText: '<a style="color:" href="/">店家列表</a>',
+            confirmButtonColor: '#cfcfcf'
+        })
+    }
 })
 
 

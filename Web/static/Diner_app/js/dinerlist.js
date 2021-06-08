@@ -51,7 +51,6 @@ let toggleSortersDom = $('[data-trigger="toggle-sorters"]')[0]
 
 let collectDom = $('[name="collect"]')[0]
 
-
 // Define functions
 
 function showLoading(){
@@ -228,7 +227,6 @@ function renderDiner(diner){
 }
 
 function renderList(data){
-    showLoading()
     let results = data.data
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
@@ -243,7 +241,6 @@ function renderList(data){
     } else {
         $(showMoreDom).hide()
     }
-    endLoading()
 }
 
 function renderMore(data){
@@ -527,8 +524,8 @@ function search(offset, showMore=false){
     conditions = createConditions($(keyWord).val())
     conditions = turnFIltersToConditions(conditions, filterSet)
     conditions = turnSortersToConditions(conditions, sorterSet)
-    console.log(conditions)
     data = {'condition': conditions, 'offset': offset}
+    console.log(conditions)
     if (showMore){
         let height = $(document).height()
         ajaxPost(dinerSearchAPI, data, function(response){
@@ -539,10 +536,117 @@ function search(offset, showMore=false){
     }
     else {
         ajaxPost(dinerSearchAPI, data, function(response){
+            clearDIners()
             renderList(response)
             endLoading()
-    })
+        })
     }
+    Cookies.set('ufc_condition', JSON.stringify(conditions))
+    Cookies.set('ufc_offset', JSON.stringify(offset))
+}
+
+function turnCookieToJson(name){
+    let cookieStr = getCookie(name)
+    let jsonObject = JSON.parse(cookieStr)
+    return jsonObject
+}
+
+function bringConditionBack(){
+    let keys = Object.keys(Cookies.get())
+    let conditions = false
+    let ufc_offset = 0
+    let filtersExist = false
+    let sortersExist = false
+    let keywordExist = false
+    if (keys.includes('ufc_condition')){conditions = turnCookieToJson('ufc_condition')}
+    if (keys.includes('ufc_offset')){ufc_offset = parseInt(turnCookieToJson('ufc_offset'))}
+    if (conditions){
+        let conditionsKeys = Object.keys(conditions)
+        if (conditionsKeys.includes('filter')){
+            filtersExist = bringFiltersBack(conditions.filter)
+        }
+        if (conditionsKeys.includes('sorter')){
+            sortersExist = bringSortersBack(conditions.sorter)
+        }
+        if (conditionsKeys.includes('keyword')){
+            keywordExist = bringKeywordBack(conditions.keyword)
+        }
+    }
+    if (ufc_offset > 0){
+        console.log('a')
+    }
+    if ((filtersExist) || (sortersExist) || (keywordExist)){
+        search(ufc_offset)
+        $(fsSection).show()
+    } else {
+        $(fsSection).hide()
+        ajaxPost(dinerSearchAPI, initData, function(response){
+            renderList(response)
+            endLoading()
+        })
+    }
+}
+
+function bringFiltersBack(cookieFilters){
+    let realFilters = []
+    for (let i=0; i<cookieFilters.length; i++){
+        let filter = cookieFilters[i]
+        if ((filter.field == 'default') || (filter.filter == 'default') || (filter.value == null) ){ console.log('default filter')}
+        else{realFilters.push(filter)}
+    }
+    for (let i=1; i<realFilters.length; i++){
+        appendFilter()
+    }
+    for (let i=0; i<realFilters.length; i++){
+        let filter = realFilters[i]
+        let sourceArray = filter.field.split('_')
+        let source = sourceArray[sourceArray.length - 1]
+        let filterSource = document.querySelector(`[name="filter-source"][data-number="${i}"]`)
+        filterSource.value = source
+        let filterType = document.querySelector(`[name="filter-type"][data-number="${i}"][class*="${source}"]`)
+        filterType.value=filter.field
+        
+        let filterOperator = document.querySelector(`[name="filter-operator"][data-number="${i}"][class*="${filter.field}"]`)
+        filterOperator.value=filter.filter
+        
+        let filterValue = document.querySelector(`[name="filter-value"][data-number="${i}"][class*="${filter.field}"]`)
+        filterValue.value=filter.value.toString()
+        renderFilter(i)
+    }
+    if (realFilters.length > 0){return true}
+    else {return false}
+}
+
+function bringSortersBack(cookieSorters){
+    let realSorters = []
+    for (let i=0; i<cookieSorters.length; i++){
+        let sorter = cookieSorters[i]
+        if ((sorter.field == 'default') || (sorter.sorter == 'default')){ console.log('default sorter')}
+        else{realSorters.push(sorter)}
+    }
+    for (let i=1; i<realSorters.length; i++){
+        appendSorter()
+    }
+    for (let i=0; i<realSorters.length; i++){
+        let sorter = realSorters[i]
+        let sourceArray = sorter.field.split('_')
+        let source = sourceArray[sourceArray.length - 1]
+        let sorterSource = document.querySelector(`[name="sorter-source"][data-number="${i}"]`)
+        sorterSource.value = source
+        let sorterType = document.querySelector(`[name="sorter-type"][data-number="${i}"][class*="${source}"]`)
+        sorterType.value=sorter.field
+        
+        let sorterOperator = document.querySelector(`[name="sorter-operator"][data-number="${i}"][class*="${sorter.field}"]`)
+        sorterOperator.value=sorter.sorter
+        renderSorter(i)
+    }
+    if (realSorters.length > 0){return true}
+    else {return false}
+}
+
+function bringKeywordBack(cookieKeyword){
+    let keyword = cookieKeyword
+    document.getElementById('search-box').value = keyword
 }
 
 function shuffle(){
@@ -566,15 +670,12 @@ function changeFavorites(diner_id, source, activate){
 
 // start to render
 showLoading()
-ajaxPost(dinerSearchAPI, initData, function(response){
-    renderList(response)
-    endLoading()
-})
 
 ajaxGet(filtersAPI, function(response){
     renderFilters();
     renderOptions(response, 'ue');
     renderOptions(response, 'fp');
+    bringConditionBack()
 })
 
 renderSorters()
@@ -631,20 +732,17 @@ clearAllSorterDom.addEventListener('click', (e)=>{
 
 $(sendFilterDom).click(function(){
     clearDIners()
-    $(fsSection).hide()
     search(0)
 })
 
 $(searchButton).click(function(){
     clearDIners()
-    $(fsSection).hide()
     search(0)
 })
 
 $(searchBox).keydown(function(e){
     if (e.keyCode == 13){
         clearDIners()
-        $(fsSection).hide()
         search(0)
     }
 })
@@ -658,7 +756,6 @@ $(shuffleButton).click(function(){
 
 $(showMoreDom).click(function(){
     let offset = parseInt(showMoreDom.getAttribute('data-offset'))
-    let height = $(document).height()
     search(offset, true)
 })
 
