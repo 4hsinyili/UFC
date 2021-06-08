@@ -58,7 +58,7 @@ class GMCrawler():
                     '_id': None,
                     'triggered_at_gm': {'$last': '$triggered_at_gm'},
                     'data': {
-                        "$push": {
+                        "$addToSet": {
                             "uuid_ue": "$uuid_ue",
                             "uuid_fp": "$uuid_fp",
                             "uuid_gm": "$uuid_gm",
