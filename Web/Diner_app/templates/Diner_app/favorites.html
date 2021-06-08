@@ -9,6 +9,12 @@
     <link rel="stylesheet"  type="text/css" href="{% static 'Diner_app/css/dinerlist.css' %}">
 {% endblock %}
 {% block content %}
+    <div id='no-diners' style="display: none;">
+        <div class="row" style="text-align: start;text-indent: 2rem;">
+            <blockquote>由於系統會每天自動爬取顯示在 Uber Eats 及 Food Panda 於 Appworks 周邊的餐廳，所以如果你已經有收藏卻還是看到此提示，代表它今天沒有出現在那兩個平台上。</blockquote>
+            <blockquote>可能是沒有營業、附近沒有外送夥伴，或是被演算法排擠了，或許明天就會出現了，在那之前，來看看今天有出現的餐廳吧！</blockquote>
+        </div>
+    </div>
     <div id='diners' class="container justify-content-center">
         <div id='diner-template' class="row diner" style="display: none;">
             <div class="col-9">
