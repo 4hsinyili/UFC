@@ -39,6 +39,7 @@ def listen():
 def main(matcher, crawler):
     result = listen()
     if result:
+        print('Start match.')
         time.sleep(300)
         matcher.main(data_range)
         db['stepfunction_log'].update_one(

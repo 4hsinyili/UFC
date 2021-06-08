@@ -38,6 +38,7 @@ class GMCrawler():
         collection = self.collection
         matched_checker = self.matched_checker
         triggered_at = self.generate_triggered_at()
+        print('Update from ', triggered_at, "'s records")
         print(triggered_at)
         last_week = triggered_at - timedelta(weeks=1)
         print(last_week)
