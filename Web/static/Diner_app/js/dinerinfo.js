@@ -201,6 +201,7 @@ function renderCheaper(diner){
         if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperUEDom.innerText = text
+    if (text == ''){document.getElementById('cheaper-item_ue').remove()}
     text = ''
     for (let i=0; i < cheaperFP.length; i++){
         let key = cheaperFP[i][0]
@@ -208,6 +209,7 @@ function renderCheaper(diner){
         if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperFPDom.innerText = text
+    if (text == ''){document.getElementById('cheaper-item_fp').remove()}
 }
 
 function pivotMenu(diner,source){
