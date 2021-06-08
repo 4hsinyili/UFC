@@ -40,7 +40,7 @@ def main(matcher, crawler):
     result = listen()
     if result:
         print('Start match.')
-        time.sleep(10)
+        time.sleep(120)
         matcher.main(data_range)
         db['stepfunction_log'].update_one(
             {'_id': result['_id']},
