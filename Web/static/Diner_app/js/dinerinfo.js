@@ -376,16 +376,14 @@ document.addEventListener('click', (e)=>{
         let cheaperDomUE = document.getElementById('cheaper_ue').cloneNode(true) 
         Swal.fire(
             {
-            icon: 'info',
-            title: '優勢品項',
+            title: 'Uber Eats 優勢品項',
             html: cheaperDomUE,
             customClass: 'justify-content-center'
         })
     } else if (e.target.getAttribute('id') == 'cheaper-item_fp'){
         let cheaperDomFP = document.getElementById('cheaper_fp').cloneNode(true)
         Swal.fire({
-            icon: 'info',
-            title: '優勢品項',
+            title: 'Food Panda 優勢品項',
             html: cheaperDomFP,
             customClass: 'justify-content-center'
         })
