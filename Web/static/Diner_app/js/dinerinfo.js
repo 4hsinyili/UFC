@@ -173,7 +173,7 @@ function renderOpenHours(diner, source){
     let openHoursDomSelector = 'open_hours_'.concat(source)
     let openHoursDom = document.getElementById(openHoursDomSelector)
     let openHours = diner['open_hours_'.concat(source)]
-    let textArray = ['Mon.: ', 'Tue.: ', 'Wed.: ', 'Thu.: ', 'Fri.: ', 'Sat.: ', 'Sun.: ']
+    let textArray = ['星期一: ', '星期二: ', '星期三: ', '星期四: ', '星期五: ', '星期六: ', '星期日: ']
     for (let i=0; i < openHours.length; i++){
         for (let r=1; r<8; r++){
             if (openHours[i][0] == r){
