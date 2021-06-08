@@ -9,8 +9,8 @@ import time
 
 from get_ue_list import UEDinerListCrawler
 
-MONGO_ATLAS_URI = env.MONGO_ATLAS_URI
-admin_client = MongoClient(MONGO_ATLAS_URI)
+MONGO_EC2_URI = env.MONGO_EC2_URI
+admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client['ufc']
 
 
