@@ -49,7 +49,7 @@
 }
 
 .form-select{
-    font-size: 0.6rem;
+    font-size: 1rem;
 }
 
 #search{
@@ -149,8 +149,6 @@ a:link {
     margin-bottom: 5px;
 }
 
-
-
 [name=divider]{
     width: 120px;
     height: 8px;
@@ -228,6 +226,10 @@ a:link {
 
 [name=remove-sorter]:hover img:first-child{
     display: none;
+}
+
+#show-more{
+    margin-top: 10px;
 }
 
 #show-more:hover{
