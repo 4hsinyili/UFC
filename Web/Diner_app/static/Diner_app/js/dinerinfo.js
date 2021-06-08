@@ -291,19 +291,23 @@ function renderMenu(sections, source){
         }
         let newTabDom = tabDom.cloneNode(true)
         newTabDom.innerText = key
+        newTabDom.setAttribute('data-source', source)
         $(newTabDom).show()
         let newPkTabDom = tabPkDom.cloneNode(true)
         newPkTabDom.innerText = key
+        newPkTabDom.setAttribute('data-source', source)
         tabsDom.appendChild(newTabDom)
         let newPkSection = newSection.cloneNode(true)
         newSection.setAttribute('data-section-title', key)
+        newSection.setAttribute('data-source', source)
         $(newSection).show()
         menuSectionsDom.appendChild(newSection)
         if (uuidUE && uuidFP){
             $(newPkTabDom).show()
             tabsPkDom.appendChild(newPkTabDom)
             newPkSection.setAttribute('data-section-title-pk', key)
-            $(newPkSection).show()
+            newPkSection.setAttribute('data-source', source)
+            $(newPkSection).hide()
             $(newPkSection).find('[name=subsection-title]').click(function(e){
                 toggleItems(e.target)
             })
@@ -321,7 +325,6 @@ showLoading()
 ajaxGet(dinerInfoAPI, function(response){
     console.log(response)
     let uuidGM = response.data.uuid_gm
-    console.log(uuidGM)
     if (uuidUE){
         renderDiner(response, 'ue')
         $('#info_ue').show()
@@ -378,14 +381,14 @@ document.addEventListener('click', (e)=>{
             {
             title: 'Uber Eats 優勢品項',
             html: cheaperDomUE,
-            customClass: 'justify-content-center'
+            customClass: 'justify-content-center cheaper-text'
         })
     } else if (e.target.getAttribute('id') == 'cheaper-item_fp'){
         let cheaperDomFP = document.getElementById('cheaper_fp').cloneNode(true)
         Swal.fire({
             title: 'Food Panda 優勢品項',
             html: cheaperDomFP,
-            customClass: 'justify-content-center'
+            customClass: 'justify-content-center cheaper-text'
         })
     }
 })
@@ -393,11 +396,17 @@ document.addEventListener('click', (e)=>{
 document.addEventListener('click', (e)=>{
     if (e.target.getAttribute('name') == 'section-tab'){
         let dataSectionTitle = e.target.innerText
-        $(`[data-section-title][data-section-title!="${dataSectionTitle}"]`).hide()
-        $(`[data-section-title="${dataSectionTitle}"]`).toggle()
+        let source = e.target.getAttribute('data-source')
+        $(`[name=section][data-source=${source}][data-section-title][data-section-title!="${dataSectionTitle}"]`).hide()
+        $(`[name=section-tab][data-source=${source}]:contains('${dataSectionTitle}')`).toggleClass('clicked')
+        $(`[name=section-tab][data-source=${source}]:not(:contains('${dataSectionTitle}'))`).toggleClass('clicked')
+        $(`[data-section-title="${dataSectionTitle}"][data-source=${source}]`).toggle()
     } else if (e.target.getAttribute('name') == 'section-tab-pk'){
         let dataSectionTitle = e.target.innerText
-        $(`[data-section-title][data-section-title!="${dataSectionTitle}"]`).hide()
-        $(`[data-section-title-pk="${dataSectionTitle}"]`).toggle()
+        let source = e.target.getAttribute('data-source')
+        $(`[name=section-tab-pk][data-section-title][data-source=${source}][data-section-title!="${dataSectionTitle}"]`).hide()
+        $(`[name=section-tab-pk][data-source=${source}]:contains('${dataSectionTitle}')`).toggleClass('clicked')
+        $(`[name=section-tab-pk][data-source=${source}]:not(:contains('${dataSectionTitle}'))`).toggleClass('clicked')
+        $(`[data-section-title-pk="${dataSectionTitle}"][data-source=${source}]`).toggle()
     }
 })

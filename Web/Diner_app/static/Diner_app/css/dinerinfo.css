@@ -207,12 +207,42 @@
 
 [name=section-tab]{
     cursor: pointer;
+    width: fit-content !important;
+    height: 2rem;
+    text-align: center;
+    line-height: 2rem;
+}
+
+[name=section-tab]:hover{
+    font-weight: bold;
+}
+
+[name=section-tab].clicked{
+    font-weight: bold;
 }
 
 [name=section-tab-pk]{
     cursor: pointer;
+    width: fit-content !important;
+    height: 2rem;
+    text-align: center;
+    line-height: 2rem;
+}
+
+[name=section-tab-pk]:hover{
+    font-weight: bold;
+}
+
+[name=section-tab-pk].clicked{
+    font-weight: bold;
 }
 
 [name=subsection-title]{
     cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.cheaper-text{
+    text-align: end;
 }

@@ -88,7 +88,9 @@
         </div>
         <div id="menu_ue" class="row">
             <div class="col-12">
-                <div data-source-css='ue'>Uber Eats 菜單</div>
+                <div data-source-css='ue'>
+                    <h6>Uber Eats 菜單</h6>
+                </div>
             </div>
             <div class="col-12">
                 <div id="section-tabs_ue" class="row"></div>
@@ -101,7 +103,9 @@
         </div>
         <div id="menu_fp" class="row">
             <div class="col-12">
-                <div data-source-css='fp'>Food Panda 菜單</div>
+                <div data-source-css='fp'>
+                    <h6>Food Panda 菜單</h6>
+                </div>
             </div>
             <div class="col-12">
                 <div id="section-tabs_fp" class="row"></div>
@@ -113,7 +117,9 @@
             <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg" data-number=0>
         </div>
         <div id="menu_pk" class="row">
-            <div>菜單比較</div>
+            <div>
+                <h6>菜單比較</h6>
+            </div>
             <div class="col-6">
                 <div id="section-tabs_pk_ue" data-source-css='ue' class="row"></div>
                 <div name="sections_pk_ue" class="row"></div>
@@ -154,13 +160,13 @@
     <div name="section" class="row" style="display: none">
         <div name="section-title"></div>
     </div>
-    <div name="section-tab" class="col" style="display: none;"></div>
-    <div name="section-tab-pk" class="col" style="display: none;"></div>
+    <div name="section-tab" class="col-1 align-middle" style="display: none;"></div>
+    <div name="section-tab-pk" class="col-1" style="display: none;"></div>
     <div name=hide-pre style="display: none;">
         <pre id="open_hours_ue"></pre>
         <pre id="open_hours_fp"></pre>
-        <pre id="cheaper_ue"></pre>
-        <pre id="cheaper_fp"></pre>
+        <pre id="cheaper_ue" class="cheaper-text"></pre>
+        <pre id="cheaper_fp" class="cheaper-text"></pre>
     </div>
 {% endblock %}
 
