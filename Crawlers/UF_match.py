@@ -362,9 +362,9 @@ if __name__ == '__main__':
     collection = 'matched'
     data_range = 0
     matcher = Match(db, collection)
-    matcher.remove_old_records()
+    # matcher.remove_old_records()
     # print(matcher.triggered_at)
-    # matcher.main(data_range)
+    matcher.main(data_range)
     # checker = MatchedChecker(db, collection, 'match')
     # print(checker.triggered_at)
     # records = checker.get_last_records(1)
