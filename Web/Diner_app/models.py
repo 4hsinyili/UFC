@@ -3,7 +3,36 @@ import copy
 import time
 from django.db import models
 from User_app.models import CustomUser
+from Crawlers.Trigger_log import TriggerLog
+from Crawlers.AWS_metrics import StatesMetricInfo, LambdaMetricInfo
 # Create your models here.
+
+
+class DashBoardModel():
+    def __init__(self, db, cloudwatch):
+        self.db = db
+        self.cloudwatch = cloudwatch
+
+    def get_data(self, end_time, start_time):
+        states_metric = StatesMetricInfo(self.cloudwatch)
+        lambda_metric = LambdaMetricInfo(self.cloudwatch)
+        trigger_log = TriggerLog(self.db)
+        start = time.time()
+        states_metric_data = states_metric.main(end_time)
+        stop_1 = time.time()
+        print('states_metric:', stop_1 - start)
+        lambda_metric_data = lambda_metric.main(end_time)
+        stop_2 = time.time()
+        print('lambda_metric:', stop_2 - stop_1)
+        trigger_log_data = trigger_log.main(end_time, start_time)
+        stop_3 = time.time()
+        print('trigger_log:', stop_3 - stop_2)
+        result = {
+            'states_metric_data': states_metric_data,
+            'lambda_metric_data': lambda_metric_data,
+            'trigger_log_data': trigger_log_data,
+        }
+        return result
 
 
 class FavoritesManager(models.Manager):

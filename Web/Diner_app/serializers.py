@@ -114,3 +114,9 @@ class FilterSerializer(serializers.Serializer):
     deliver_time_fp = serializers.ListField()
     budget_fp = serializers.ListField()
     view_count_fp = serializers.ListField()
+
+
+class DashBoardSerializer(serializers.Serializer):
+    states_metric_data = serializers.DictField()
+    lambda_metric_data = serializers.DictField()
+    trigger_log_data = serializers.DictField()
