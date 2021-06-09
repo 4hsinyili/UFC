@@ -268,31 +268,40 @@ class MatchSearcher():
             }
         }
         if sort_stage:
-            count_pipeline = conditions[:-1]
+            pipeline = conditions[:-1]
         else:
-            count_pipeline = conditions
+            pipeline = conditions
         conditions.append(project_stage)
         pipeline = [condition for condition in conditions if condition != {}]
-        print('get count?')
-        result_count = self.get_count(db, collection, count_pipeline)
-        pprint.pprint(result_count)
-        if offset > 0:
-            pipeline.append({'$skip': offset})
-        limit = {'$limit': 6}
-        pipeline.append(limit)
+        facet = {
+            "$facet": {
+                "data": [
+                    {"$skip": offset},
+                    {"$limit": 6}
+                ],
+                "count": [
+                    {"$count": "triggered_at"}
+                ]
+            }
+        }
+        pipeline.append(facet)
         print("====================================================")
         print("now is using UESearcher's get_search_result function")
         print("below is the pipeline")
         pprint.pprint(pipeline)
         start = time.time()
         cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        raw = next(cursor)
+        raw_diners = raw['data']
+        raw_count = raw['count']
+        result_count = raw_count[0]['triggered_at']
         if user:
             favorites = Favorites.manager.get_favorites(user)
         else:
             favorites = False
         diners = []
         if favorites:
-            for diner in cursor:
+            for diner in raw_diners:
                 if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
                     diner['favorite'] = True
                     diners.append(diner)
@@ -300,7 +309,7 @@ class MatchSearcher():
                     diner['favorite'] = False
                     diners.append(diner)
         else:
-            for diner in cursor:
+            for diner in raw_diners:
                 diner['favorite'] = False
                 diners.append(diner)
         cursor.close()
