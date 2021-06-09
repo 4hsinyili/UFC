@@ -1,0 +1,147 @@
+{% extends 'Diner_app/base.html' %}
+
+{% block website_title %}
+    <title>Diner_List</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Diner_app/css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div id="select-dates" class="row">
+            <div class='date row justify-content-center'>
+                <label class='col-2'>Start Date</label>
+                <input id='start-date' type='date' class='col-4'>
+                <label class='col-2'>End Date</label>
+                <input id='end-date' type='date' class='col-4'>
+            </div>
+        </div>
+        <div id="states-lambda-graph" class="row">
+            <div id='states-graph' class="col-6"></div>
+            <div id='lambda-graph' class='col-6'></div>
+        </div>
+        <div id="match-place-graph" class="row">
+            <div id='match-graph' class="col-6"></div>
+            <div id='place-graph' class='col-6'></div>
+        </div>
+        <div id="states-data" class="row">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">紀錄時間</th>
+                        <th scope="col">執行次數</th>
+                        <th scope="col">成功</th>
+                        <th scope="col">失敗</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-number=0 name="states-row">
+                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="lambda-data" class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">紀錄時間</th>
+                        <th scope="col">目標</th>
+                        <th scope="col">爬取類型</th>
+                        <th scope="col">分枝數量</th>
+                        <th scope="col">獲取店家數量</th>
+                        <th scope="col">執行時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-number=0 mame="ue-list-row">
+                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td>Uber Eats</td>
+                        <td>店家清單</td>
+                        <td>5</td>
+                        <td>678</td>
+                        <td>270.5</td>
+                    </tr>
+                    <tr data-number=0 mame="fp-list-row">
+                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td>Uber Eats</td>
+                        <td>店家詳細資訊</td>
+                        <td>5</td>
+                        <td>678</td>
+                        <td>270.5</td>
+                    </tr>
+                    <tr data-number=0 mame="ue-detail-row">
+                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td>Uber Eats</td>
+                        <td>店家清單</td>
+                        <td>5</td>
+                        <td>678</td>
+                        <td>270.5</td>
+                    </tr>
+                    <tr data-number=0 mame="fp-detail-row">
+                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td>Uber Eats</td>
+                        <td>店家詳細資訊</td>
+                        <td>5</td>
+                        <td>678</td>
+                        <td>270.5</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="match-data" class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">紀錄時間</th>
+                        <th scope="col">相同餐廳</th>
+                        <th scope="col">店家總數</th>
+                        <th scope="col">執行時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-number=0 mame="match-row">
+                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td>678</td>
+                        <td>678</td>
+                        <td>270.5</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="place-data" class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">紀錄時間</th>
+                        <th scope="col">新增查詢</th>
+                        <th scope="col">使用有效資料更新</th>
+                        <th scope="col">使用無效資料更新</th>
+                        <th scope="col">店家總數</th>
+                        <th scope="col">執行時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-number=0 mame="place-row">
+                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td>678</td>
+                        <td>678</td>
+                        <td>678</td>
+                        <td>270.5</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascript %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'Diner_app/js/dashboard.js' %}"></script>
+{% endblock %}
