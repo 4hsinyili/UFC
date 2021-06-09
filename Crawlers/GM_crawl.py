@@ -32,17 +32,17 @@ class GMCrawler():
         self.collection = collection
         self.matched_checker = matched_checker
 
-    def update_from_previous(self):
+    def update_from_previous_found(self):
         start = time.time()
         db = self.db
         collection = self.collection
         matched_checker = self.matched_checker
         triggered_at_gm = self.generate_triggered_at()
+        last_week = triggered_at_gm - timedelta(weeks=1)
         triggered_at = matched_checker.get_triggered_at()
         print('Update from ', triggered_at_gm, "'s records")
         print('Will update ', triggered_at, "'s records.")
         last_week = triggered_at_gm - timedelta(weeks=1)
-        print(last_week)
         pipeline = [
             {
                 '$match': {
@@ -98,8 +98,74 @@ class GMCrawler():
             result = db[collection].bulk_write(update_records)
         print(result.bulk_api_result)
         stop = time.time()
-        print('Update took ', stop - start, ' s.')
+        print('Update found took ', stop - start, ' s.')
 
+    def update_from_previous_not_found(self):
+        start = time.time()
+        db = self.db
+        collection = self.collection
+        matched_checker = self.matched_checker
+        triggered_at_gm = self.generate_triggered_at()
+        last_week = triggered_at_gm - timedelta(weeks=1)
+        triggered_at = matched_checker.get_triggered_at()
+        print('Update from ', triggered_at_gm, 'to ', last_week, "'s not found records")
+        print('Will update ', triggered_at, "'s records.")
+        pipeline = [
+            {
+                '$match': {
+                    'not_found_gm': {
+                                "$exists": True
+                                }
+                        }
+            },
+            {
+                '$group': {
+                    '_id': None,
+                    'data': {
+                        "$addToSet": {
+                            "uuid_ue": "$uuid_ue",
+                            "uuid_fp": "$uuid_fp",
+                            "uuid_gm": "$uuid_gm",
+                            "title_gm": "$title_gm",
+                            "rating_gm": "$rating_gm",
+                            "view_count_gm": "$view_count_gm",
+                            "link_gm": "$link_gm",
+                            'not_found_gm': "$not_found_gm"
+                        }
+                    }
+                }
+            }
+        ]
+        cursor = db[collection].aggregate(pipeline)
+        update_records = []
+        loop_count = 0
+        try:
+            datas = next(cursor)['data']
+            print('Record sample:')
+            print(datas[0])
+        except Exception:
+            print('No old records to update.')
+            cursor.close()
+            return None
+        for data in datas:
+            loop_count += 1
+            record = UpdateOne(
+                {
+                    'uuid_ue': data['uuid_ue'],
+                    'uuid_fp': data['uuid_fp'],
+                    'triggered_at': triggered_at
+                }, {'$set': data}
+            )
+            update_records.append(record)
+        cursor.close()
+        print('There are ', loop_count, ' old records that could be used to update.')
+        if len(update_records) > 0:
+            result = db[collection].bulk_write(update_records)
+        print('Bulk result:')
+        print(result.bulk_api_result)
+        stop = time.time()
+        print('Update not found took ', stop - start, ' s.')
+    
     def get_targets(self, limit=0):
         db = self.db
         collection = self.collection
@@ -256,7 +322,8 @@ class GMCrawler():
     def main(self, db, api_key, limit=0):
         db = self.db
         triggered_at_gm = self.generate_triggered_at()
-        self.update_from_previous()
+        self.update_from_previous_found()
+        self.update_from_previous_not_found()
         start = time.time()
         cursor = self.get_targets(limit)
         targets = self.parse_targets(cursor)
