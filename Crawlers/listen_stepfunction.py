@@ -36,7 +36,7 @@ def listen():
         return result[-1]
 
 
-def main(matcher, crawler):
+def main(matcher):
     result = listen()
     if result:
         print('Start match.')
