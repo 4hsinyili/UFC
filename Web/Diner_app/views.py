@@ -4,28 +4,42 @@ from django.shortcuts import render, redirect
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from .serializers import MatchSerializer, FilterSerializer
+from .serializers import MatchSerializer, FilterSerializer, DashBoardSerializer
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
+from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, DashBoardModel
 import env
 from pymongo import MongoClient
 import time
 import pprint
+import boto3
+import datetime
 
 # Create your views here.
 MONGO_EC2_URI = env.MONGO_EC2_URI
 admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client['ufc']
+cloudwatch = boto3.client('cloudwatch')
 match_checker = MatchChecker(db, 'matched', 'match')
 match_searcher = MatchSearcher(db, 'matched')
 match_dinerinfo = MatchDinerInfo(db, 'matched')
 match_filters = MatchFilters(db, 'matched')
 
 
+class DashBoardView(views.APIView):
     parser_classes = [JSONParser]
 
+    def post(self, request):
+        model = DashBoardModel(db, cloudwatch)
+        end_date = datetime.datetime.strptime(request.data['end_date'], '%Y-%m-%d')
+        start_date = datetime.datetime.strptime(request.data['start_date'], '%Y-%m-%d')
+        end_time = datetime.datetime.combine(end_date, datetime.time.max)
+        start_time = datetime.datetime.combine(start_date, datetime.time.min)
+        result = model.get_data(end_time, start_time)
+        data = DashBoardSerializer(result, many=False).data
         return Response({
             'data': data
+        })
 
 
 class DinerSearch(views.APIView):
@@ -254,6 +268,9 @@ def favorites(request):
     else:
         return redirect('/user/login')
 
+
+def dashboard(request):
+    return render(request, 'Diner_app/dashboard.html', {})
 
 # def forSSL(request):
 #     file_content = env.VERIFY_DOMAIN
