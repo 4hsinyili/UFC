@@ -37,18 +37,18 @@ class GMCrawler():
         db = self.db
         collection = self.collection
         matched_checker = self.matched_checker
-        triggered_at = self.generate_triggered_at()
-        print('Update from ', triggered_at, "'s records")
-        print('Will update ', matched_checker.triggered_at, "'s records.")
-        print(triggered_at)
-        last_week = triggered_at - timedelta(weeks=1)
+        triggered_at_gm = self.generate_triggered_at()
+        triggered_at = matched_checker.get_triggered_at()
+        print('Update from ', triggered_at_gm, "'s records")
+        print('Will update ', triggered_at, "'s records.")
+        last_week = triggered_at_gm - timedelta(weeks=1)
         print(last_week)
         pipeline = [
             {
                 '$match': {
                     'triggered_at_gm': {
                                 '$gte': last_week,
-                                '$lt': triggered_at,
+                                '$lt': triggered_at_gm,
                                 "$exists": True
                                 }
                         }
@@ -88,7 +88,7 @@ class GMCrawler():
                 {
                     'uuid_ue': data['uuid_ue'],
                     'uuid_fp': data['uuid_fp'],
-                    'triggered_at': matched_checker.triggered_at
+                    'triggered_at': triggered_at
                 }, {'$set': data}
             )
             update_records.append(record)
@@ -104,7 +104,7 @@ class GMCrawler():
         db = self.db
         collection = self.collection
         matched_checker = self.matched_checker
-        triggered_at = matched_checker.triggered_at
+        triggered_at = matched_checker.get_triggered_at()
         pipeline = [
             {
                 '$match': {
