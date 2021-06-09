@@ -320,6 +320,15 @@ class GMCrawler():
     def save_to_matched(self, db, collection, records):
         db[collection].bulk_write(records)
 
+    def save_triggered_at(self, triggered_at, records_count):
+        db = self.db
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'records_count': records_count,
+            'triggered_by': 'place'
+            })
+
     def main(self, db, api_key, limit=0):
         db = self.db
         triggered_at_gm = self.generate_triggered_at()
@@ -339,7 +348,9 @@ class GMCrawler():
             diners.append(diner)
         records = self.transfer_diners_to_records(diners)
         try:
+            records_count = len(records)
             self.save_to_matched(db, 'matched', records)
+            self.save_triggered_at(triggered_at_gm, records_count)
             print('Saved to db.')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
