@@ -7,7 +7,6 @@ from rest_framework.parsers import JSONParser
 from .serializers import MatchSerializer, FilterSerializer
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
-from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, Pipeline
 import env
 from pymongo import MongoClient
 import time
@@ -23,37 +22,10 @@ match_dinerinfo = MatchDinerInfo(db, 'matched')
 match_filters = MatchFilters(db, 'matched')
 
 
-class DinerList(views.APIView):
     parser_classes = [JSONParser]
 
-    def get(self, request):
-        start = time.time()
-        offset_param = self.request.query_params.get('offset', None)
-        if offset_param:
-            offset = int(offset_param)
-        else:
-            offset = 0
-        diners = match_checker.get_latest_records(Pipeline.ue_list_pipeline, offset, limit=6)
-        diners_count = match_checker.get_count(Pipeline.ue_count_pipeline)
-        if offset + 6 < diners_count:
-            has_more = True
-        else:
-            has_more = False
-        if has_more:
-            next_offset = offset + 6
-        else:
-            next_offset = 0
-        diners = [diner['_id'] for diner in diners]
-        data = MatchSerializer(diners, many=True).data
-        stop = time.time()
-        print('get DinerList took: ', stop - start, 's.')
         return Response({
-            'next_offset': next_offset,
-            'has_more': has_more,
-            'max_page': diners_count // 6,
-            'data_count': len(diners),
             'data': data
-            })
 
 
 class DinerSearch(views.APIView):
