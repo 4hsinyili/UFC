@@ -40,9 +40,8 @@ class GMCrawler():
         triggered_at_gm = self.generate_triggered_at()
         last_week = triggered_at_gm - timedelta(weeks=1)
         triggered_at = matched_checker.get_triggered_at()
-        print('Update from ', triggered_at_gm, "'s records")
+        print('Update from ', triggered_at_gm, 'to ', last_week, "'s found records")
         print('Will update ', triggered_at, "'s records.")
-        last_week = triggered_at_gm - timedelta(weeks=1)
         pipeline = [
             {
                 '$match': {
@@ -77,6 +76,7 @@ class GMCrawler():
         loop_count = 0
         try:
             datas = next(cursor)['data']
+            print('Record sample:')
             print(datas[0])
         except Exception:
             print('No old records to update.')
@@ -96,6 +96,7 @@ class GMCrawler():
         print('There are ', loop_count, ' old records that could be used to update.')
         if len(update_records) > 0:
             result = db[collection].bulk_write(update_records)
+        print('Bulk result:')
         print(result.bulk_api_result)
         stop = time.time()
         print('Update found took ', stop - start, ' s.')
@@ -339,7 +340,7 @@ class GMCrawler():
         records = self.transfer_diners_to_records(diners)
         try:
             self.save_to_matched(db, 'matched', records)
-            print('saved to db')
+            print('Saved to db.')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
         stop = time.time()
