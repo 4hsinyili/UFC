@@ -22,24 +22,21 @@ class Match():
         self.collection = collection
         self.triggered_at = self.get_triggered_at()
 
-    def get_triggered_at(self, collection='trigger_log'):
+    def get_triggered_at(self, collection='stepfunction_log'):
         db = self.db
         pipeline = [
             {
-                '$match': {'triggered_by': 'get_ue_detail'}
-            },
-            {
-                '$sort': {'triggered_at': 1}
+                '$sort': {'ue_triggered_at': 1}
             },
             {
                 '$group': {
                     '_id': None,
-                    'triggered_at': {'$last': '$triggered_at'}
+                    'triggered_at': {'$last': '$ue_triggered_at'}
                     }
             }
         ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]['triggered_at']
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        result = next(cursor)['triggered_at']
         return result
 
     def get_records(self):
