@@ -220,7 +220,6 @@ class MatchSearcher():
                 "triggered_at": triggered_at
             }}
         conditions = [match_condition]
-        sort_stage = False
         try:
             keyword = condition['keyword']
             keyword_condition = {
@@ -257,9 +256,9 @@ class MatchSearcher():
                 sort_conditions['$sort'][sorter['field']] = sorter['sorter']
             if sort_conditions != {"$sort": {}}:
                 conditions.append(sort_conditions)
-                sort_stage = True
         except Exception:
             pass
+        pipeline = [condition for condition in conditions if condition != {}]
         project_stage = {
             '$project': {
                 '_id': 0,
@@ -267,13 +266,8 @@ class MatchSearcher():
                 'menu_fp': 0
             }
         }
-        if sort_stage:
-            pipeline = conditions[:-1]
-        else:
-            pipeline = conditions
         conditions.append(project_stage)
-        pipeline = [condition for condition in conditions if condition != {}]
-        facet = {
+        facet_stage = {
             "$facet": {
                 "data": [
                     {"$skip": offset},
@@ -284,7 +278,7 @@ class MatchSearcher():
                 ]
             }
         }
-        pipeline.append(facet)
+        pipeline.append(facet_stage)
         print("====================================================")
         print("now is using UESearcher's get_search_result function")
         print("below is the pipeline")
