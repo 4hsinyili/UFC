@@ -271,7 +271,7 @@ class MatchSearcher():
             "$facet": {
                 "data": [
                     {"$skip": offset},
-                    {"$limit": 12}
+                    {"$limit": 6}
                 ],
                 "count": [
                     {"$count": "triggered_at"}
@@ -332,7 +332,7 @@ class MatchSearcher():
         collection = self.collection
         pipeline = [
             {"$match": {"triggered_at": triggered_at}},
-            {"$sample": {"size": 12}}
+            {"$sample": {"size": 6}}
         ]
         cursor = db[collection].aggregate(pipeline)
         if user:
