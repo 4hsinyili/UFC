@@ -47,6 +47,7 @@ def main(matcher, crawler):
             {'$set': {'matched': True}}
             )
         time.sleep(10)
+        crawler = GM_crawl.GMCrawler(db, 'matched', matched_checker)
         crawler.main(db, API_KEY, 0)
         return True
     else:
@@ -56,12 +57,11 @@ def main(matcher, crawler):
 if __name__ == '__main__':
     collection = 'matched'
     data_range = 0
-    macther = UF_match.Match(db, collection)
-    matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
-    crawler = GM_crawl.GMCrawler(db, 'matched', matched_checker)
     loop_count = 0
     while True:
-        check_break = main(macther, crawler)
+        macther = UF_match.Match(db, collection)
+        matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
+        check_break = main(macther)
         if check_break:
             break
         else:
