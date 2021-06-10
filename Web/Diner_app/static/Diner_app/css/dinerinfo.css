@@ -128,22 +128,22 @@
 }
 
 [name=sections_ue]{
-    max-height: 600px;
+    max-height: 800px;
     overflow: scroll;
 }
 
 [name=sections_pk_ue]{
-    max-height: 400px;
+    max-height: 800px;
     overflow: scroll;
 }
 
 [name=sections_fp]{
-    max-height: 600px;
+    max-height: 800px;
     overflow: scroll;
 }
 
 [name=sections_pk_fp]{
-    max-height: 400px;
+    max-height: 800px;
     overflow: scroll;
 }
 
