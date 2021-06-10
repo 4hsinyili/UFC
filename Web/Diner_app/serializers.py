@@ -117,6 +117,6 @@ class FilterSerializer(serializers.Serializer):
 
 
 class DashBoardSerializer(serializers.Serializer):
-    states_metric_data = serializers.DictField()
-    lambda_metric_data = serializers.DictField()
+    # states_metric_data = serializers.DictField()
+    # lambda_metric_data = serializers.DictField()
     trigger_log_data = serializers.DictField()
