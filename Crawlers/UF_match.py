@@ -98,7 +98,7 @@ class Match():
                     continue
         print('There are ', loop_count, ' similar diners')
         # pprint.pprint(log)
-        return similarities
+        return similarities, loop_count
 
     def compare_item(self, ue_record, fp_record):
         cheaper_ue = []
@@ -263,16 +263,17 @@ class Match():
                 upsert_records.append(record)
             db[collection].bulk_write(upsert_records)
             gc.collect()
-        print('Totally savee ', len(records), 'diners to db.matched in this slice.')
+        print('Totally save ', len(records), 'diners to db.matched in this slice.')
         pprint.pprint('write into matched successed')
 
-    def save_triggered_at(self, records_count):
+    def save_triggered_at(self, records_count, matched_count):
         db = self.db
         triggered_at = self.triggered_at
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'records_count': records_count,
+            'matched_count': matched_count,
             'triggered_by': 'match'
             })
 
@@ -294,7 +295,7 @@ class Match():
             ue_records = ue_records[:data_range]
             fp_records = fp_records[:data_range]
         c_start = time.time()
-        similarities = self.compare(ue_records, fp_records)
+        similarities, matched_count = self.compare(ue_records, fp_records)
         c_stop = time.time()
         print('compare took: ', c_stop - c_start)
         matched_records = self.merge_records(ue_records, fp_records, similarities)
@@ -306,7 +307,7 @@ class Match():
         stop = time.time()
         print('process took: ', stop - start)
         self.save_to_matched(matched_records)
-        self.save_triggered_at(records_count)
+        self.save_triggered_at(records_count, matched_count)
         # self.remove_old_records()
 
 

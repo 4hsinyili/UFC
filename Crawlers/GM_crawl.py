@@ -100,6 +100,7 @@ class GMCrawler():
         print(result.bulk_api_result)
         stop = time.time()
         print('Update found took ', stop - start, ' s.')
+        return result.modified_count
 
     def update_from_previous_not_found(self):
         start = time.time()
@@ -166,7 +167,8 @@ class GMCrawler():
         print(result.bulk_api_result)
         stop = time.time()
         print('Update not found took ', stop - start, ' s.')
-    
+        return result.modified_count
+
     def get_targets(self, limit=0):
         db = self.db
         collection = self.collection
@@ -320,20 +322,22 @@ class GMCrawler():
     def save_to_matched(self, db, collection, records):
         db[collection].bulk_write(records)
 
-    def save_triggered_at(self, triggered_at, records_count):
+    def save_triggered_at(self, triggered_at, records_count, update_found_count, update_not_found_count):
         db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'records_count': records_count,
+            'update_found_count': update_found_count,
+            'update_not_found_count': update_not_found_count,
             'triggered_by': 'place'
             })
 
     def main(self, db, api_key, limit=0):
         db = self.db
         triggered_at_gm = self.generate_triggered_at()
-        self.update_from_previous_found()
-        self.update_from_previous_not_found()
+        update_found_count = self.update_from_previous_found()
+        update_not_found_count = self.update_from_previous_not_found()
         start = time.time()
         cursor = self.get_targets(limit)
         targets = self.parse_targets(cursor)
@@ -350,7 +354,7 @@ class GMCrawler():
         try:
             records_count = len(records)
             self.save_to_matched(db, 'matched', records)
-            self.save_triggered_at(triggered_at_gm, records_count)
+            self.save_triggered_at(triggered_at_gm, records_count, update_found_count, update_not_found_count)
             print('Saved to db.')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
