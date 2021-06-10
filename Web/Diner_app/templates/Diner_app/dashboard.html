@@ -7,6 +7,9 @@
 {% block js_and_css %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'Diner_app/css/dashboard.css' %}">
+    {% load static %}
+    <script type="text/javascript" src="{% static 'Diner_app/js/moment.js' %}"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -48,7 +51,7 @@
             </table>
         </div>
         <div id="lambda-data" class="row">
-            <table class="table">
+            <table name="lambda-table" class="table">
                 <thead>
                     <tr>
                         <th scope="col">紀錄時間</th>
@@ -59,81 +62,82 @@
                         <th scope="col">執行時間</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr data-number=0 mame="ue-list-row">
-                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td>Uber Eats</td>
-                        <td>店家清單</td>
-                        <td>5</td>
-                        <td>678</td>
-                        <td>270.5</td>
+                <tbody name="lambda-table-body">
+                    <tr data-number=0 name="lambda-table-ue-list-row" style="display: none;">
+                        <th data-cell="log-time" name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td data-cell="source">Uber Eats</td>
+                        <td data-cell="type">清單</td>
+                        <td data-cell="branches-count">5</td>
+                        <td data-cell="diner-count">678</td>
+                        <td data-cell="run-time">270.5</td>
                     </tr>
-                    <tr data-number=0 mame="fp-list-row">
-                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td>Uber Eats</td>
-                        <td>店家詳細資訊</td>
-                        <td>5</td>
-                        <td>678</td>
-                        <td>270.5</td>
+                    <tr data-number=0 name="lambda-table-fp-list-row" style="display: none;">
+                        <th data-cell="log-time"name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td data-cell="source">Food Panda</td>
+                        <td data-cell="type">清單</td>
+                        <td data-cell="branches-count">1</td>
+                        <td data-cell="diner-count">200</td>
+                        <td data-cell="run-time">3</td>
                     </tr>
-                    <tr data-number=0 mame="ue-detail-row">
-                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td>Uber Eats</td>
-                        <td>店家清單</td>
-                        <td>5</td>
-                        <td>678</td>
-                        <td>270.5</td>
+                    <tr data-number=0 name="lambda-table-ue-detail-row" style="display: none;">
+                        <th data-cell="log-time" name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td data-cell="source">Uber Eats</td>
+                        <td data-cell="type">詳情</td>
+                        <td data-cell="branches-count">5</td>
+                        <td data-cell="diner-count">678</td>
+                        <td data-cell="run-time">270.5</td>
                     </tr>
-                    <tr data-number=0 mame="fp-detail-row">
-                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td>Uber Eats</td>
-                        <td>店家詳細資訊</td>
-                        <td>5</td>
-                        <td>678</td>
-                        <td>270.5</td>
+                    <tr data-number=0 name="lambda-table-fp-detail-row" style="display: none;">
+                        <th data-cell="log-time" name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td data-cell="source">Food Panda</td>
+                        <td data-cell="type">詳情</td>
+                        <td data-cell="branches-count">5</td>
+                        <td data-cell="diner-count">678</td>
+                        <td data-cell="run-time">270.5</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div id="match-data" class="row">
-            <table class="table">
+            <table name="match-table"  class="table">
                 <thead>
                     <tr>
                         <th scope="col">紀錄時間</th>
-                        <th scope="col">相同餐廳</th>
                         <th scope="col">店家總數</th>
+                        <th scope="col">相同餐廳</th>
                         <th scope="col">執行時間</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr data-number=0 mame="match-row">
-                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td>678</td>
-                        <td>678</td>
-                        <td>270.5</td>
+                <tbody name="match-table-body">
+                    <tr data-number=0 name="match-table-match-row" style="display: none;">
+                        <th data-cell="log-time" name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td data-cell="diner-count">678</td>
+                        <td data-cell="match-count">678</td>
+                        <td data-cell="run-time">270.5</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div id="place-data" class="row">
-            <table class="table">
+            <table name="place-table" class="table">
                 <thead>
                     <tr>
                         <th scope="col">紀錄時間</th>
-                        <th scope="col">新增查詢</th>
                         <th scope="col">使用有效資料更新</th>
                         <th scope="col">使用無效資料更新</th>
+                        <th scope="col">新增查詢</th>
                         <th scope="col">店家總數</th>
                         <th scope="col">執行時間</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr data-number=0 mame="place-row">
-                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td>678</td>
-                        <td>678</td>
-                        <td>678</td>
-                        <td>270.5</td>
+                <tbody name="place-table-body">
+                    <tr data-number=0 name="place-table-place-row" style="display: none;">
+                        <th data-cell="log-time" name="row-title" scope="row">2020-06-08 13:00:00</th>
+                        <td data-cell="update-found-count">678</td>
+                        <td data-cell="update-not-found-count">678</td>
+                        <td data-cell="api-count">678</td>
+                        <td data-cell="diner-count">678</td>
+                        <td data-cell="run-time">270.5</td>
                     </tr>
                 </tbody>
             </table>

@@ -7,12 +7,14 @@ let endDateDom = document.querySelector('#end-date')
 let dateFormvalue = `${yyyy}-${mm}-${dd}`
 startDateDom.value = dateFormvalue
 endDateDom.value = dateFormvalue
+let initData = {"start_date": dateFormvalue, "end_date": dateFormvalue}
 
 let statesGraph = document.getElementById('states-graph');
 let lambdaGraph = document.getElementById('lambda-graph');
 let matchGraph = document.getElementById('match-graph');
 let placeGraph = document.getElementById('place-graph');
 let dashboardApi = 'api/v1/dashboard'
+let dashboardApi = 'api/v1/dashboard';
 
 function getCookie(name) {
     let cookieValue = null;
@@ -47,43 +49,215 @@ function ajaxPost(src, params, callback){
     };
 } 
 
-// function render(data){
-//     if(data.data == null){
-//         allUserCountShow.textContent = `All user count: 0`;
-//         let act_source = [{
-//             type: 'funnel',
-//             x: [0,0,0,0],
-//             y: ["View", "View Item", "Add to Cart", "Checkout"]
-//         }]
-//         Plotly.newPlot( FUNNEL, act_source, {
-//         margin: { t: 0 } } );
-        
-//         let user_source = [{
-//             type: 'bar',
-//             x: ['active_user', 'new_user', 'return_user'],
-//             y: [0,0,0]
-//         }]
-//         Plotly.newPlot( BAR, user_source, {
-//         margin: { t: 0 } } );
-//     } else{
-//         allUserCountShow.textContent = `All user count: ${data.data.all_user_count}`;
-//         let act_source = [{
-//             type: 'funnel',
-//             x: [data.data.view_count, data.data.view_item_count, data.data.add_to_cart_count, data.data.checkout_count],
-//             y: ["View", "View Item", "Add to Cart", "Checkout"]
-//         }]
-//         Plotly.newPlot( FUNNEL, act_source, {
-//         margin: { t: 0 } } );
-        
-//         let user_source = [{
-//             type: 'bar',
-//             x: ['active_user', 'new_user', 'return_user'],
-//             y: [data.data.active_user_count, data.data.new_user_count, data.data.returned_user_count]
-//         }]
-//         Plotly.newPlot( BAR, user_source, {
-//         margin: { t: 0 } } );
-//     }
-//    }
+function initPost(dashboardApi, data){
+    ajaxPost(dashboardApi, data, function(response){
+        console.log(response)
+        renderDashBoard(response)
+    })
+}
+
+function renderDashBoard(response){
+    let data = response.data.trigger_log_data
+    let ueListStartData = data.get_ue_list_start
+    let ueListData = data.get_ue_list
+    ueListInfo = renderList(ueListStartData, ueListData, 'ue-list')
+    
+    let ueDetailData = data.get_ue_detail
+    ueDetailInfo = renderDetail(ueListInfo, ueDetailData, 'ue-detail')
+    
+    let fpListStartData = data.get_fp_list_start
+    let fpListData = data.get_fp_list
+    fpListInfo = renderList(fpListStartData, fpListData, 'fp-list')
+    
+    let fpDetailData = data.get_fp_detail
+    fpDetailInfo = renderDetail(fpListInfo, fpDetailData, 'fp-detail')
+    
+    // let matchStartData = data.match_start
+    // let matchData = data.match
+    // matchInfo = renderMatch(matchStartData, matchData, 'match')
+    
+    // let placeStartData = data.place_start
+    // let placeData = data.place
+    // placeInfo = renderPlace(placeStartData, placeData, 'place')
+}
+
+
+function appendRow(tableName, rowType, info){
+    let tableBody = document.querySelector(`[name="${tableName}-body"]`)
+    let firstRow = tableBody.querySelector(`[name="${tableName}-${rowType}-row"]`)
+    let allRows = tableBody.querySelectorAll(`[name="${tableName}-${rowType}-row"]`)
+    let lastRow = tableBody.querySelector(`[name="${tableName}-${rowType}-row"][data-number="${allRows.length - 1}"]`)
+    let newRow = firstRow.cloneNode(true)
+    newRow.setAttribute('data-number', allRows.length)
+    if (tableName == 'lambda-table'){newRow = renderLambdaRow(newRow, info)}
+    else if (tableName == 'match-table'){newRow = renderMatchRow(newRow, info)}
+    else if (tableName == 'place-table'){newRow = renderPlaceRow(newRow, info)}
+    $(newRow).insertAfter(lastRow)
+    $(newRow).show()
+    return newRow
+}
+
+function renderLambdaRow(row, info){
+    row.querySelector(`[data-cell="log-time"]`).innerText = info.start_time
+    row.querySelector(`[data-cell="branches-count"]`).innerText = info.branches_count
+    row.querySelector(`[data-cell="diner-count"]`).innerText = info.diner_count
+    row.querySelector(`[data-cell="run-time"]`).innerText = info.run_time
+    return row
+}
+
+function renderMatchRow(row, info){
+    row.querySelector(`[data-cell="log-time"]`).innerText = info.start_time
+    row.querySelector(`[data-cell="match-count"]`).innerText = info.match_count
+    row.querySelector(`[data-cell="diner-count"]`).innerText = info.diner_count
+    row.querySelector(`[data-cell="run-time"]`).innerText = info.run_time
+    return row
+}
+
+function renderPlaceRow(row, info){
+    row.querySelector(`[data-cell="log-time"]`).innerText = info.start_time
+    row.querySelector(`[data-cell="update-found-count"]`).innerText = info.update_found_count
+    row.querySelector(`[data-cell="update-not-found-count"]`).innerText = info.update_not_found_count
+    row.querySelector(`[data-cell="api-count"]`).innerText = info.api_count
+    row.querySelector(`[data-cell="diner-count"]`).innerText = info.diner_count
+    row.querySelector(`[data-cell="run-time"]`).innerText = info.run_time
+    return row
+}
+
+function sumData(arr){
+    var sum=0;
+    for (var i = 0; i < arr.length; i++) {
+        sum += arr[i];
+    };
+    return sum;
+}
+
+function renderList(listStartData, listData, rowType){
+    if ((!listStartData) || (!listData)){
+        return false
+    }
+    if (listStartData.length != listData.length){
+        console.log('old data')
+        return false
+    }
+    let branchesCount = listStartData.length
+    let runTimeArray = new Array()
+    let dinerCountArray = new Array()
+    let startTimeArray = new Array()
+    let endTimeArray = new Array()
+    for (let i=0; i<listStartData.length; i++){
+        let startData = listStartData[i]
+        let runData = listData[i]
+        let startTime = moment(startData.log_time).add(8, 'hours');
+        let endTime = moment(runData.log_time).add(8, 'hours');
+        let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
+        let dinerCount = runData.records_count
+        runTimeArray.push(runTime)
+        dinerCountArray.push(dinerCount)
+        startTimeArray.push(startTime)
+        endTimeArray.push(endTime)
+        }
+    let runTimeAvg = sumData(runTimeArray) / runTimeArray.length
+    let dinerCountTotal = sumData(dinerCountArray)
+    let startTimeMin = moment.min(startTimeArray).format('YYYY-MM-DD HH:mm:ss')
+    let endTimeMax = moment.max(endTimeArray).format('YYYY-MM-DD HH:mm:ss')
+    let info = {
+        'branches_count': branchesCount,
+        'run_time': runTimeAvg,
+        'diner_count': dinerCountTotal,
+        'start_time': startTimeMin,
+        'end_time': endTimeMax
+    }
+    appendRow('lambda-table', rowType, info)
+    return info
+}
+
+function renderDetail(listInfo, detailData, rowType){
+    if ((!listInfo) || (!detailData)){
+        return false
+    }
+    let branchesCount = detailData.length
+    let runTimeArray = new Array()
+    let dinerCountArray = new Array()
+    let startTime = listInfo.end_time
+    let endTimeArray = new Array()
+    for (let i=0; i<detailData.length; i++){
+        let runData = detailData[i]
+        let endTime = moment(runData.log_time).add(8, 'hours');
+        let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
+        let dinerCount = runData.records_count
+        runTimeArray.push(runTime)
+        dinerCountArray.push(dinerCount)
+        endTimeArray.push(endTime)
+        }
+    let runTimeAvg = sumData(runTimeArray) / runTimeArray.length
+    let dinerCountTotal = sumData(dinerCountArray)
+    let endTimeMax = moment.max(endTimeArray).format('YYYY-MM-DD HH:mm:ss')
+    let info = {
+        'branches_count': branchesCount,
+        'run_time': runTimeAvg,
+        'diner_count': dinerCountTotal,
+        'start_time': startTime,
+        'end_time': endTimeMax
+    }
+    appendRow('lambda-table', rowType, info)
+    return info
+}
+
+function renderMatch(matchStartData, matchData, rowType){
+    if ((!matchStartData) || (!matchData)){
+        return false
+    }
+    let startData = matchStartData[0]
+    let runData = matchData[0]
+    let startTime = moment(startData.log_time).add(8, 'hours');
+    let endTime = moment(runData.log_time).add(8, 'hours');
+    let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
+    let dinerCount = runData.records_count
+    let matchCount = runData.matched_count
+    let info = {
+        'run_time': runTime,
+        'diner_count': dinerCount,
+        'match_count': matchCount,
+        'start_time': startTime.format('YYYY-MM-DD HH:mm:ss'),
+        'end_time': endTime.format('YYYY-MM-DD HH:mm:ss')
+    }
+    appendRow('match-table', rowType, info)
+    return info
+}
+
+function renderPlace(placeStartData, placeData, rowType){
+    if ((!placeStartData) || (!placeData)){
+        return false
+    }
+    let startData = placeStartData[0]
+    let runData = placeData[0]
+    let startTime = moment(startData.log_time).add(8, 'hours');
+    let endTime = moment(runData.log_time).add(8, 'hours');
+    let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
+    let apiCount = runData.records_count
+    let updateFoundCount = runData.update_found_count
+    let updateNotFoundCount = runData.update_not_found_count
+    let dinerCount = apiCount + updateFoundCount + updateNotFoundCount
+    let info = {
+        'run_time': runTime,
+        'api_count': apiCount,
+        'diner_count': dinerCount,
+        'update_found_count': updateFoundCount,
+        'update_not_found_count': updateNotFoundCount,
+        'start_time': startTime.format('YYYY-MM-DD HH:mm:ss'),
+        'end_time': endTime.format('YYYY-MM-DD HH:mm:ss')
+    }
+    appendRow('place-table', rowType, info)
+    return info
+}
+
+function resetTable(){
+    let rows = document.querySelectorAll('[data-number]:not([data-number="0"])')
+    for (let i=0; i < rows.length; i++){
+        rows[i].remove()
+    }
+}
+initPost(dashboardApi, initData)
 
 document.getElementById('select-dates').addEventListener('change', (e)=>{
     let startDate = startDateDom.value
@@ -91,6 +265,8 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
     let data = {'start_date': startDate, 'end_date': endDate}
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
+        resetTable()
+        renderDashBoard(response)
     })
 })
 
