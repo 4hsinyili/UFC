@@ -265,7 +265,7 @@ class Match():
         print('Totally save ', len(records), 'diners to db.matched in this slice.')
         pprint.pprint('write into matched successed')
 
-    def save_triggered_at(self, records_count, matched_count):
+    def save_triggered_at(self, records_count, matched_count, batch_id):
         db = self.db
         triggered_at = self.triggered_at
         trigger_log = 'trigger_log'
@@ -273,17 +273,22 @@ class Match():
             'triggered_at': triggered_at,
             'records_count': records_count,
             'matched_count': matched_count,
+            'batch_id': batch_id,
             'triggered_by': 'match'
             })
 
     def save_start_at(self):
         db = self.db
+        now = datetime.utcnow()
+        batch_id = now.timestamp()
         triggered_at = self.triggered_at
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'triggered_by': 'match_start',
+            'batch_id': batch_id,
             })
+        return batch_id
 
     def remove_old_records(self):
         db = self.db
@@ -294,7 +299,7 @@ class Match():
         db.matched.delete_many({"triggered_at": {"$lt": last_week}})
 
     def main(self, data_range=0):
-        self.save_start_at()
+        batch_id = self.save_start_at()
         print('Start comparsion, using', self.triggered_at, "'s records.")
         start = time.time()
         ue_records, fp_records = self.get_records()
@@ -316,7 +321,7 @@ class Match():
         stop = time.time()
         print('process took: ', stop - start)
         self.save_to_matched(matched_records)
-        self.save_triggered_at(records_count, matched_count)
+        self.save_triggered_at(records_count, matched_count, batch_id)
         # self.remove_old_records()
 
 

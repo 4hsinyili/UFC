@@ -81,28 +81,32 @@ class FPDinerListCrawler():
             return False, error_log, triggered_at
         return diners_info, error_log, triggered_at
 
-    def save_triggered_at(self, target, db, triggered_at, records_count):
+    def save_triggered_at(self, target, db, triggered_at, records_count, batch_id):
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'records_count': records_count,
             'triggered_by': 'get_fp_list',
+            'batch_id': batch_id,
             'target': target
             })
 
     def save_start_at(self, target, db):
         now = datetime.utcnow()
+        batch_id = now.timestamp()
         triggered_at = datetime.combine(now.date(), datetime.min.time())
         triggered_at = triggered_at.replace(hour=now.hour)
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'triggered_by': 'get_fp_list_start',
+            'batch_id': batch_id,
             'target': target
             })
+        return batch_id
 
     def main(self, target, db, collection):
-        self.save_start_at(target, db)
+        batch_id = self.save_start_at(target, db)
         start = time.time()
         diners_info, error_log, triggered_at = self.get_diners_info_from_FP_API(target)
         print('There are ', len(diners_info), ' diners successfully paresed.')
@@ -117,7 +121,7 @@ class FPDinerListCrawler():
                 upsert=True
             ) for record in diners_info]
             db[collection].bulk_write(records)
-            self.save_triggered_at(target, db, triggered_at, len(diners_info))
+            self.save_triggered_at(target, db, triggered_at, len(diners_info), batch_id)
         else:
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
@@ -192,14 +196,14 @@ class FPDinerDetailCrawler():
     def __init__(self, target, db, info_collection, offset=False, limit=False):
         self.target = target
         self.db = db
-        self.triggered_at = self.get_triggered_at()
+        self.triggered_at, self.batch_id = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
         db = self.db
         pipeline = [
             {
-                '$match': {'triggered_by': 'get_fp_list'}
+                '$match': {'triggered_by': 'get_ue_list'}
             },
             {
                 '$sort': {'triggered_at': 1}
@@ -207,13 +211,16 @@ class FPDinerDetailCrawler():
             {
                 '$group': {
                     '_id': None,
-                    'triggered_at': {'$last': '$triggered_at'}
+                    'triggered_at': {'$last': '$triggered_at'},
+                    'batch_id': {'$last': '$records_count'}
                     }
             }
         ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]['triggered_at']
-        return result
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        result = next(cursor)
+        triggered_at = result['triggered_at']
+        batch_id = result['batch_id']
+        return triggered_at, batch_id
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
         db = self.db
@@ -415,7 +422,8 @@ class FPDinerDetailCrawler():
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'records_count': records_count,
-            'triggered_by': 'get_fp_detail'
+            'triggered_by': 'get_fp_detail',
+            'batch_id': self.batch_id
             })
 
     def main(self, collection, data_range=0):

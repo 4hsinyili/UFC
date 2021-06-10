@@ -27,14 +27,14 @@ class FPDinerDetailCrawler():
     def __init__(self, target, db, info_collection, offset=False, limit=False):
         self.target = target
         self.db = db
-        self.triggered_at = self.get_triggered_at()
+        self.triggered_at, self.batch_id = self.get_triggered_at()
         self.diners_info = self.get_diners_info(info_collection, offset, limit)
 
     def get_triggered_at(self, collection='trigger_log'):
         db = self.db
         pipeline = [
             {
-                '$match': {'triggered_by': 'get_fp_list'}
+                '$match': {'triggered_by': 'get_ue_list'}
             },
             {
                 '$sort': {'triggered_at': 1}
@@ -42,13 +42,16 @@ class FPDinerDetailCrawler():
             {
                 '$group': {
                     '_id': None,
-                    'triggered_at': {'$last': '$triggered_at'}
+                    'triggered_at': {'$last': '$triggered_at'},
+                    'batch_id': {'$last': '$records_count'}
                     }
             }
         ]
-        result = db[collection].aggregate(pipeline=pipeline)
-        result = list(result)[0]['triggered_at']
-        return result
+        cursor = db[collection].aggregate(pipeline=pipeline)
+        result = next(cursor)
+        triggered_at = result['triggered_at']
+        batch_id = result['batch_id']
+        return triggered_at, batch_id
 
     def get_diners_info(self, info_collection, offset=False, limit=False):
         db = self.db
@@ -250,7 +253,8 @@ class FPDinerDetailCrawler():
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'records_count': records_count,
-            'triggered_by': 'get_fp_detail'
+            'triggered_by': 'get_fp_detail',
+            'batch_id': self.batch_id
             })
 
     def main(self, collection, data_range=0):

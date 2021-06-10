@@ -278,28 +278,32 @@ class UEDinerListCrawler():
                 diner['uuid'] = False
         return diners_info
 
-    def save_triggered_at(self, target, db, triggered_at, records_count):
+    def save_triggered_at(self, target, db, triggered_at, records_count, batch_id):
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'records_count': records_count,
             'triggered_by': 'get_ue_list',
-            'target': target
+            'batch_id': batch_id,
+            'target': target,
             })
 
     def save_start_at(self, target, db):
         now = datetime.utcnow()
+        batch_id = now.timestamp()
         triggered_at = datetime.combine(now.date(), datetime.min.time())
         triggered_at = triggered_at.replace(hour=now.hour)
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'triggered_by': 'get_ue_list_start',
+            'batch_id': batch_id,
             'target': target
             })
+        return batch_id
 
     def main(self, target, db, info_collection):
-        self.save_start_at(target, db)
+        batch_id = self.save_start_at(target, db)
         start = time.time()
         selector, dict_response, error_log, triggered_at = self.send_location_to_UE(
             target)
@@ -328,7 +332,7 @@ class UEDinerListCrawler():
             pprint.pprint('Error Logs:')
             pprint.pprint(error_log)
         stop = time.time()
-        self.save_triggered_at(target, db, triggered_at, len(diners_info))
+        self.save_triggered_at(target, db, triggered_at, len(diners_info), batch_id)
         print('Get diner list near ', target['title'], ' took ', stop - start, ' seconds.')
         self.chrome_close(self.driver)
         return len(diners_info)

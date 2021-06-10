@@ -325,7 +325,7 @@ class GMCrawler():
     def save_to_matched(self, db, collection, records):
         db[collection].bulk_write(records)
 
-    def save_triggered_at(self, triggered_at, records_count, update_found_count, update_not_found_count):
+    def save_triggered_at(self, triggered_at, records_count, update_found_count, update_not_found_count, batch_id):
         db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
@@ -333,20 +333,25 @@ class GMCrawler():
             'records_count': records_count,
             'update_found_count': update_found_count,
             'update_not_found_count': update_not_found_count,
+            'batch_id': batch_id,
             'triggered_by': 'place'
             })
 
     def save_start_at(self):
         db = self.db
+        now = datetime.utcnow()
+        batch_id = now.timestamp()
         triggered_at = self.matched_checker.get_triggered_at()
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'triggered_by': 'place_start',
+            'batch_id': batch_id,
             })
+        return batch_id
 
     def main(self, db, api_key, limit=0):
-        self.save_start_at()
+        batch_id = self.save_start_at()
         db = self.db
         triggered_at_gm = self.generate_triggered_at()
         update_found_count = self.update_from_previous_found()
@@ -367,7 +372,7 @@ class GMCrawler():
         try:
             records_count = len(records)
             self.save_to_matched(db, 'matched', records)
-            self.save_triggered_at(triggered_at_gm, records_count, update_found_count, update_not_found_count)
+            self.save_triggered_at(triggered_at_gm, records_count, update_found_count, update_not_found_count, batch_id)
             print('Saved to db.')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
@@ -420,28 +425,4 @@ class GMChecker():
 if __name__ == '__main__':
     matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
     crawler = GMCrawler(db, 'matched', matched_checker)
-    print('-----------before-------------')
-    targets = crawler.get_targets(1)
-    for target in targets:
-        pprint.pprint(target)
-
-    targets = crawler.get_targets(0)
-    print(len(list(targets)))
-
     crawler.main(db, API_KEY, 0)
-
-    print('-----------after-------------')
-    targets = crawler.get_targets(1)
-    for target in targets:
-        pprint.pprint(target)
-
-    targets = crawler.get_targets(0)
-    print(len(list(targets)))
-
-    print('----------should have gm------')
-    checker = GMChecker(db, 'matched')
-    cursor = checker.get_last_records(1)
-    for target in cursor:
-        del target['menu_ue']
-        del target['menu_fp']
-        pprint.pprint(target)
