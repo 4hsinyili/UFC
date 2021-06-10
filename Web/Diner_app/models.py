@@ -261,7 +261,7 @@ class MatchSearcher():
             "$facet": {
                 "data": [
                     {"$skip": offset},
-                    {"$limit": 6}
+                    {"$limit": 12}
                 ],
                 "count": [
                     {"$count": "uuid_ue"}
