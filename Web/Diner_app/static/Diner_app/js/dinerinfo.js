@@ -355,7 +355,6 @@ ajaxGet(dinerInfoAPI, function(response){
         removeUEFPMenu()
     }
     if (uuidGM){
-        console.log('aab')
         renderGMInfo(response)
     } else {
         removeGM()
@@ -391,14 +390,14 @@ document.addEventListener('click', (e)=>{
             {
             title: 'Uber Eats 優勢品項',
             html: cheaperDomUE,
-            customClass: 'justify-content-center cheaper-text'
+            customClass: 'justify-content-center'
         })
     } else if (e.target.getAttribute('id') == 'cheaper-item_fp'){
         let cheaperDomFP = document.getElementById('cheaper_fp').cloneNode(true)
         Swal.fire({
             title: 'Food Panda 優勢品項',
             html: cheaperDomFP,
-            customClass: 'justify-content-center cheaper-text'
+            customClass: 'justify-content-center'
         })
     }
 })
