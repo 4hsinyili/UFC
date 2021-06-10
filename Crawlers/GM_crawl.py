@@ -23,7 +23,6 @@ API_KEY = env.PLACE_API_KEY
 MONGO_EC2_URI = env.MONGO_EC2_URI
 admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client['ufc']
-matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
 
 
 class GMCrawler():
@@ -419,6 +418,7 @@ class GMChecker():
 
 
 if __name__ == '__main__':
+    matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
     crawler = GMCrawler(db, 'matched', matched_checker)
     print('-----------before-------------')
     targets = crawler.get_targets(1)
