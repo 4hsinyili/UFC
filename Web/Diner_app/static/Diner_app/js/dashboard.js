@@ -9,11 +9,11 @@ startDateDom.value = dateFormvalue
 endDateDom.value = dateFormvalue
 let initData = {"start_date": dateFormvalue, "end_date": dateFormvalue}
 
-let statesGraph = document.getElementById('states-graph');
-let lambdaGraph = document.getElementById('lambda-graph');
-let matchGraph = document.getElementById('match-graph');
-let placeGraph = document.getElementById('place-graph');
-let dashboardApi = 'api/v1/dashboard'
+let lambdaDinerCountGraph = document.getElementById('lambda-hist-graph');
+let lambdaRuntimeGraph = document.getElementById('lambda-line-graph');
+let mDinerCountGraph = document.getElementById('m-hist-graph');
+let pDinerCountGraph = document.getElementById('p-hist-graph');
+let mpRunTimeGraph = document.getElementById('mp-line-graph');
 let dashboardApi = 'api/v1/dashboard';
 
 function getCookie(name) {
@@ -257,7 +257,149 @@ function resetTable(){
         rows[i].remove()
     }
 }
+
+function renderLambdaDinerCountGraph(ueListInfo, ueDinerInfo, fpListInfo, fpDinerInfo){
+    let x = ["2021-06-10 20:40:00", "2021-06-11 20:40:00"]
+    let ueListDinerCount = [3600, 3500]
+    let ueDetailDinerCount = [1300, 1350]
+    let fpListDinerCount = [2700, 2702]
+    let fpDetailDinerCount = [2600, 2590]
+    let plotConf = [
+        {
+            histfunc: "sum",
+            y: ueListDinerCount,
+            x: x,
+            type: "histogram",
+            name: "get_ue_list"
+          },
+          {
+            histfunc: "sum",
+            y: ueDetailDinerCount,
+            x: x,
+            type: "histogram",
+            name: "get_ue_detail"
+          },
+          {
+            histfunc: "sum",
+            y: fpListDinerCount,
+            x: x,
+            type: "histogram",
+            name: "get_fp_list"
+          },
+          {
+            histfunc: "sum",
+            y: fpDetailDinerCount,
+            x: x,
+            type: "histogram",
+            name: "get_fp_detail"
+          }
+    ]
+    Plotly.newPlot( lambdaDinerCountGraph, plotConf, {
+    margin: { t: 0 } } );
+}
+
+function renderLambdaRunTimeGraph(){
+    let trace1 = {
+        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
+        y: [200, 310, 233, 323],
+        name: 'get_ue_list',
+        type: 'scatter'
+      };
+      
+    let trace2 = {
+        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
+        y: [2, 3, 2, 3],
+        name: 'get_fp_list',
+        type: 'scatter'
+        };
+    
+    let data = [trace1, trace2];
+    
+    Plotly.newPlot(lambdaRuntimeGraph, data, {margin: { t: 0 }});
+}
+
+function renderMDinerCountGraph(){
+    let x = ["2021-06-10 20:40:00", "2021-06-11 20:40:00"]
+    let mMatchedDinerCount = [500, 600]
+    let mTotalDinerCount = [3100, 2900]
+    let plotConf = [
+        {
+            histfunc: "sum",
+            y: mMatchedDinerCount,
+            x: x,
+            type: "bar",
+            name: "matched"
+          },
+          {
+            histfunc: "sum",
+            y: mTotalDinerCount,
+            x: x,
+            type: "bar",
+            name: "unmatched"
+          }
+    ]
+    Plotly.newPlot( mDinerCountGraph, plotConf, {
+    margin: { t: 0 }, barmode: 'stack' } );
+}
+
+function renderPDinerCountGraph(){
+    let x = ["2021-06-10 20:40:00", "2021-06-11 20:40:00"]
+    let pAPICount = [300, 200]
+    let pUFCount = [2700, 2902]
+    let pUNFCount = [200, 198]
+    let plotConf = [
+        {
+            histfunc: "sum",
+            y: pAPICount,
+            x: x,
+            type: "bar",
+            name: "matched"
+        },
+        {
+            histfunc: "sum",
+            y: pUFCount,
+            x: x,
+            type: "bar",
+            name: "unmatched"
+        },
+        {
+            histfunc: "sum",
+            y: pUNFCount,
+            x: x,
+            type: "bar",
+            name: "unmatched"
+        }
+    ]
+    Plotly.newPlot( pDinerCountGraph, plotConf, {
+    margin: { t: 0 }, barmode: 'stack' } );
+}
+
+function renderMPRunTimeGraph(){
+    let trace1 = {
+        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
+        y: [900, 810, 833, 873],
+        name: 'match',
+        type: 'scatter'
+      };
+      
+    let trace2 = {
+        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
+        y: [900, 200, 52, 43],
+        name: 'place',
+        type: 'scatter'
+        };
+    
+    let data = [trace1, trace2];
+    
+    Plotly.newPlot(mpRunTimeGraph, data, {margin: { t: 0 }});
+}
+
 initPost(dashboardApi, initData)
+renderLambdaDinerCountGraph()
+renderLambdaRunTimeGraph()
+renderMDinerCountGraph()
+renderPDinerCountGraph()
+renderMPRunTimeGraph()
 
 document.getElementById('select-dates').addEventListener('change', (e)=>{
     let startDate = startDateDom.value

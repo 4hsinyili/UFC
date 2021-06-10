@@ -22,33 +22,18 @@
                 <input id='end-date' type='date' class='col-4'>
             </div>
         </div>
-        <div id="states-lambda-graph" class="row">
-            <div id='states-graph' class="col-6"></div>
-            <div id='lambda-graph' class='col-6'></div>
+        <div name="lambda-graph" class="row">
+            <div id='lambda-line-graph' class="col"></div>
         </div>
-        <div id="match-place-graph" class="row">
-            <div id='match-graph' class="col-6"></div>
-            <div id='place-graph' class='col-6'></div>
+        <div name="lambda-graph" class="row">
+            <div id='lambda-hist-graph' class='col'></div>
         </div>
-        <div id="states-data" class="row">
-            <table class="table table-dark table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">紀錄時間</th>
-                        <th scope="col">執行次數</th>
-                        <th scope="col">成功</th>
-                        <th scope="col">失敗</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr data-number=0 name="states-row">
-                        <th name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td>1</td>
-                        <td>1</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div name="match-place-graph" class="row">
+            <div id='mp-line-graph' class="col"></div>
+        </div>
+        <div name="match-place-graph" class="row">
+            <div id='m-hist-graph' class="col-6"></div>
+            <div id='p-hist-graph' class="col-6"></div>
         </div>
         <div id="lambda-data" class="row">
             <table name="lambda-table" class="table">
