@@ -333,7 +333,17 @@ class GMCrawler():
             'triggered_by': 'place'
             })
 
+    def save_start_at(self):
+        db = self.db
+        triggered_at = self.matched_checker.get_triggered_at()
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'triggered_by': 'place_start',
+            })
+
     def main(self, db, api_key, limit=0):
+        self.save_start_at()
         db = self.db
         triggered_at_gm = self.generate_triggered_at()
         update_found_count = self.update_from_previous_found()

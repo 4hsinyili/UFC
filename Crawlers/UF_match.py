@@ -277,6 +277,15 @@ class Match():
             'triggered_by': 'match'
             })
 
+    def save_start_at(self):
+        db = self.db
+        triggered_at = self.triggered_at
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'triggered_by': 'match_start',
+            })
+
     def remove_old_records(self):
         db = self.db
         triggered_at = self.triggered_at
@@ -286,6 +295,7 @@ class Match():
         db.matched.delete_many({"triggered_at": {"$lt": last_week}})
 
     def main(self, data_range=0):
+        self.save_start_at()
         print('Start comparsion, using', self.triggered_at, "'s records.")
         start = time.time()
         ue_records, fp_records = self.get_records()
