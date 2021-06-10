@@ -288,9 +288,8 @@ class UEDinerListCrawler():
             'target': target,
             })
 
-    def save_start_at(self, target, db):
+    def save_start_at(self, target, db, batch_id):
         now = datetime.utcnow()
-        batch_id = now.timestamp()
         triggered_at = datetime.combine(now.date(), datetime.min.time())
         triggered_at = triggered_at.replace(hour=now.hour)
         trigger_log = 'trigger_log'
@@ -300,10 +299,10 @@ class UEDinerListCrawler():
             'batch_id': batch_id,
             'target': target
             })
-        return batch_id
 
     def main(self, target, db, info_collection):
-        batch_id = self.save_start_at(target, db)
+        batch_id = target['batch_id']
+        self.save_start_at(target, db, batch_id)
         start = time.time()
         selector, dict_response, error_log, triggered_at = self.send_location_to_UE(
             target)
