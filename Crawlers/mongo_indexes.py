@@ -16,7 +16,8 @@ if __name__ == '__main__':
         ('uuid_fp', ASCENDING),
         ('uuid_matched', ASCENDING),
         ('triggered_at_ue', ASCENDING),
-        ('triggered_at_fp', ASCENDING)
+        ('triggered_at_fp', ASCENDING),
+        ('triggered_at', ASCENDING)
         ])
     db['placed'].create_index([
         ('uuid_ue', ASCENDING),
@@ -26,6 +27,10 @@ if __name__ == '__main__':
         ('triggered_at_ue', ASCENDING),
         ('triggered_at_fp', ASCENDING),
         ('triggered_at_gm', ASCENDING)
+    ])
+    db['trigger_log'].create_index([
+        ('triggered_by', ASCENDING),
+        ('triggered_at', ASCENDING)
     ])
 
     print('success')
