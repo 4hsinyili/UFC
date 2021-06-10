@@ -102,6 +102,31 @@ class LambdaMetricInfo():
         return lambda_metrics
 
 
+class CustomMetric():
+    def __init__(self, cloudwatch):
+        self.cloudwatch = cloudwatch
+
+    def put_data(self):
+        cloudwatch = self.cloudwatch
+        response = cloudwatch.put_metric_data(
+            Namespace='Test',  # 要放到哪一個 Namespace ，最好是自創
+            MetricData=[
+                {
+                    'MetricName': 'AWS/Lambda',  # Namespace 自創的話，這個最好也自創
+                    'Dimensions': [
+                        {
+                            'Name': 'test_dimension_name',
+                            'Value': 'test_dimension_value'
+                        },
+                    ],
+                    'Timestamp': datetime.utcnow(),
+                    'Value': 10,
+                },
+            ]
+        )
+        print(response)
+
+
 if __name__ == '__main__':
     cloudwatch = boto3.client('cloudwatch')
 
