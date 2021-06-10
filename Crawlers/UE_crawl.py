@@ -209,16 +209,16 @@ class UEDinerListCrawler():
         error_log = {}
         responses = []
         for request in driver.requests:
-            if request.url == 'https://www.ubereats.com/api/getFeedV1?localeCode=tw':
-                data = json.loads(
-                    request.response.body)['data']
-                try:
+            try:
+                if request.url == 'https://www.ubereats.com/api/getFeedV1?localeCode=tw':
+                    data = json.loads(
+                        request.response.body)['data']
                     response = self.get_response_content(data)
                     if response:
                         responses.extend(response)
-                except Exception:
-                    error_log = {'error': 'parse selenium response wrong'}
-                    return False, error_log
+            except Exception:
+                error_log = {'error': 'parse selenium response wrong'}
+                return False, error_log
         responses = list(set(responses))
         dict_response = {i[0]: i[1] for i in responses}
         return dict_response, error_log
