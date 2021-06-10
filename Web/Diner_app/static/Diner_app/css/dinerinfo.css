@@ -180,6 +180,10 @@
     color: #E54190;
 }
 
+[data-source-css=gm]{
+    color: #0A58CA;
+}
+
 #menu_pk [name=item-price]{
     width: 80px;
     margin-inline-start: 0px;
