@@ -8,9 +8,8 @@ class StatesMetricInfo():
     def __init__(self, cloudwatch):
         self.cloudwatch = cloudwatch
 
-    def get_states_data(self, end_time):
+    def get_states_data(self, end_time, start_time):
         cloudwatch = self.cloudwatch
-        start_time = datetime.datetime.combine(end_time.date(), datetime.time.min)
         response = cloudwatch.get_metric_data(
             MetricDataQueries=[
                 {
@@ -26,7 +25,7 @@ class StatesMetricInfo():
                                 },
                             ]
                         },
-                        'Period': 600,
+                        'Period': 3600,
                         'Stat': 'Sum',
                     },
                 },
@@ -44,8 +43,8 @@ class StatesMetricInfo():
             data = {timestamps[i].strftime('%Y-%m-%d %H:%M:%S'): int(values[i]) for i in range(len(timestamps))}
         return data
 
-    def main(self, end_time):
-        step_function_metrics_raw = self.get_states_data(end_time)
+    def main(self, end_time, start_time):
+        step_function_metrics_raw = self.get_states_data(end_time, start_time)
         step_function_metrics = self.parse_states_data(step_function_metrics_raw)
         return step_function_metrics
 
@@ -56,9 +55,8 @@ class LambdaMetricInfo():
         self.metric_names = ['Duration']
         self.lambda_names = ['get_ue_list', 'get_fp_list', 'get_ue_detail', 'get_fp_detail']
 
-    def get_lambda_static(self, metric_name, lambda_name, end_time):
+    def get_lambda_static(self, metric_name, lambda_name, end_time, start_time):
         cloudwatch = self.cloudwatch
-        start_time = datetime.datetime.combine(end_time.date(), datetime.time.min)
         if metric_name == 'Duration':
             statics = ['Average']
         else:
@@ -72,7 +70,7 @@ class LambdaMetricInfo():
                     'Value': lambda_name
                 }
             ],
-            Period=300,
+            Period=3600,
             Statistics=statics,
             StartTime=start_time,
             EndTime=end_time,
@@ -94,11 +92,11 @@ class LambdaMetricInfo():
                 data.update(data_point)
         return data
 
-    def main(self, end_time):
+    def main(self, end_time, start_time):
         lambda_metrics = defaultdict(dict)
         for metric_name in self.metric_names:
             for lambda_name in self.lambda_names:
-                lambda_metric_raw = self.get_lambda_static(metric_name, lambda_name, end_time)
+                lambda_metric_raw = self.get_lambda_static(metric_name, lambda_name, end_time, start_time)
                 lambda_metric = self.parse_lambda_static(lambda_metric_raw, metric_name)
                 lambda_metrics[metric_name][lambda_name] = lambda_metric
         return lambda_metrics
