@@ -352,12 +352,14 @@ class MatchedChecker():
         db = self.db
         collection = self.collection
         triggered_at = self.get_triggered_at()
+        print(triggered_at)
         pipeline = [
-            {'$match': {
-                'triggered_at': triggered_at
-                }}, {
-                '$sort': {'uuid_ue': 1}
+            {
+                '$match': {
+                    'triggered_at': triggered_at,
+                    'uuid_gm': {'$exists': True},
                 }
+            }
         ]
         if limit > 0:
             pipeline.append({'$limit': limit})
@@ -371,8 +373,10 @@ if __name__ == '__main__':
     matcher = Match(db, collection)
     # matcher.remove_old_records()
     # print(matcher.triggered_at)
-    matcher.main(data_range)
+    # matcher.main(data_range)
     # checker = MatchedChecker(db, collection, 'match')
+    # cursor = checker.get_last_records()
+    # cursor.close()
     # print(checker.triggered_at)
     # records = checker.get_last_records(1)
     # for record in records:
