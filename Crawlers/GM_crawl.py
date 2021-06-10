@@ -117,7 +117,12 @@ class GMCrawler():
                 '$match': {
                     'not_found_gm': {
                                 "$exists": True
-                                }
+                                },
+                    'triggered_at': {
+                                    '$gte': last_week,
+                                    '$lt': triggered_at_gm,
+                                    "$exists": True
+                                    }
                         }
             },
             {
