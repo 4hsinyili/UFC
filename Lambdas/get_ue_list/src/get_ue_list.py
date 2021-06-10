@@ -308,7 +308,10 @@ class UEDinerListCrawler():
         selector, dict_response, error_log, triggered_at = self.send_location_to_UE(
             target)
         if (type(selector) != bool) and dict_response:
-            diner_divs = self.get_diner_divs(selector)
+            try:
+                diner_divs = self.get_diner_divs(selector)
+            except Exception:
+                return 0
             diners_info = []
             for diner_div in diner_divs:
                 diner_info = self.get_diner_info(diner_div, triggered_at)
