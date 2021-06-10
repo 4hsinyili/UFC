@@ -253,10 +253,10 @@ class MatchSearcher():
             '$project': {
                 '_id': 0,
                 'menu_ue': 0,
-                'menu_fp': 0
+                'menu_fp': 0,
             }
         }
-        conditions.append(project_stage)
+        pipeline.append(project_stage)
         facet_stage = {
             "$facet": {
                 "data": [
@@ -264,7 +264,7 @@ class MatchSearcher():
                     {"$limit": 6}
                 ],
                 "count": [
-                    {"$count": "triggered_at"}
+                    {"$count": "uuid_ue"}
                 ]
             }
         }
@@ -278,7 +278,7 @@ class MatchSearcher():
         raw = next(cursor)
         raw_diners = raw['data']
         raw_count = raw['count']
-        result_count = raw_count[0]['triggered_at']
+        result_count = raw_count[0]['uuid_ue']
         if user:
             favorites = Favorites.manager.get_favorites(user)
         else:
