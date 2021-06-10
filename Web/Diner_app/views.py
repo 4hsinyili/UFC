@@ -128,7 +128,7 @@ class DinerInfo(views.APIView):
                 diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, request.user)
             if (not diner) and (user_id == 0):
                 diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
-            else:
+            elif (not diner):
                 diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at, request.user)
             if not diner:
                 return Response({'data': '404'})
