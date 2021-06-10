@@ -35,7 +35,6 @@ docker-run:			## run `src.lambda_function.lambda_handler` with docker-compose
 	docker-compose run lambda src.lambda_function.lambda_handler
 
 build-lambda-package:		## prepares zip archive for AWS Lambda deploy (-> build/build.zip)
-	conda activate python36
 	mkdir build
 	cp -r src build/.
 	cp -r bin build/.
@@ -45,6 +44,5 @@ build-lambda-package:		## prepares zip archive for AWS Lambda deploy (-> build/b
 	cd ..
 	cp build/build.zip .
 	rm -rf build
-	conda activate base
 	
 ## scp -i appworks_school_hsin_yi.pem ec2-user@54.179.123.235:UFC/Lambdas/get_ue_list/build.zip Documents/GitHub/UFC/Lambdas/get_ue_list/
