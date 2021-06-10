@@ -320,7 +320,19 @@ class UEDinerListCrawler():
             'target': target
             })
 
+    def save_start_at(self, target, db):
+        now = datetime.utcnow()
+        triggered_at = datetime.combine(now.date(), datetime.min.time())
+        triggered_at = triggered_at.replace(hour=now.hour)
+        trigger_log = 'trigger_log'
+        db[trigger_log].insert_one({
+            'triggered_at': triggered_at,
+            'triggered_by': 'get_ue_list_start',
+            'target': target
+            })
+
     def main(self, target, db, info_collection):
+        self.save_start_at(target, db)
         start = time.time()
         selector, dict_response, error_log, triggered_at = self.send_location_to_UE(
             target)
