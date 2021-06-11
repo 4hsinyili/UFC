@@ -203,7 +203,7 @@ class FPDinerDetailCrawler():
         db = self.db
         pipeline = [
             {
-                '$match': {'triggered_by': 'get_ue_list'}
+                '$match': {'triggered_by': 'get_fp_list'}
             },
             {
                 '$sort': {'triggered_at': 1}
