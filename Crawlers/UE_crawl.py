@@ -457,7 +457,7 @@ class UEDinerDetailCrawler():
                 '$group': {
                     '_id': None,
                     'triggered_at': {'$last': '$triggered_at'},
-                    'batch_id': {'$last': '$records_count'}
+                    'batch_id': {'$last': '$batch_id'}
                     }
             }
         ]
