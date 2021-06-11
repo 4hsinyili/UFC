@@ -220,6 +220,7 @@ class FPDinerDetailCrawler():
         result = next(cursor)
         triggered_at = result['triggered_at']
         batch_id = result['batch_id']
+        cursor.close()
         return triggered_at, batch_id
 
     def get_diners_info(self, info_collection, offset=False, limit=False):

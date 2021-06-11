@@ -41,6 +41,7 @@ class UEDinerDetailCrawler():
         ]
         cursor = db[collection].aggregate(pipeline=pipeline)
         result = next(cursor)
+        cursor.close()
         triggered_at = result['triggered_at']
         batch_id = result['batch_id']
         return triggered_at, batch_id
