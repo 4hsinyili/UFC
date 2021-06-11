@@ -38,7 +38,7 @@ class GMCrawler():
         matched_checker = self.matched_checker
         triggered_at_gm = self.generate_triggered_at()
         last_week = triggered_at_gm - timedelta(weeks=1)
-        triggered_at = matched_checker.get_triggered_at()
+        triggered_at, batch_id = matched_checker.get_triggered_at()
         print('Update from ', triggered_at_gm, 'to ', last_week, "'s found records")
         print('Will update ', triggered_at, "'s records.")
         pipeline = [
@@ -108,7 +108,7 @@ class GMCrawler():
         matched_checker = self.matched_checker
         triggered_at_gm = self.generate_triggered_at()
         last_week = triggered_at_gm - timedelta(weeks=1)
-        triggered_at = matched_checker.get_triggered_at()
+        triggered_at, batch_id = matched_checker.get_triggered_at()
         print('Update from ', triggered_at_gm, 'to ', last_week, "'s not found records")
         print('Will update ', triggered_at, "'s records.")
         pipeline = [
@@ -177,7 +177,7 @@ class GMCrawler():
         db = self.db
         collection = self.collection
         matched_checker = self.matched_checker
-        triggered_at = matched_checker.get_triggered_at()
+        triggered_at, batch_id = matched_checker.get_triggered_at()
         pipeline = [
             {
                 '$match': {
@@ -339,9 +339,7 @@ class GMCrawler():
 
     def save_start_at(self):
         db = self.db
-        now = datetime.utcnow()
-        batch_id = now.timestamp()
-        triggered_at = self.matched_checker.get_triggered_at()
+        triggered_at, batch_id = self.matched_checker.get_triggered_at()
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,

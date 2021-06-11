@@ -330,7 +330,7 @@ class MatchedChecker():
         self.db = db
         self.collection = collection
         self.triggered_by = triggered_by
-        self.triggered_at = self.get_triggered_at()
+        self.triggered_at, self.batch_id = self.get_triggered_at()
 
     def get_triggered_at(self, collection='trigger_log'):
         db = self.db
@@ -344,14 +344,17 @@ class MatchedChecker():
             {
                 '$group': {
                     '_id': None,
-                    'triggered_at': {'$last': '$triggered_at'}
+                    'triggered_at': {'$last': '$triggered_at'},
+                    'batch_id': {'$last': '$batch_id'}
                     }
             }
         ]
         cursor = db[collection].aggregate(pipeline=pipeline)
         result = next(cursor)['triggered_at']
         cursor.close()
-        return result
+        triggered_at = result['triggered_at']
+        batch_id = result['batch_id']
+        return triggered_at, batch_id
 
     def get_last_records(self, limit=0):
         db = self.db
