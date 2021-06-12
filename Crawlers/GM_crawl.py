@@ -283,7 +283,7 @@ class GMCrawler():
                     'link_gm': 'https://www.google.com/maps/place/?q=place_id:' + place['place_id'],
                     'triggered_at_gm': triggered_at_gm
                 }
-                return diner
+                return diner, True
             except Exception:
                 diner = {
                     'title_gm': '',
@@ -293,7 +293,7 @@ class GMCrawler():
                     'link_gm': '',
                     'not_found_gm': True
                 }
-                return diner
+                return diner, False
         else:
             if 'error_message' in list(places.keys()):
                 print(target['title'], 'has failed, due to', places['error_message'])
@@ -307,7 +307,7 @@ class GMCrawler():
                 'link_gm': '',
                 'not_found_gm': True
             }
-            return diner
+            return diner, False
 
     def transfer_diners_to_records(self, diners):
         records = []
@@ -325,14 +325,15 @@ class GMCrawler():
     def save_to_matched(self, db, collection, records):
         db[collection].bulk_write(records)
 
-    def save_triggered_at(self, triggered_at, records_count, update_found_count, update_not_found_count, batch_id):
+    def save_triggered_at(self, triggered_at, update_found_count, update_not_found_count, api_found, api_not_found, batch_id):
         db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
-            'records_count': records_count,
             'update_found_count': update_found_count,
             'update_not_found_count': update_not_found_count,
+            'api_found': api_found,
+            'api_not_found': api_not_found,
             'batch_id': batch_id,
             'triggered_by': 'place'
             })
@@ -358,22 +359,27 @@ class GMCrawler():
         cursor = self.get_targets(limit)
         targets = self.parse_targets(cursor)
         diners = []
+        api_found = 0
+        api_not_found = 0
         for target in targets:
             url = self.get_url(target, api_key)
             places = self.find_places(url)
-            diner = self.parse_places(places, target, triggered_at_gm)
+            diner, found = self.parse_places(places, target, triggered_at_gm)
+            if found:
+                api_found += 1
+            else:
+                api_not_found += 1
             diner.update(target)
             for key in ['title', 'gps']:
                 del diner[key]
             diners.append(diner)
         records = self.transfer_diners_to_records(diners)
         try:
-            records_count = len(records)
             self.save_to_matched(db, 'matched', records)
-            self.save_triggered_at(triggered_at_gm, records_count, update_found_count, update_not_found_count, batch_id)
             print('Saved to db.')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
+        self.save_triggered_at(triggered_at_gm, update_found_count, update_not_found_count, api_found, api_not_found, batch_id)
         stop = time.time()
         print('Send ', len(diners), ' to place API and save to db took: ', stop - start, 's.')
 
