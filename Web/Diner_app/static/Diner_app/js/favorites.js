@@ -189,8 +189,9 @@ function renderDiner(diner){
         if (favorited == 0){activate = 1}
         let uuid_ue = e.target.getAttribute('data-uuid-ue')
         let uuid_fp = e.target.getAttribute('data-uuid-fp')
-        if (uuid_ue){changeFavorites(uuid_ue, 'ue', activate)}
-        if (uuid_fp){changeFavorites(uuid_fp, 'fp', activate)}
+        if (uuid_ue && uuid_fp){changeFavorites(uuid_ue, uuid_fp, activate)}
+        else if (uuid_fp){changeFavorites('', uuid_fp, activate)}
+        else if (uuid_ue){changeFavorites(uuid_ue, '', activate)}
         if (activate == 1){
             e.target.setAttribute('data-favorite', 1)
             e.target.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
@@ -230,13 +231,12 @@ function renderMore(data){
 
 
 
-function changeFavorites(diner_id, source, activate){
+function changeFavorites(uuid_ue, uuid_fp, activate){
     let data = {
-        'source': source,
+        'uuid_ue': uuid_ue,
+        'uuid_fp': uuid_fp,
         'activate': activate
     }
-    if (source == 'ue'){data.uuid_ue = diner_id}
-    else if(source == 'fp'){data.uuid_fp = diner_id}
     ajaxPost(favoritesAPI, data, console.log)
 }
 

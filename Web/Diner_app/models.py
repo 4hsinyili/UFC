@@ -26,28 +26,30 @@ class DashBoardModel():
 
 
 class FavoritesManager(models.Manager):
-    def update_favorite(self, user, uuid, activate):
+    def update_favorite(self, user, uuid_ue, uuid_fp, activate):
         favorite_sqlrecord = self.update_or_create(
             user=user,
-            uuid=uuid,
+            uuid_ue=uuid_ue,
+            uuid_fp=uuid_fp,
             defaults={'activate': activate})
         return favorite_sqlrecord
 
     def get_favorites(self, user, offset=0):
         if user.id is None:
             return False
-        favorite_records = self.filter(user=user, activate=1)
+        favorite_records = self.filter(user=user, activate=1).order_by('created_at')
         if favorite_records:
             favorites = []
             for i in favorite_records:
-                favorites.append(i.uuid)
-            return list(set(favorites))
+                favorites.append((i.uuid_ue, i.uuid_fp))
+            return favorites
         else:
             return False
 
 
 class Favorites(models.Model):
-    uuid = models.CharField(max_length=40, default=None, blank=True, null=True)
+    uuid_ue = models.CharField(max_length=40, default=None, blank=True, null=True)
+    uuid_fp = models.CharField(max_length=40, default=None, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     activate = models.BooleanField(default=False)
@@ -57,11 +59,7 @@ class Favorites(models.Model):
     manager = FavoritesManager()
 
     def __str__(self):
-        if len(self.uuid) > 8:
-            source = 'ue'
-        else:
-            source = 'fp'
-        return f'user: {self.user.email} likes {self.uuid} on {source} == {self.activate}'
+        return f'user: {self.user.email} likes {self.uuid_ue} ,{self.uuid_fp} == {self.activate}'
 
 
 class MatchChecker():
@@ -285,8 +283,10 @@ class MatchSearcher():
             favorites = False
         diners = []
         if favorites:
+            favorites_ue = [i[0] for i in favorites if i[0] != '']
+            favorites_fp = [i[1] for i in favorites if i[1] != '']
             for diner in raw_diners:
-                if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
+                if (diner['uuid_ue'] in favorites_ue) or (diner['uuid_fp'] in favorites_fp):
                     diner['favorite'] = True
                     diners.append(diner)
                 else:
@@ -351,25 +351,31 @@ class MatchDinerInfo():
         self.db = db
         self.collection = collection
 
-    def get_diner(self, diner_id, source, triggered_at, user=False):
+    def get_diner(self, uuid_ue, uuid_fp, user=False):
         db = self.db
         collection = self.collection
-        match_conditions = {
-            "$match": {
-                "triggered_at": triggered_at,
-                f"uuid_{source}": diner_id
-                }}
-        limit = {'$limit': 1}
-        conditions = [match_conditions, limit]
-        pipeline = [condition for condition in conditions if condition != {}]
-        print("====================================================")
-        print("now is using UEDinerInfo's get_diner function")
-        print("below is the pipeline")
-        pprint.pprint(pipeline)
-        start = time.time()
-        cursor = db[collection].aggregate(pipeline=pipeline)
-        stop = time.time()
-        print('mongodb query took: ', stop - start, 's.')
+        pipeline = [
+            {
+                "$match": {
+                    "uuid_ue": uuid_ue,
+                    "uuid_fp": uuid_fp
+                }
+            },
+            {
+                "$sort": {"triggered_at": -1}
+            },
+            {
+                '$limit': 1
+            }
+        ]
+        # print("====================================================")
+        # print("now is using UEDinerInfo's get_diner function")
+        # print("below is the pipeline")
+        # pprint.pprint(pipeline)
+        # start = time.time()
+        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        # stop = time.time()
+        # print('mongodb query took: ', stop - start, 's.')
         if user:
             favorites = Favorites.manager.get_favorites(user)
         else:

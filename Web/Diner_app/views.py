@@ -122,47 +122,24 @@ class DinerInfo(views.APIView):
         start = time.time()
         uuid_ue = self.request.query_params.get('uuid_ue', None)
         uuid_fp = self.request.query_params.get('uuid_fp', None)
-        triggered_at = match_checker.get_triggered_at()
         if request.user.is_authenticated:
             user_id = request.user.id
         else:
             user_id = 0
-        if uuid_ue and uuid_fp:
-            if user_id == 0:
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
-            else:
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, request.user)
-            if (not diner) and (user_id == 0):
-                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
-            elif (not diner):
-                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at, request.user)
-            if not diner:
-                return Response({'data': '404'})
-            results = MatchSerializer(diner, many=False).data
-            stop = time.time()
-            print('get DinerInfo took: ', stop - start, 's.')
-            return Response({'data': results})
-        elif uuid_ue:
-            if user_id == 0:
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at)
-            else:
-                diner = match_dinerinfo.get_diner(uuid_ue, 'ue', triggered_at, request.user)
-            if diner:
-                results = MatchSerializer(diner, many=False).data
-                stop = time.time()
-                print('get DinerInfo took: ', stop - start, 's.')
-                return Response({'data': results})
-        elif uuid_fp:
-            if user_id == 0:
-                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at)
-            else:
-                diner = match_dinerinfo.get_diner(uuid_fp, 'fp', triggered_at, request.user)
-            results = MatchSerializer(diner, many=False).data
-            stop = time.time()
-            print('get DinerInfo took: ', stop - start, 's.')
-            return Response({'data': results})
+        if uuid_ue is None:
+            uuid_ue = ''
+        if uuid_fp is None:
+            uuid_fp = ''
+        if user_id == 0:
+            diner = match_dinerinfo.get_diner(uuid_ue, uuid_fp)
         else:
-            return Response({'message': 'need diner_id'})
+            diner = match_dinerinfo.get_diner(uuid_ue, uuid_fp, request.user)
+        if not diner:
+            return Response({'data': '404'})
+        results = MatchSerializer(diner, many=False).data
+        # stop = time.time()
+        # print('get DinerInfo took: ', stop - start, 's.')
+        return Response({'data': results})
 
 
 class Filters(views.APIView):
@@ -187,15 +164,12 @@ class FavoritesAPI(views.APIView):
             pass
         else:
             return Response({'message': 'need login'})
-        source = request_data['source']
-        if source == 'ue':
-            uuid = request_data['uuid_ue']
-        if source == 'fp':
-            uuid = request_data['uuid_fp']
+        uuid_ue = request_data['uuid_ue']
+        uuid_fp = request_data['uuid_fp']
         activate = request_data['activate']
-        favorite_sqlrecord = Favorites.manager.update_favorite(request.user, uuid, activate)
-        print(favorite_sqlrecord)
-        return Response({'message': 'success'})
+        favorite_sqlrecord = Favorites.manager.update_favorite(request.user, uuid_ue, uuid_fp, activate)
+        # print(favorite_sqlrecord)
+        return Response({'message': 'update favorite success', 'result': str(favorite_sqlrecord)})
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
@@ -210,7 +184,6 @@ class FavoritesAPI(views.APIView):
                 'is_data': False
             })
         diners = []
-        triggered_at = match_checker.get_triggered_at()
         if offset + 6 < len(favorites):
             has_more = True
         else:
@@ -221,14 +194,10 @@ class FavoritesAPI(views.APIView):
             next_offset = 0
         or_conditions = []
         for favorite in favorites[offset: offset+6]:
-            if len(favorite) > 8:
-                uuid_ue = favorite
-                match = {"uuid_ue": uuid_ue}
-                or_conditions.append(match)
-            else:
-                uuid_fp = favorite
-                match = {"uuid_fp": uuid_fp}
-                or_conditions.append(match)
+            uuid_ue = favorite[0]
+            uuid_fp = favorite[1]
+            match = {"uuid_ue": uuid_ue, "uuid_fp": uuid_fp}
+            or_conditions.append(match)
         match_condition = [
             {
                 "$match": {
@@ -238,22 +207,55 @@ class FavoritesAPI(views.APIView):
                 "$match": {
                     "$or": or_conditions
                 }
+            },
+            {
+                "$sort": {"triggered_at": 1}
+            },
+            {
+                "$group": {
+                    "_id": {"uuid_ue": "$uuid_ue", "uuid_fp": "$uuid_fp"},
+                    "triggered_at": {"$last": "$triggered_at"},
+                    "data": {
+                        "$push": {
+                            "uuid_ue": "$uuid_ue",
+                            "uuid_fp": "$uuid_fp",
+                            "title_ue": "$title_ue",
+                            "title_fp": "$title_fp",
+                            "triggered_at": "$triggered_at",
+                            "image_ue": "$image_ue",
+                            "link_ue": "$link_ue",
+                            "rating_ue": "$rating_ue",
+                            "view_count_ue": "$view_count_ue",
+                            "image_fp": "$image_fp",
+                            "link_fp": "$link_fp",
+                            "rating_fp": "$rating_fp",
+                            "view_count_fp": "$view_count_fp",
+                            "uuid_gm": "$uuid_gm",
+                            "link_gm": "$link_gm",
+                            "rating_gm": "$rating_gm",
+                            "view_count_gm": "$view_count_gm"
+                        }
+                    }
+                }
             }
-            ]
+        ]
         diners = list(db['matched'].aggregate(match_condition))
         if len(diners) == 0:
             return Response({
                 'is_data': False
             })
-        for diner in diners:
+        results = []
+        for diner_dict in diners:
+            diner = diner_dict['data'][-1]
             diner['favorite'] = True
-        data = MatchSerializer(diners, many=True).data
+            results.append(diner)
+        data = MatchSerializer(results, many=True).data
         return Response({
             'is_data': True,
             'next_offset': next_offset,
             'has_more': has_more,
             'max_page': 1,
-            'data_count': len(diners),
+            'data_count': len(results),
             'data': data
             })
 
