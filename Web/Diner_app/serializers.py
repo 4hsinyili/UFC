@@ -102,18 +102,8 @@ class MatchSerializer(serializers.Serializer):
 
 class FilterSerializer(serializers.Serializer):
     """Your data serializer, define your fields here."""
-    rating_ue = serializers.ListField()
     tags_ue = serializers.ListField()
-    deliver_fee_ue = serializers.ListField()
-    deliver_time_ue = serializers.ListField()
-    budget_ue = serializers.ListField()
-    view_count_ue = serializers.ListField()
-    rating_fp = serializers.ListField()
     tags_fp = serializers.ListField()
-    deliver_fee_fp = serializers.ListField()
-    deliver_time_fp = serializers.ListField()
-    budget_fp = serializers.ListField()
-    view_count_fp = serializers.ListField()
 
 
 class DashBoardSerializer(serializers.Serializer):

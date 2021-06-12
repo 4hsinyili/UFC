@@ -169,17 +169,7 @@ class MatchFilters():
             {
                 '$group': {
                     '_id': None,
-                    'rating_ue': {'$addToSet': '$rating_ue'},
-                    'deliver_fee_ue': {'$addToSet': '$deliver_fee_ue'},
-                    'deliver_time_ue': {'$addToSet': '$deliver_time_ue'},
-                    'budget_ue': {'$addToSet': '$budget_ue'},
-                    'view_count_ue': {'$addToSet': {'$round': ['$view_count_ue', -2]}},
                     'tags_ue': {'$addToSet': '$tags_ue'},
-                    'rating_fp': {'$addToSet': '$rating_fp'},
-                    'deliver_fee_fp': {'$addToSet': '$deliver_fee_fp'},
-                    'deliver_time_fp': {'$addToSet': '$deliver_time_fp'},
-                    'budget_fp': {'$addToSet': '$budget_fp'},
-                    'view_count_fp': {'$addToSet': {'$round': ['$view_count_fp', -2]}},
                     'tags_fp': {'$addToSet': '$tags_fp'},
                     }
             }, {
@@ -189,9 +179,6 @@ class MatchFilters():
         cursor = db[collection].aggregate(pipeline=pipeline)
         filters = next(cursor)
         cursor.close()
-        need_sorts = ['rating_ue', 'deliver_time_ue', 'budget_ue', 'view_count_ue', 'rating_fp', 'deliver_time_fp', 'budget_fp', 'view_count_fp']
-        for need_sort in need_sorts:
-            filters[need_sort].sort()
         return filters
 
 
@@ -252,6 +239,10 @@ class MatchSearcher():
                 '_id': 0,
                 'menu_ue': 0,
                 'menu_fp': 0,
+                'item_pair_ue': 0,
+                'cheaper_ue': 0,
+                'item_pair_fp': 0,
+                'cheaper_fp': 0
             }
         }
         pipeline.append(project_stage)

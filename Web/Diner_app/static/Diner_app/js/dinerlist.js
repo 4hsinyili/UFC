@@ -328,31 +328,27 @@ function clearAllFilter(){
     }
 }
 
-function renderOptions(data, source){
-    let deliver_fee = data.data['deliver_fee_'.concat(source)]
-    let deliver_time = data.data['deliver_time_'.concat(source)]
-    let budget = data.data['budget_'.concat(source)]
-    let rating = data.data['rating_'.concat(source)]
-    let view_count = data.data['view_count_'.concat(source)]
-    let tags = data.data['tags_'.concat(source)]
+function renderOptions(data){
+    let tagsUe = data.data['tags_ue']
+    let tagsFp = data.data['tags_fp']
     let filterValue0 =  $('div[name="filter-value"][data-number="0"]')[0]
-    let deliver_fee_select = $(filterValue0).find(".deliver_fee_".concat(source))[0]
-    let deliver_time_select = $(filterValue0).find(".deliver_time_".concat(source))[0]
-    let budget_select = $(filterValue0).find(".budget_".concat(source))[0]
-    let rating_select = $(filterValue0).find(".rating_".concat(source))[0]
-    let view_count_select = $(filterValue0).find(".view_count_".concat(source))[0]
-    let tags_select = $(filterValue0).find(".tags_".concat(source))[0]
-    let datas = [deliver_fee, deliver_time, budget, rating, view_count, tags]
-    let selects = [deliver_fee_select, deliver_time_select, budget_select, rating_select, view_count_select, tags_select]
-    for (let i = 0; i < datas.length; i++){
-        for (let r = 0; r < datas[i].length; r++){
-            let option_value = datas[i][r]
-            let option = document.createElement('option')
-            option.value =  option_value
-            option.setAttribute('data-type', typeof option_value)
-            option.innerText = option_value
-            selects[i].appendChild(option)
-        }
+    let tagsSelectUe = $(filterValue0).find(".tags_ue")[0]
+    let tagsSelectFp = $(filterValue0).find(".tags_fp")[0]
+    for (let r = 0; r < tagsUe.length; r++){
+        let optionValueUe = tagsUe[r]
+        let optionUe = document.createElement('option')
+        optionUe.value =  optionValueUe
+        optionUe.setAttribute('data-type', typeof optionValueUe)
+        optionUe.innerText = optionValueUe
+        tagsSelectUe.appendChild(optionUe)
+    }
+    for (let i=0; i < tagsFp.length; i++){
+        let optionValueFp = tagsFp[i]
+        let optionFp = document.createElement('option')
+        optionFp.value =  optionValueFp
+        optionFp.setAttribute('data-type', typeof optionValueFp)
+        optionFp.innerText = optionValueFp
+        tagsSelectFp.appendChild(optionFp)
     }
 }
 
