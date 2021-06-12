@@ -1,6 +1,6 @@
-import pprint
+# import pprint
 import copy
-import time
+# import time
 from django.db import models
 from User_app.models import CustomUser
 from Crawlers.Trigger_log import TriggerLog
@@ -15,10 +15,9 @@ class DashBoardModel():
 
     def get_data(self, end_time, start_time):
         trigger_log = TriggerLog(self.db)
-        start = time.time()
+        # start = time.time()
         trigger_log_data = trigger_log.main(end_time, start_time)
-        stop_3 = time.time()
-        print('trigger_log:', stop_3 - start)
+        # stop = time.time()
         result = {
             'trigger_log_data': trigger_log_data,
         }
@@ -57,6 +56,12 @@ class Favorites(models.Model):
 
     objects = models.Manager()
     manager = FavoritesManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['created_at']),
+            models.Index(fields=['user'])
+            ]
 
     def __str__(self):
         return f'user: {self.user.email} likes {self.uuid_ue} ,{self.uuid_fp} == {self.activate}'
@@ -198,11 +203,11 @@ class MatchSearcher():
             }
         }
         pipeline.append(facet_stage)
-        print("====================================================")
-        print("now is using UESearcher's get_search_result function")
-        print("below is the pipeline")
-        pprint.pprint(pipeline)
-        start = time.time()
+        # print("====================================================")
+        # print("now is using UESearcher's get_search_result function")
+        # print("below is the pipeline")
+        # pprint.pprint(pipeline)
+        # start = time.time()
         cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         raw = next(cursor)
         raw_diners = raw['data']
@@ -228,8 +233,8 @@ class MatchSearcher():
                 diner['favorite'] = False
                 diners.append(diner)
         cursor.close()
-        stop = time.time()
-        print('mongodb query took: ', stop - start, 's.')
+        # stop = time.time()
+        # print('mongodb query took: ', stop - start, 's.')
         return diners, result_count
 
     def get_count(self, db, collection, pipeline):

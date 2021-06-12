@@ -12,7 +12,7 @@ from .serializers import MatchSerializer, FilterSerializer, DashBoardSerializer
 from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, DashBoardModel
 import env
 from pymongo import MongoClient
-import time
+# import time
 import pprint
 import boto3
 import datetime
@@ -37,7 +37,8 @@ class DashBoardView(views.APIView):
         end_date = datetime.datetime.strptime(request.data['end_date'], '%Y-%m-%d')
         start_date = datetime.datetime.strptime(request.data['start_date'], '%Y-%m-%d')
         end_time = datetime.datetime.combine(end_date, datetime.time.max)
-        start_time = datetime.datetime.combine(start_date, datetime.time.min)
+        # start_time = datetime.datetime.combine(start_date, datetime.time.min)
+        start_time = datetime.datetime.combine(start_date, datetime.time(12, 30, 0))
         result = model.get_data(end_time, start_time)
         data = DashBoardSerializer(result, many=False).data
         return Response({
@@ -50,13 +51,13 @@ class DinerSearch(views.APIView):
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
-        start = time.time()
+        # start = time.time()
         condition = request.data['condition']
         if request.user.is_authenticated:
             user_id = request.user.id
         else:
             user_id = 0
-        print('User id is: ', user_id)
+        # print('User id is: ', user_id)
         offset = request.data['offset']
         triggered_at = match_checker.get_triggered_at()
         if user_id > 0:
@@ -73,8 +74,8 @@ class DinerSearch(views.APIView):
             next_offset = 0
         diners = diners
         data = MatchSerializer(diners, many=True).data
-        stop = time.time()
-        print('post DinerSearch took: ', stop - start, 's.')
+        # stop = time.time()
+        # print('post DinerSearch took: ', stop - start, 's.')
         return Response({
             'next_offset': next_offset,
             'has_more': has_more,
@@ -89,7 +90,7 @@ class DinerShuffle(views.APIView):
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
-        start = time.time()
+        # start = time.time()
         if request.user.is_authenticated:
             user_id = request.user.id
         else:
@@ -103,8 +104,8 @@ class DinerShuffle(views.APIView):
         next_offset = 0
         diners = diners
         data = MatchSerializer(diners, many=True).data
-        stop = time.time()
-        print('post DinerSearch took: ', stop - start, 's.')
+        # stop = time.time()
+        # print('post DinerSearch took: ', stop - start, 's.')
         return Response({
             'next_offset': next_offset,
             'has_more': has_more,
@@ -119,7 +120,7 @@ class DinerInfo(views.APIView):
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
-        start = time.time()
+        # start = time.time()
         uuid_ue = self.request.query_params.get('uuid_ue', None)
         uuid_fp = self.request.query_params.get('uuid_fp', None)
         if request.user.is_authenticated:
@@ -146,12 +147,12 @@ class Filters(views.APIView):
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
-        start = time.time()
+        # start = time.time()
         triggered_at = match_checker.get_triggered_at()
         filters = match_filters.get_filters(triggered_at)
         data = FilterSerializer(filters, many=False).data
-        stop = time.time()
-        print('get Filters took: ', stop - start, 's.')
+        # stop = time.time()
+        # print('get Filters took: ', stop - start, 's.')
         return Response({'data': data})
 
 
