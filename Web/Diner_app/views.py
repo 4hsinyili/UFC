@@ -201,10 +201,6 @@ class FavoritesAPI(views.APIView):
         match_condition = [
             {
                 "$match": {
-                    "triggered_at": triggered_at
-                }
-            }, {
-                "$match": {
                     "$or": or_conditions
                 }
             },
