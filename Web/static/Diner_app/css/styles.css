@@ -13,9 +13,21 @@ html {
     width: 24px;
 }
 
-/* .nav-item{
-    min-width: 65px;
-} */
+.button-smaller{
+    height: 22px;
+}
+
+.button-wider{
+    height: 24px;
+}
+
+.page-title{
+    margin: 1rem;
+}
+
+[data-hover=yes]{
+    cursor: pointer;
+}
 
 [name=nav-link-no-padding]{
     padding-left: 0 !important;
@@ -49,4 +61,16 @@ html {
 
 [data-fix-content]{
     width: fit-content !important;
+}
+
+[data-source-css=ue]{
+    color: #00a32c !important;
+}
+
+[data-source-css=fp]{
+    color: #b11b64 !important;
+}
+
+[data-source-css=gm]{
+    color: #0A58CA !important;
 }

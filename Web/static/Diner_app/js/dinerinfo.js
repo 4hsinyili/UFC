@@ -321,6 +321,13 @@ function toggleItems(subsectionTitleDom){
     $(itemsDom).toggle()
 }
 
+function removeUEFPMenu(){
+    document.getElementById('menu_ue').remove()
+    document.getElementById('menu_fp').remove()
+    document.getElementById('divider_ue').remove()
+    document.getElementById('divider_fp').remove()
+}
+
 showLoading()
 ajaxGet(dinerInfoAPI, function(response){
     console.log(response)
@@ -344,8 +351,10 @@ ajaxGet(dinerInfoAPI, function(response){
     if (!(uuidUE) | !(uuidFP)){
         removePk()
     }
+    if ((uuidUE) && (uuidFP)){
+        removeUEFPMenu()
+    }
     if (uuidGM){
-        console.log('aab')
         renderGMInfo(response)
     } else {
         removeGM()
@@ -381,14 +390,14 @@ document.addEventListener('click', (e)=>{
             {
             title: 'Uber Eats 優勢品項',
             html: cheaperDomUE,
-            customClass: 'justify-content-center cheaper-text'
+            customClass: 'justify-content-center'
         })
     } else if (e.target.getAttribute('id') == 'cheaper-item_fp'){
         let cheaperDomFP = document.getElementById('cheaper_fp').cloneNode(true)
         Swal.fire({
             title: 'Food Panda 優勢品項',
             html: cheaperDomFP,
-            customClass: 'justify-content-center cheaper-text'
+            customClass: 'justify-content-center'
         })
     }
 })

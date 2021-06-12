@@ -45,73 +45,16 @@ let showMoreDom = $('div[id="show-more"]')[0]
 
 let searchBox = $('#search-box')[0]
 let searchButton = $('[data-trigger="search-button"]')[0]
+let clearSearch = $('[data-trigger="clear-search"]')[0]
 let shuffleButton = $('[data-trigger="shuffle"]')[0]
 let toggleFiltersDom = $('[data-trigger="toggle-filters"]')[0]
-let toggleSortersDom = $('[data-trigger="toggle-sorters"]')[0]
 
 let collectDom = $('[name="collect"]')[0]
+let divederRow = document.querySelector('[name="divider-row"]')
 
 // Define functions
 
-function showLoading(){
-    Swal.fire({
-        title: "",
-        text: "Loading...",
-        didOpen: ()=>{
-            Swal.showLoading()
-        }
-    });
-}
-
-function endLoading() {
-    Swal.close()
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 const csrftoken = getCookie('csrftoken');
-
-function ajaxGet(src, callback){
-    let initialUrl = src;
-    let initaialXhr = new XMLHttpRequest();
-    initaialXhr.open('GET', initialUrl, true);
-    initaialXhr.onload = function() {
-    if (initaialXhr.status >= 200 && initaialXhr.status < 400) {
-        let data = JSON.parse(initaialXhr.responseText);
-        callback(data)
-    }
-    };
-    initaialXhr.send();
-} 
-
-function ajaxPost(src, params, callback){
-    let initialUrl = src;
-    let initaialXhr = new XMLHttpRequest();
-    initaialXhr.open('POST', initialUrl, true);
-    initaialXhr.setRequestHeader('Content-type', 'application/json')
-    initaialXhr.setRequestHeader('X-CSRFToken', csrftoken)
-    initaialXhr.setRequestHeader('Accept', '*/*')
-    initaialXhr.send(JSON.stringify(params))
-    initaialXhr.onload = function() {
-    if (initaialXhr.status >= 200 && initaialXhr.status < 400) {
-        let data = JSON.parse(initaialXhr.responseText);
-        callback(data)
-    }
-    };
-} 
 
 function clearDIners(){
     diners.innerHTML = dinersHtml
@@ -167,6 +110,14 @@ function renderDiner(diner){
     let diner_info_ue = false
     let diner_info_fp = false
     let diner_favorite = diner['favorite']
+    let titleUe = dinerNode.querySelector('.title_ue')
+    let titleFp = dinerNode.querySelector('.title_fp')
+    let imageNodeFp = dinerNode.querySelector('.image_fp')
+    let imageNodeUe = dinerNode.querySelector('.image_ue')
+    
+    imageNodeFp.setAttribute('src', '')
+    imageNodeUe.setAttribute('src', '')
+    
     if (diner_uuid_ue != ''){
         diner_info_ue = {
             "title_ue": diner['title_ue'],
@@ -177,11 +128,14 @@ function renderDiner(diner){
             "link_ue": diner["link_ue"],
             "redirect_url": redirectUrl
         }
+        renderDinerInfo(diner_info_ue, dinerNode, 'ue')
         collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)
         if (diner_favorite){ 
             collectNode.setAttribute('data-favorite', 1)
             collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
+    } else{
+        removeInfo(dinerNode, 'ue')
     }
     if (diner_uuid_fp != ''){
         diner_info_fp = {
@@ -193,11 +147,14 @@ function renderDiner(diner){
             "link_fp": diner["link_fp"],
             "redirect_url": redirectUrl
         }
+        renderDinerInfo(diner_info_fp, dinerNode, 'fp')
         collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)
         if (diner_favorite){
             collectNode.setAttribute('data-favorite', 1)
             collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
+    } else{
+        removeInfo(dinerNode, 'fp')
     }
     if (diner_uuid_gm){
         diner_info_gm = {
@@ -206,31 +163,31 @@ function renderDiner(diner){
             "link_gm": diner["link_gm"]
         }
         renderGM(diner_info_gm, dinerNode, 'gm')
+    } else{
+        removeInfo(dinerNode, 'gm')
     }
-    if (!diner_uuid_ue){removeInfo(dinerNode, 'ue')}
-    if (!diner_uuid_fp){removeInfo(dinerNode, 'fp')}
-    if (!diner_uuid_gm){removeInfo(dinerNode, 'gm')}
-    let imageNodeFp = dinerNode.querySelector('.image_fp')
-    let imageNodeUe = dinerNode.querySelector('.image_ue')
-    imageNodeFp.setAttribute('src', '')
-    imageNodeUe.setAttribute('src', '')
-    if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
-    else {}
-    if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
     if (diner_favorite){collectNode.setAttribute('data-favorite', 1)}
+    else {collectNode.setAttribute('data-favorite', 0)}
+
     if ((imageNodeUe.getAttribute('src')) && (imageNodeFp.getAttribute('src'))){
         imageNodeFp.remove()
-    } else if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()
-    } else if (imageNodeUe.getAttribute('src') == ""){imageNodeUe.remove()}
-    else {collectNode.setAttribute('data-favorite', 0)}
+        titleFp.remove()
+    } else if (imageNodeFp.getAttribute('src') == ""){
+        imageNodeFp.remove()
+        titleFp.remove()
+    } else if (imageNodeUe.getAttribute('src') == ""){
+        imageNodeUe.remove()
+        titleUe.remove()
+    }
     collectNode.addEventListener('click', (e)=>{
         let favorited = parseInt(e.target.getAttribute('data-favorite'))
         let activate = 0
         if (favorited == 0){activate = 1}
         let uuid_ue = e.target.getAttribute('data-uuid-ue')
         let uuid_fp = e.target.getAttribute('data-uuid-fp')
-        if (uuid_ue){changeFavorites(uuid_ue, 'ue', activate)}
-        if (uuid_fp){changeFavorites(uuid_fp, 'fp', activate)}
+        if (uuid_ue && uuid_fp){changeFavorites(uuid_ue, uuid_fp, activate)}
+        else if (uuid_fp){changeFavorites('', uuid_fp, activate)}
+        else if (uuid_ue){changeFavorites(uuid_ue, '', activate)}
         if (activate == 1){
             e.target.setAttribute('data-favorite', 1)
             e.target.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
@@ -247,8 +204,11 @@ function renderList(data){
     let results = data.data
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
+        let newDividerRow = divederRow.cloneNode(true)
         diner = renderDiner(diner)
         diners.appendChild(diner)
+        diners.appendChild(newDividerRow)
+        $(newDividerRow).show()
         $(diner).show()
     }
     console.log(data)
@@ -262,9 +222,6 @@ function renderList(data){
 
 function renderMore(data){
     renderList(data)
-    console.log(document.body.scrollHeight)
-    console.log(window.innerHeight)
-    console.log((document.body.scrollHeight - window.innerHeight))
     window.scrollTo(0,(document.body.scrollHeight - window.innerHeight));
 }
 
@@ -327,31 +284,27 @@ function clearAllFilter(){
     }
 }
 
-function renderOptions(data, source){
-    let deliver_fee = data.data['deliver_fee_'.concat(source)]
-    let deliver_time = data.data['deliver_time_'.concat(source)]
-    let budget = data.data['budget_'.concat(source)]
-    let rating = data.data['rating_'.concat(source)]
-    let view_count = data.data['view_count_'.concat(source)]
-    let tags = data.data['tags_'.concat(source)]
+function renderOptions(data){
+    let tagsUe = data.data['tags_ue']
+    let tagsFp = data.data['tags_fp']
     let filterValue0 =  $('div[name="filter-value"][data-number="0"]')[0]
-    let deliver_fee_select = $(filterValue0).find(".deliver_fee_".concat(source))[0]
-    let deliver_time_select = $(filterValue0).find(".deliver_time_".concat(source))[0]
-    let budget_select = $(filterValue0).find(".budget_".concat(source))[0]
-    let rating_select = $(filterValue0).find(".rating_".concat(source))[0]
-    let view_count_select = $(filterValue0).find(".view_count_".concat(source))[0]
-    let tags_select = $(filterValue0).find(".tags_".concat(source))[0]
-    let datas = [deliver_fee, deliver_time, budget, rating, view_count, tags]
-    let selects = [deliver_fee_select, deliver_time_select, budget_select, rating_select, view_count_select, tags_select]
-    for (let i = 0; i < datas.length; i++){
-        for (let r = 0; r < datas[i].length; r++){
-            let option_value = datas[i][r]
-            let option = document.createElement('option')
-            option.value =  option_value
-            option.setAttribute('data-type', typeof option_value)
-            option.innerText = option_value
-            selects[i].appendChild(option)
-        }
+    let tagsSelectUe = $(filterValue0).find(".tags_ue")[0]
+    let tagsSelectFp = $(filterValue0).find(".tags_fp")[0]
+    for (let r = 0; r < tagsUe.length; r++){
+        let optionValueUe = tagsUe[r]
+        let optionUe = document.createElement('option')
+        optionUe.value =  optionValueUe
+        optionUe.setAttribute('data-type', typeof optionValueUe)
+        optionUe.innerText = optionValueUe
+        tagsSelectUe.appendChild(optionUe)
+    }
+    for (let i=0; i < tagsFp.length; i++){
+        let optionValueFp = tagsFp[i]
+        let optionFp = document.createElement('option')
+        optionFp.value =  optionValueFp
+        optionFp.setAttribute('data-type', typeof optionValueFp)
+        optionFp.innerText = optionValueFp
+        tagsSelectFp.appendChild(optionFp)
     }
 }
 
@@ -360,18 +313,18 @@ function renderFilter(dataNumber){
     let eachFilterType =  $(`select[name="filter-type"][data-number=${dataNumber}]`)
     let eachFilterOperator = $(`select[name="filter-operator"][data-number=${dataNumber}]`)
     let eachFilterValue =  $(`select[name="filter-value"][data-number=${dataNumber}]`)
-    for(let r=0; r<eachFilterType.length; r++){
-        $(eachFilterType[r]).hide();
-    }
+    
+    $(eachFilterType).hide()
     $(eachFilterType[0]).show().prop('disabled', 'disabled')
-    for(let r=0; r<eachFilterOperator.length; r++){
-        $(eachFilterOperator[r]).hide();
-    }
+    
+    $(eachFilterOperator).hide();
     $(eachFilterOperator[0]).show().prop('disabled', 'disabled')
-    for(let r=0; r<eachFilterValue.length; r++){
-        $(eachFilterValue[r]).hide();
-    }
+    
+    $(eachFilterValue).hide()
     $(eachFilterValue[0]).show().prop('disabled', 'disabled')
+
+    if (eachFilterSource.val() =='ue'){eachFilterSource.attr('data-source-css', 'ue')}
+    else if (eachFilterSource.val() =='fp'){eachFilterSource.attr('data-source-css', 'fp')}
 
     let chosedFilterType = $(`select[name*="filter-type"][data-number=${dataNumber}][class*="${eachFilterSource.val()}"]`)
     if (chosedFilterType.length == 1){
@@ -483,13 +436,11 @@ function renderSorter(dataNumber){
     let eachSorterSource = $(`select[name="sorter-source"][data-number=${dataNumber}]`)
     let eachSorterType =  $(`select[name="sorter-type"][data-number=${dataNumber}]`)
     let eachSorterOperator = $(`select[name="sorter-operator"][data-number=${dataNumber}]`)
-    for(let r=0; r<eachSorterType.length; r++){
-        $(eachSorterType[r]).hide();
-    }
+    
+    $(eachSorterType).hide()
     $(eachSorterType[0]).show().prop('disabled', 'disabled')
-    for(let r=0; r<eachSorterOperator.length; r++){
-        $(eachSorterOperator[r]).hide();
-    }
+    
+    $(eachSorterOperator).hide()
     $(eachSorterOperator[0]).show().prop('disabled', 'disabled')
 
     let chosedSorterType = $(`select[name*="sorter-type"][data-number=${dataNumber}][class*="${eachSorterSource.val()}"]`)
@@ -677,13 +628,12 @@ function shuffle(){
     })
 }
 
-function changeFavorites(diner_id, source, activate){
+function changeFavorites(uuid_ue, uuid_fp, activate){
     let data = {
-        'source': source,
+        'uuid_ue': uuid_ue,
+        'uuid_fp': uuid_fp,
         'activate': activate
     }
-    if (source == 'ue'){data.uuid_ue = diner_id}
-    else if(source == 'fp'){data.uuid_fp = diner_id}
     ajaxPost(favoritesAPI, data, console.log)
 }
 
@@ -692,8 +642,7 @@ showLoading()
 
 ajaxGet(filtersAPI, function(response){
     renderFilters();
-    renderOptions(response, 'ue');
-    renderOptions(response, 'fp');
+    renderOptions(response);
     bringConditionBack()
 })
 
@@ -714,10 +663,6 @@ sorters.addEventListener('change', (e)=>{
 })
 
 $(toggleFiltersDom).click(function(){
-    $(fsSection).toggle()
-})
-
-$(toggleSortersDom).click(function(){
     $(fsSection).toggle()
 })
 
@@ -778,3 +723,7 @@ $(showMoreDom).click(function(){
     search(offset, true)
 })
 
+
+clearSearch.click(function(){
+    searchBox.val() = ''
+})

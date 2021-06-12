@@ -1,0 +1,36 @@
+[data-show=no]{
+    display: none;
+}
+
+.text-align-center{
+    height: 2rem;
+    text-align: center;
+    line-height: 2rem;
+}
+
+[name=divider]{
+    width: 120px;
+    height: 8px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 0 !important;
+}
+
+[name=divider-container]{
+    padding: 0 !important;
+}
+
+[name=error-svg]{
+    height: 240px;
+    width: auto;
+}
+
+[name=error]{
+    height: fit-content;
+    min-width: 600px;
+}
+
+[name=graph]{
+    height: 400px;
+    min-width: 600px;
+}

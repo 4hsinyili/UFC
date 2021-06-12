@@ -80,14 +80,6 @@
     color: #E54190;
 }
 
-
-.line{
-    height: 1px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    background-color: #E5E5E5;
-}
-
 .line{
     height: 1px;
     margin-top: 5px;
@@ -136,22 +128,22 @@
 }
 
 [name=sections_ue]{
-    max-height: 600px;
+    max-height: 800px;
     overflow: scroll;
 }
 
 [name=sections_pk_ue]{
-    max-height: 400px;
+    max-height: 800px;
     overflow: scroll;
 }
 
 [name=sections_fp]{
-    max-height: 600px;
+    max-height: 800px;
     overflow: scroll;
 }
 
 [name=sections_pk_fp]{
-    max-height: 400px;
+    max-height: 800px;
     overflow: scroll;
 }
 
@@ -178,14 +170,6 @@
     margin-left: auto;
     margin-right: auto;
     border-top: 1px solid #E5E5E5;
-}
-
-[data-source-css=ue]{
-    color: #14BC41;
-}
-
-[data-source-css=fp]{
-    color: #E54190;
 }
 
 #menu_pk [name=item-price]{
