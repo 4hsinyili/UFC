@@ -172,18 +172,6 @@
     border-top: 1px solid #E5E5E5;
 }
 
-[data-source-css=ue]{
-    color: #14BC41;
-}
-
-[data-source-css=fp]{
-    color: #E54190;
-}
-
-[data-source-css=gm]{
-    color: #0A58CA;
-}
-
 #menu_pk [name=item-price]{
     width: 80px;
     margin-inline-start: 0px;
