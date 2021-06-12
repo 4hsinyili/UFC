@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'User_app',
     'crispy_forms',
     "crispy_bootstrap5"
+    'Helper_app',
 ]
 
 REST_FRAMEWORK = {
