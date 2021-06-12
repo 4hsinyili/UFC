@@ -548,7 +548,7 @@ class FPChecker():
 if __name__ == '__main__':
     running = {'list': False, 'detail': True, 'check': True}
     data_ranges = {'list': 0, 'detail': 10, 'check': 10}
-    check_collection = 'fp_list'
+    check_collection = 'fp_detail'
     check_triggered_by = 'get_' + check_collection
 
     if running['list']:
