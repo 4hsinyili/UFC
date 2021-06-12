@@ -16,24 +16,86 @@
     <div class="container">
         <div id="select-dates" class="row">
             <div class='date row justify-content-center'>
-                <label class='col-2'>Start Date</label>
-                <input id='start-date' type='date' class='col-4'>
-                <label class='col-2'>End Date</label>
-                <input id='end-date' type='date' class='col-4'>
+                <label class='col-xl-2 col-4'>起始日期</label>
+                <input id='start-date' type='date' min="2021-06-12" class='col-xl-4 col-8'>
+                <label class='col-xl-2 col-4'>結束日期</label>
+                <input id='end-date' type='date' class='col-xl-4 col-8'>
             </div>
         </div>
-        <div name="lambda-graph" class="row">
-            <div id='lambda-line-graph' class="col"></div>
+        <div name="divider-container" class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
         </div>
         <div name="lambda-graph" class="row">
-            <div id='lambda-hist-graph' class='col'></div>
+            <div id='ue-lambda-bar-graph' name="graph" class='col-xl-6 col-12' data-show="yes"></div>
+            <div id='ue-lambda-bar-404' name="error" class='col-xl-6 col-12 text-align-center' data-show="no" data-error-svg-container>
+                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+            </div>
+            <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
+                <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+            </div>
+            <div id='fp-lambda-bar-graph' name="graph" class='col-xl-6 col-12' data-show="yes"></div>
+            <div id='fp-lambda-bar-404' name="error" class='col-xl-6 col-12 text-align-center' data-show="no" data-error-svg-container>
+                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+            </div>
+        </div>
+        <div name="divider-container" class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+        </div>
+        <div name="lambda-graph" class="row">
+            <div id='ue-lambda-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
+            <div id='ue-lambda-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
+                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+            </div>
+            <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
+                <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+            </div>
+            <div id='fp-lambda-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
+            <div id='fp-lambda-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
+                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+            </div>
+        </div>
+        <div name="divider-container" class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
         </div>
         <div name="match-place-graph" class="row">
-            <div id='mp-line-graph' class="col"></div>
+            <div id='match-bar-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
+            <div id='match-bar-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
+                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+            </div>
+            <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
+                <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+            </div>
+            <div id='place-bar-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
+            <div id='place-bar-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Google Map 資料查詢異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col">
+                        <p>嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中，稍後再來吧～</p>
+                        <p>資料生成時間為 每天早上 10:30 - 11:10 (GMT + 8)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div name="divider-container" class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
         </div>
         <div name="match-place-graph" class="row">
-            <div id='m-hist-graph' class="col-6"></div>
-            <div id='p-hist-graph' class="col-6"></div>
+            <div id='match-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
+            <div id='match-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
+                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+            </div>
+            <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
+                <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+            </div>
+            <div id='place-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
+            <div id='place-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
+                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+            </div>
         </div>
         <div id="lambda-data" class="row">
             <table name="lambda-table" class="table">

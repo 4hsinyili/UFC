@@ -1,18 +1,25 @@
-let today = new Date();
-let dd = String(today.getDate()).padStart(2, '0');
-let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-let yyyy = today.getFullYear();
+let today = moment();
 let startDateDom = document.querySelector('#start-date')
 let endDateDom = document.querySelector('#end-date')
-let dateFormvalue = `${yyyy}-${mm}-${dd}`
-startDateDom.value = dateFormvalue
-endDateDom.value = dateFormvalue
-let initData = {"start_date": dateFormvalue, "end_date": dateFormvalue}
+let todayDate = today.format('YYYY-MM-DD')
+let utcOffset = moment().utcOffset()
+let utcNow = moment().utcOffset(-(utcOffset))
+let todayStartRefresh = moment().set({'hour': 2 + (utcOffset /60), 'minutes': 30, 'second': 0}).utcOffset(-(utcOffset))
+let todayEndRefresh = moment().set({'hour': 3 + (utcOffset /60), 'minutes': 10, 'second': 0}).utcOffset(-(utcOffset))
 
-let lambdaDinerCountGraph = document.getElementById('lambda-hist-graph');
+startDateDom.value = todayDate
+endDateDom.value = todayDate
+startDateDom.min = '2021-06-12'
+startDateDom.max = todayDate
+endDateDom.min = '2021-06-12'
+endDateDom.max = todayDate
+let initData = {"start_date": todayDate, "end_date": todayDate}
+
+let ueLambdaDinerCountGraph = document.getElementById('ue-lambda-bar-graph');
+let fpLambdaDinerCountGraph = document.getElementById('fp-lambda-bar-graph');
 let lambdaRuntimeGraph = document.getElementById('lambda-line-graph');
-let mDinerCountGraph = document.getElementById('m-hist-graph');
-let pDinerCountGraph = document.getElementById('p-hist-graph');
+let mDinerCountGraph = document.getElementById('m-bar-graph');
+let pDinerCountGraph = document.getElementById('p-bar-graph');
 let mpRunTimeGraph = document.getElementById('mp-line-graph');
 let dashboardApi = 'api/v1/dashboard';
 
@@ -25,31 +32,161 @@ function initPost(dashboardApi, data){
     })
 }
 
-function renderDashBoard(response){
-    let data = response.data.trigger_log_data
-    let ueListStartData = data.get_ue_list_start
-    let ueListData = data.get_ue_list
-    ueListInfo = renderList(ueListStartData, ueListData, 'ue-list')
-    
-    let ueDetailData = data.get_ue_detail
-    ueDetailInfo = renderDetail(ueListInfo, ueDetailData, 'ue-detail')
-    
-    let fpListStartData = data.get_fp_list_start
-    let fpListData = data.get_fp_list
-    fpListInfo = renderList(fpListStartData, fpListData, 'fp-list')
-    
-    let fpDetailData = data.get_fp_detail
-    fpDetailInfo = renderDetail(fpListInfo, fpDetailData, 'fp-detail')
-    
-    // let matchStartData = data.match_start
-    // let matchData = data.match
-    // matchInfo = renderMatch(matchStartData, matchData, 'match')
-    
-    // let placeStartData = data.place_start
-    // let placeData = data.place
-    // placeInfo = renderPlace(placeStartData, placeData, 'place')
+function setIntervalAndExecute(fn, t){
+    fn();
+    return(setInterval(fn, t))
 }
 
+function autoUpadte(){
+    let startDate = startDateDom.value
+    let endDate = endDateDom.value
+    let data = {'start_date': startDate, 'end_date': endDate}
+    ajaxPost(dashboardApi, data, function(response){
+        console.log(response)
+        resetTable()
+        renderDashBoard(response)
+    })
+}
+
+function renderDashBoard(response){
+    let data = response.data.trigger_log_data
+    try{
+        let ueListStartData = data.get_ue_list_start
+        let ueListData = data.get_ue_list
+        let ueDetailData = data.get_ue_detail
+        dispatchLambdaData(ueListStartData, ueListData, ueDetailData, 'ue')
+    } catch(error){
+        graphError('ue-lambda-bar')
+        graphError('ue-lambda-line')
+    }
+
+    try{
+        let fpListStartData = data.get_fp_list_start
+        let fpListData = data.get_fp_list
+        let fpDetailData = data.get_fp_detail
+        dispatchLambdaData(fpListStartData, fpListData, fpDetailData, 'fp')
+    } catch(error){
+        graphError('fp-lambda-bar')
+        graphError('fp-lambda-line')
+    }
+    
+    try{
+        let matchStartData = data.match_start
+        let matchData = data.match
+        dispatchMatchData(matchStartData, matchData, 'match')
+    } catch(error){
+        graphError('match-bar')
+        graphError('match-line')
+    }
+
+    try{
+        let placeStartData = data.place_start
+        let placeData = data.place
+        dispatchPlaceData(placeStartData, placeData, 'place')
+    } catch(error){
+        graphError('place-bar')
+        graphError('place-line')
+    }
+}
+
+function dispatchLambdaData(listStartData, listData, detailData, source){
+    let batchIds = Object.keys(listStartData)
+    batchIds = batchIds.sort()
+    listBarInfo = new Array()
+    detailBarInfo = new Array()
+    listLineInfo = new Array()
+    detailLineInfo = new Array()
+    graphXArray = new Array()
+    for (let i=0; i<batchIds.length; i ++){
+        let batchId = batchIds[i]
+        let startData = listStartData[batchId]
+        let runData = false
+        try {
+            runData = listData[batchId]
+        } catch (error) {
+        }
+        let detailSlice = detailData[batchId]
+        listInfo = renderList(startData, runData, source.concat('-list'))
+        if (listInfo){
+            detailInfo = renderDetail(listInfo, detailSlice, source.concat('-detail'))
+            if (detailInfo){
+                let graphX = batchId
+                graphX = moment.unix(graphX).toDate()
+                graphXArray.push(graphX)
+                listBarInfo.push(listInfo.diner_count)
+                detailBarInfo.push(detailInfo.diner_count)
+                listLineInfo.push(listInfo.run_time)
+                detailLineInfo.push(detailInfo.run_time)
+            }
+        }   
+    }
+    if (graphXArray.length > 0){
+        renderLambdaDinerCountGraph([graphXArray, listBarInfo, detailBarInfo], source)
+        renderLambdaRunTimeGraph([graphXArray, listLineInfo, detailLineInfo], source)
+    }
+}
+
+function dispatchMatchData(matchStartData, matchData, source){
+    let batchIds = Object.keys(matchStartData)
+    batchIds = batchIds.sort()
+    barInfoDC = new Array()
+    barInfoMC = new Array()
+    lineInfo = new Array()
+    graphXArray = new Array()
+    for (let i=0; i<batchIds.length; i ++){
+        let batchId = batchIds[i]
+        let startData = matchStartData[batchId]
+        let runData = false
+        try {
+            runData = matchData[batchId]
+        } catch (error) {
+        }
+        info = renderMatch(startData, runData, source)
+        if (info){
+            graphXArray.push(info.x.toDate())
+            barInfoDC.push(info.unmatch_count)
+            barInfoMC.push(info.match_count)
+            lineInfo.push(info.run_time)
+        }
+    }
+    if (graphXArray.length > 0){
+        renderMDinerCountGraph([graphXArray, barInfoMC, barInfoDC], source)
+        renderMRunTimeGraph([graphXArray, lineInfo], source)
+    }
+}
+
+function dispatchPlaceData(placeStartData, placeData, source){
+    let batchIds = Object.keys(placeStartData)
+    batchIds = batchIds.sort()
+    barInfoAFC = new Array()
+    barInfoANFC = new Array()
+    barInfoUFC = new Array()
+    barInfoUNFC = new Array()
+    lineInfo = new Array()
+    graphXArray = new Array()
+    for (let i=0; i<batchIds.length; i ++){
+        let batchId = batchIds[i]
+        let startData = placeStartData[batchId]
+        let runData = false
+        try {
+            runData = placeData[batchId]
+        } catch (error) {
+        }
+        info = renderPlace(startData, runData, source)
+        if (info){
+            graphXArray.push(info.x.toDate())
+            barInfoAFC.push(info.api_found)
+            barInfoANFC.push(info.api_not_found)
+            barInfoUFC.push(info.update_found_count)
+            barInfoUNFC.push(info.update_not_found_count)
+            lineInfo.push(info.run_time)
+        }
+    }
+    if (graphXArray.length > 0){
+        renderPDinerCountGraph([graphXArray, barInfoAC, barInfoUFC, barInfoUNFC], source)
+        renderPRunTimeGraph([graphXArray, lineInfo], source)
+    }
+}
 
 function appendRow(tableName, rowType, info){
     let tableBody = document.querySelector(`[name="${tableName}-body"]`)
@@ -108,30 +245,31 @@ function renderList(listStartData, listData, rowType){
         console.log('old data')
         return false
     }
-    let branchesCount = listStartData.length
-    let runTimeArray = new Array()
+    let branchesCount = listData.length
     let dinerCountArray = new Array()
     let startTimeArray = new Array()
     let endTimeArray = new Array()
     for (let i=0; i<listStartData.length; i++){
         let startData = listStartData[i]
-        let runData = listData[i]
         let startTime = moment(startData.log_time).add(8, 'hours');
-        let endTime = moment(runData.log_time).add(8, 'hours');
-        let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
-        let dinerCount = runData.records_count
-        runTimeArray.push(runTime)
-        dinerCountArray.push(dinerCount)
         startTimeArray.push(startTime)
+        }
+    for (let i=0; i<listData.length; i++){
+        let runData = listData[i]
+        let endTime = moment(runData.log_time).add(8, 'hours');
+        let dinerCount = runData.records_count
+        dinerCountArray.push(dinerCount)
         endTimeArray.push(endTime)
         }
-    let runTimeAvg = sumData(runTimeArray) / runTimeArray.length
     let dinerCountTotal = sumData(dinerCountArray)
-    let startTimeMin = moment.min(startTimeArray).format('YYYY-MM-DD HH:mm:ss')
-    let endTimeMax = moment.max(endTimeArray).format('YYYY-MM-DD HH:mm:ss')
+    let startTimeMin = moment.min(startTimeArray)
+    let endTimeMax = moment.max(endTimeArray)
+    let runTimeMax = moment.duration(endTimeMax.diff(startTimeMin)).asMilliseconds() / 1000 / branchesCount
+    startTimeMin = startTimeMin.format('YYYY-MM-DD HH:mm:ss')
+    endTimeMax = endTimeMax.format('YYYY-MM-DD HH:mm:ss')
     let info = {
         'branches_count': branchesCount,
-        'run_time': runTimeAvg,
+        'run_time': runTimeMax,
         'diner_count': dinerCountTotal,
         'start_time': startTimeMin,
         'end_time': endTimeMax
@@ -186,9 +324,11 @@ function renderMatch(matchStartData, matchData, rowType){
     let info = {
         'run_time': runTime,
         'diner_count': dinerCount,
+        'unmatch_count': dinerCount - matchCount,
         'match_count': matchCount,
         'start_time': startTime.format('YYYY-MM-DD HH:mm:ss'),
-        'end_time': endTime.format('YYYY-MM-DD HH:mm:ss')
+        'end_time': endTime.format('YYYY-MM-DD HH:mm:ss'),
+        'x': startTime
     }
     appendRow('match-table', rowType, info)
     return info
@@ -203,18 +343,20 @@ function renderPlace(placeStartData, placeData, rowType){
     let startTime = moment(startData.log_time).add(8, 'hours');
     let endTime = moment(runData.log_time).add(8, 'hours');
     let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
-    let apiCount = runData.records_count
     let updateFoundCount = runData.update_found_count
     let updateNotFoundCount = runData.update_not_found_count
-    let dinerCount = apiCount + updateFoundCount + updateNotFoundCount
+    let apiFoundCount = runData.api_found
+    let apiNotFoundCount = runData.api_not_found
     let info = {
         'run_time': runTime,
         'api_count': apiCount,
-        'diner_count': dinerCount,
         'update_found_count': updateFoundCount,
         'update_not_found_count': updateNotFoundCount,
+        'api_found': apiFoundCount,
+        'api_not_found': apiNotFoundCount,
         'start_time': startTime.format('YYYY-MM-DD HH:mm:ss'),
-        'end_time': endTime.format('YYYY-MM-DD HH:mm:ss')
+        'end_time': endTime.format('YYYY-MM-DD HH:mm:ss'),
+        'x': startTime
     }
     appendRow('place-table', rowType, info)
     return info
@@ -227,163 +369,306 @@ function resetTable(){
     }
 }
 
-function renderLambdaDinerCountGraph(ueListInfo, ueDinerInfo, fpListInfo, fpDinerInfo){
-    let x = ["2021-06-10 20:40:00", "2021-06-11 20:40:00"]
-    let ueListDinerCount = [3600, 3500]
-    let ueDetailDinerCount = [1300, 1350]
-    let fpListDinerCount = [2700, 2702]
-    let fpDetailDinerCount = [2600, 2590]
-    let plotConf = [
-        {
-            histfunc: "sum",
-            y: ueListDinerCount,
-            x: x,
-            type: "histogram",
-            name: "get_ue_list"
-          },
-          {
-            histfunc: "sum",
-            y: ueDetailDinerCount,
-            x: x,
-            type: "histogram",
-            name: "get_ue_detail"
-          },
-          {
-            histfunc: "sum",
-            y: fpListDinerCount,
-            x: x,
-            type: "histogram",
-            name: "get_fp_list"
-          },
-          {
-            histfunc: "sum",
-            y: fpDetailDinerCount,
-            x: x,
-            type: "histogram",
-            name: "get_fp_detail"
-          }
-    ]
-    Plotly.newPlot( lambdaDinerCountGraph, plotConf, {
-    margin: { t: 0 } } );
+function graphError(graphId){
+    document.getElementById(graphId.concat('-graph')).setAttribute('data-show', 'no')
+    document.getElementById(graphId.concat('-404')).setAttribute('data-show', 'yes')
 }
 
-function renderLambdaRunTimeGraph(){
+function renderLambdaDinerCountGraph(infoArray, source){
+    let x = infoArray[0]
+    let listDinerCount = infoArray[1]
+    let detailDinerCount = infoArray[2]
+    let plotConf = [
+        {
+            y: listDinerCount,
+            x: x,
+            type: "bar",
+            name: "遍歷候選餐廳總數"
+          },
+          {
+            y: detailDinerCount,
+            x: x,
+            type: "bar",
+            name: "可外送到 Appworks School 餐廳數"
+          }
+    ]
+    let plotTitle = ''
+    if (source == 'ue'){plotTitle = 'Uber Eats 爬取餐廳數量'}
+    else {plotTitle = 'Food Panda 爬取餐廳數量'}
+    let layout = {
+        title: {
+            text: plotTitle,
+            font: {
+              size: 18
+            },
+            x: 0.15,
+            y: 0.985
+          },
+        legend: {
+            "orientation": "h",
+            "y" : 1.05
+        },
+        margin: {
+            t: 40,
+            b: 20
+        }
+    }
+    let graph = document.getElementById(source.concat('-lambda-bar-graph'))
+    Plotly.newPlot( graph, plotConf, layout);
+}
+
+function renderLambdaRunTimeGraph(infoArray, source){
+    let x = infoArray[0]
+    let listRunTime = infoArray[1]
+    let detailRunTime = infoArray[2]
     let trace1 = {
-        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
-        y: [200, 310, 233, 323],
-        name: 'get_ue_list',
+        x: x,
+        y: listRunTime,
+        name: '遍歷候選餐廳花費時間',
         type: 'scatter'
       };
       
     let trace2 = {
-        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
-        y: [2, 3, 2, 3],
-        name: 'get_fp_list',
+        x: x,
+        y: detailRunTime,
+        name: '爬取可外送餐廳資訊花費時間',
         type: 'scatter'
         };
     
     let data = [trace1, trace2];
-    
-    Plotly.newPlot(lambdaRuntimeGraph, data, {margin: { t: 0 }});
+    let plotTitle = ''
+    if (source == 'ue'){plotTitle = 'Uber Eats 爬取時間'}
+    else {plotTitle = 'Food Panda 爬取時間'}
+    let layout = {
+        title: {
+            text: plotTitle,
+            font: {
+              size: 18
+            },
+            x: 0.15,
+            y: 0.985
+          },
+        legend: {
+            "orientation": "h",
+            "y" : 1.05
+        },
+        margin: { 
+            t: 40,
+            b: 20
+        }
+    }
+    let graph = document.getElementById(source.concat('-lambda-line-graph'))
+    Plotly.newPlot(graph, data, layout);
 }
 
-function renderMDinerCountGraph(){
-    let x = ["2021-06-10 20:40:00", "2021-06-11 20:40:00"]
-    let mMatchedDinerCount = [500, 600]
-    let mTotalDinerCount = [3100, 2900]
+function renderMDinerCountGraph(infoArray, source){
+    let x = infoArray[0]
+    let mMatchedDinerCount = infoArray[1]
+    let mUnmatchedDinerCount = infoArray[2]
     let plotConf = [
+        {
+            histfunc: "sum",
+            y: mUnmatchedDinerCount,
+            x: x,
+            type: "bar",
+            name: "不同"
+        },
         {
             histfunc: "sum",
             y: mMatchedDinerCount,
             x: x,
             type: "bar",
-            name: "matched"
-          },
-          {
-            histfunc: "sum",
-            y: mTotalDinerCount,
-            x: x,
-            type: "bar",
-            name: "unmatched"
-          }
+            name: "相同"
+        }
     ]
-    Plotly.newPlot( mDinerCountGraph, plotConf, {
-    margin: { t: 0 }, barmode: 'stack' } );
+    let plotTitle = 'Uber Eats, Food Panda 餐廳比對結果'
+    let layout = {
+        title: {
+            text: plotTitle,
+            font: {
+              size: 18
+            },
+            x: 0.15,
+            y: 0.985
+          },
+        legend: {
+            "orientation": "h",
+            "y" : 1.05
+        },
+        margin: { 
+            t: 40,
+            b: 20
+        },
+        barmode: 'stack'
+    }
+    let graph = document.getElementById(source.concat('-bar-graph'))
+    Plotly.newPlot( graph, plotConf, layout );
 }
 
-function renderPDinerCountGraph(){
-    let x = ["2021-06-10 20:40:00", "2021-06-11 20:40:00"]
-    let pAPICount = [300, 200]
-    let pUFCount = [2700, 2902]
-    let pUNFCount = [200, 198]
+function renderPDinerCountGraph(infoArray, source){
+    let x = infoArray[0]
+    let pAC = infoArray[1]
+    let pUFC = infoArray[2]
+    let pUNFC = infoArray[3]
     let plotConf = [
         {
             histfunc: "sum",
-            y: pAPICount,
+            y: pAC,
             x: x,
             type: "bar",
-            name: "matched"
-        },
-        {
+            name: "有，以 Place API 查詢"
+          },
+          {
             histfunc: "sum",
-            y: pUFCount,
+            y: pUFC,
             x: x,
             type: "bar",
-            name: "unmatched"
-        },
-        {
+            name: "有，以現有資料更新"
+          },
+          {
             histfunc: "sum",
-            y: pUNFCount,
+            y: pUNFC,
             x: x,
             type: "bar",
-            name: "unmatched"
-        }
+            name: "沒有"
+          }
     ]
-    Plotly.newPlot( pDinerCountGraph, plotConf, {
-    margin: { t: 0 }, barmode: 'stack' } );
+    let graph = document.getElementById(source.concat('-bar-graph'))
+    let plotTitle = 'Google Map 資料查詢結果'
+    let layout = {
+        title: {
+            text: plotTitle,
+            font: {
+              size: 18
+            },
+            x: 0.15,
+            y: 0.985
+          },
+        legend: {
+            "orientation": "h",
+            "y" : 1.05
+        },
+        margin: { 
+            t: 40,
+            b: 20
+        },
+        barmode: 'stack'
+    }
+    Plotly.newPlot( graph, plotConf, layout);
 }
 
-function renderMPRunTimeGraph(){
+function renderMRunTimeGraph(infoArray, source){
+    let x = infoArray[0]
+    let mRunTime = infoArray[1]
     let trace1 = {
-        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
-        y: [900, 810, 833, 873],
-        name: 'match',
+        x: x,
+        y: mRunTime,
+        name: '花費時間',
         type: 'scatter'
       };
       
-    let trace2 = {
-        x: ["2021-06-10 20:40:00", "2021-06-11 20:40:00", "2021-06-12 20:40:00", "2021-06-13 20:40:00"],
-        y: [900, 200, 52, 43],
+    let data = [trace1];
+    let graph = document.getElementById(source.concat('-line-graph'))
+    let plotTitle = 'Uber Eats, Food Panda 餐廳比對花費時間'
+    let layout = {
+        title: {
+            text: plotTitle,
+            font: {
+              size: 18
+            },
+            x: 0.15,
+            y: 0.985
+          },
+        legend: {
+            showlegend: false
+        },
+        margin: { 
+            t: 35,
+            b: 20
+        }
+    }
+    Plotly.newPlot(graph, data, layout);
+}
+
+function renderPRunTimeGraph(infoArray, source){
+    let x = infoArray[0]
+    let pRunTime = infoArray[1]
+    let trace1 = {
+        x: x,
+        y: pRunTime,
         name: 'place',
         type: 'scatter'
-        };
-    
-    let data = [trace1, trace2];
-    
-    Plotly.newPlot(mpRunTimeGraph, data, {margin: { t: 0 }});
+      };
+      
+    let data = [trace1];
+    let graph = document.getElementById(source.concat('-line-graph'))
+    let plotTitle = 'Google Map 資料查詢花費時間'
+    let layout = {
+        title: {
+            text: plotTitle,
+            font: {
+              size: 18
+            },
+            x: 0.15,
+            y: 0.985
+          },
+        legend: {
+            showlegend: false
+        },
+        margin: { 
+            t: 35,
+            b: 20
+        }
+    }
+    Plotly.newPlot(graph, data, layout);
+}
+
+function endGTStartWarn(){
+    Swal.fire(
+        {
+        icon: 'warning',
+        title: '結束日期要早於開始日期',
+        customClass: 'justify-content-center'
+    })
 }
 
 initPost(dashboardApi, initData)
-renderLambdaDinerCountGraph()
-renderLambdaRunTimeGraph()
-renderMDinerCountGraph()
-renderPDinerCountGraph()
-renderMPRunTimeGraph()
 
 document.getElementById('select-dates').addEventListener('change', (e)=>{
     let startDate = startDateDom.value
     let endDate = endDateDom.value
+    if (moment(endDate).isBefore(moment(startDate))){
+        endGTStartWarn()
+    } else {
     let data = {'start_date': startDate, 'end_date': endDate}
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
         resetTable()
         renderDashBoard(response)
     })
+    }
 })
 
-// ajax(getUrl, function(response){
-//     render(response); });
-
-// setInterval(function(){ajax(`api/1.0/dashboard?scope=${scopeForm.value}&date=${dateForm.value}`, function(response){
-//     render(response)
-// })}, 5000);
+if (utcNow.isBetween(todayStartRefresh, todayEndRefresh)){
+    console.log('start interval')
+    let intervalId = setIntervalAndExecute(autoUpadte, 5000)
+    let endTimer = moment.duration(utcNow.diff(todayEndRefresh)).asMilliseconds()
+    function clearAutoUpdate(){
+        clearInterval(intervalId)
+    }
+    setTimeout(clearAutoUpdate, endTimer)
+} else if (utcNow.isBefore(todayStartRefresh)){
+    console.log('too early')
+    let startTimer = moment.duration(utcNow.diff(todayStartRefresh)).asMilliseconds()
+    function startAutoUpdate(){
+        return setIntervalAndExecute(autoUpadte, 5000)
+    }
+    setTimeout(startAutoUpdate, startTimer)
+    let endTimer = moment.duration(utcNow.diff(todayEndRefresh)).asMilliseconds()
+    function clearAutoUpdate(){
+        clearInterval(intervalId)
+    }
+    setTimeout(clearAutoUpdate, endTimer)
+} else{
+    console.log('too late')
+}
