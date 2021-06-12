@@ -195,6 +195,18 @@ a:link {
 
 #empty-collect{
     height: 24px;
+#search-box{
+    border-right: white !important;
+}
+
+[data-trigger="clear-search"]{
+    background-color: white !important;
+    border-left: white !important;
+}
+
+#clear-search-button{
+    width: 16px;
+}
 [data-btn-group-no-padding]{
     padding: 0 !important;
 }

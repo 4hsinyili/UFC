@@ -45,9 +45,9 @@ let showMoreDom = $('div[id="show-more"]')[0]
 
 let searchBox = $('#search-box')[0]
 let searchButton = $('[data-trigger="search-button"]')[0]
+let clearSearch = $('[data-trigger="clear-search"]')[0]
 let shuffleButton = $('[data-trigger="shuffle"]')[0]
 let toggleFiltersDom = $('[data-trigger="toggle-filters"]')[0]
-let toggleSortersDom = $('[data-trigger="toggle-sorters"]')[0]
 
 let collectDom = $('[name="collect"]')[0]
 
@@ -655,10 +655,6 @@ sorters.addEventListener('change', (e)=>{
 })
 
 $(toggleFiltersDom).click(function(){
-    $(fsSection).toggle()
-})
-
-$(toggleSortersDom).click(function(){
     $(fsSection).toggle()
 })
 
