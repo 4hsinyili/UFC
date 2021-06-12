@@ -41,23 +41,25 @@ class TriggerLog():
         )
         data = []
         for record in cursor:
-            key = (record['_id']['triggered_by'], record['_id']['batch_id'])
+            key = {"triggered_by": record['_id']['triggered_by'], "batch_id": record['_id']['batch_id']}
             result = (key, record['data'])
             data.append(result)
         cursor.close()
+        # pprint.pprint(data)
         return data
 
     def parse_data(self, data, trigered_by):
-        result = defaultdict(list)
+        result = defaultdict(dict)
         for bucket in data:
-            if bucket[0][0] == [trigered_by]:
+            key = bucket[0]
+            if key['triggered_by'] == trigered_by:
                 bucket_val = bucket[1]
                 for val in bucket_val:
                     val['log_time'] = val['_id'].generation_time
                     val['log_time'] = val['log_time'].strftime('%Y-%m-%d %H:%M:%S')
                     del val['_id']
                     val['triggered_at'] = val['triggered_at'].strftime('%Y-%m-%d %H:%M:%S')
-                result[bucket[0]].append(bucket_val)
+                result[key['triggered_by']][key['batch_id']] = bucket_val
         if result == []:
             return False
         return result
@@ -74,20 +76,20 @@ class TriggerLog():
         place_start_data = self.parse_data(data, 'place_start')
         match_data = self.parse_data(data, 'match')
         place_data = self.parse_data(data, 'place')
+        result = {}
+        result.update(ue_list_start_data)
+        result.update(fp_list_start_data)
+        result.update(ue_list_data)
+        result.update(fp_list_data)
+        result.update(ue_detail_data)
+        result.update(fp_detail_data)
+        result.update(match_start_data)
+        result.update(place_start_data)
+        result.update(match_data)
+        result.update(place_data)
 
         # return data
-        return {
-            'get_ue_list_start': ue_list_start_data,
-            'get_fp_list_start': fp_list_start_data,
-            'get_ue_list': ue_list_data,
-            'get_fp_list': fp_list_data,
-            'get_ue_detail': ue_detail_data,
-            'get_fp_detail': fp_detail_data,
-            'match_start': match_start_data,
-            'place_start': place_start_data,
-            'match': match_data,
-            'place': place_data,
-        }
+        return result
 
 
 if __name__ == '__main__':
