@@ -272,6 +272,10 @@ def favorites(request):
 def dashboard(request):
     return render(request, 'Diner_app/dashboard.html', {})
 
+
+def test_500():
+    return Response({'message': 'success'})
+
 # def forSSL(request):
 #     file_content = env.VERIFY_DOMAIN
 #     return HttpResponse(file_content, content_type='text/plain')

@@ -12,6 +12,7 @@ urlpatterns = [
     path('', views.dinerlist, name='dinerlist'),
     path('dinerinfo', views.dinerinfo, name='dinerinfo'),
     path('favorites', views.favorites, name='favorites'),
-    path('dashboard', views.dashboard, name='dashboard')
+    path('dashboard', views.dashboard, name='dashboard'),
+    path('test_500', views.test_500, name='test_500'),
     # path('.well-known/pki-validation/F6B43E81B6BB7366178E7DE03B1BB0FC.txt', views.forSSL, name='test')
 ]
