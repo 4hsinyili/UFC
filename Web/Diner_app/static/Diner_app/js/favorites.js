@@ -225,7 +225,7 @@ ajaxGet(getFavoritesAPI.concat('?offset=0'), function(response){
     }
     else {
         endLoading()
-        let hintDom = document.getElementById('no-diners').cloneNode(true) 
+        let hintDom = document.getElementById('no-diners').cloneNode(true)
         $(hintDom).show()
         Swal.fire(
             {
