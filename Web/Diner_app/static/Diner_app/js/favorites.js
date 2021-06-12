@@ -28,6 +28,7 @@ let budgetSvg = document.querySelector('[name=budget_svg]')
 let showMoreDom = $('div[id="show-more"]')[0]
 
 let collectDom = $('[name="collect"]')[0]
+let divederRow = document.querySelector('[name="divider-row"]')
 
 // Define functions
 const csrftoken = getCookie('csrftoken');
@@ -180,8 +181,11 @@ function renderList(data){
     let results = data.data
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
+        let newDividerRow = divederRow.cloneNode(true)
         diner = renderDiner(diner)
         diners.appendChild(diner)
+        diners.appendChild(newDividerRow)
+        $(newDividerRow).show()
         $(diner).show()
     }
     console.log(data)

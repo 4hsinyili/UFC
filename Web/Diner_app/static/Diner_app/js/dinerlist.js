@@ -50,6 +50,7 @@ let shuffleButton = $('[data-trigger="shuffle"]')[0]
 let toggleFiltersDom = $('[data-trigger="toggle-filters"]')[0]
 
 let collectDom = $('[name="collect"]')[0]
+let divederRow = document.querySelector('[name="divider-row"]')
 
 // Define functions
 
