@@ -190,8 +190,11 @@ function renderList(data){
     let results = data.data
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
+        let newDividerRow = divederRow.cloneNode(true)
         diner = renderDiner(diner)
         diners.appendChild(diner)
+        diners.appendChild(newDividerRow)
+        $(newDividerRow).show()
         $(diner).show()
     }
     console.log(data)
