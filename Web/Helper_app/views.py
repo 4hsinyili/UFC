@@ -9,3 +9,7 @@ def handle_not_found(request, exception):
 
 def handle_server_error(request):
     return render(request, 'Helper_app/500.html', {})
+
+
+def handle_rate_limited(request, exception):
+    return render(request, 'Helper_app/rate_limited.html', {})

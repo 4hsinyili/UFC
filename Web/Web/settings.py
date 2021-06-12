@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 import env
-import mimetypes
-mimetypes.add_type("text/css", ".css", True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,8 +50,9 @@ INSTALLED_APPS = [
     'Diner_app',
     'User_app',
     'crispy_forms',
-    "crispy_bootstrap5"
+    "crispy_bootstrap5",
     'Helper_app',
+    'ratelimit'
 ]
 
 REST_FRAMEWORK = {
@@ -70,6 +69,7 @@ REST_FRAMEWORK = {
 # ]
 
 MIDDLEWARE = [
+    'ratelimit.middleware.RatelimitMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -182,3 +182,11 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'User_app.CustomUser'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+RATELIMIT_VIEW = 'Helper_app.views.handle_rate_limited'

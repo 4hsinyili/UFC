@@ -1,6 +1,8 @@
 # from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
+from django.utils.decorators import method_decorator
 # from django.http import HttpResponse
+from ratelimit.decorators import ratelimit
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
@@ -29,6 +31,7 @@ match_filters = MatchFilters(db, 'matched')
 class DashBoardView(views.APIView):
     parser_classes = [JSONParser]
 
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         model = DashBoardModel(db, cloudwatch)
         end_date = datetime.datetime.strptime(request.data['end_date'], '%Y-%m-%d')
@@ -45,6 +48,7 @@ class DashBoardView(views.APIView):
 class DinerSearch(views.APIView):
     parser_classes = [JSONParser]
 
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         start = time.time()
         condition = request.data['condition']
@@ -83,6 +87,7 @@ class DinerSearch(views.APIView):
 class DinerShuffle(views.APIView):
     parser_classes = [JSONParser]
 
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         start = time.time()
         if request.user.is_authenticated:
@@ -112,6 +117,7 @@ class DinerShuffle(views.APIView):
 class DinerInfo(views.APIView):
     parser_classes = [JSONParser]
 
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
         start = time.time()
         uuid_ue = self.request.query_params.get('uuid_ue', None)
@@ -160,6 +166,8 @@ class DinerInfo(views.APIView):
 
 
 class Filters(views.APIView):
+
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
         start = time.time()
         triggered_at = match_checker.get_triggered_at()
@@ -171,6 +179,8 @@ class Filters(views.APIView):
 
 
 class FavoritesAPI(views.APIView):
+
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         request_data = request.data
         if request.user.is_authenticated:
@@ -187,6 +197,7 @@ class FavoritesAPI(views.APIView):
         print(favorite_sqlrecord)
         return Response({'message': 'success'})
 
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
         if request.user.is_authenticated:
             pass
