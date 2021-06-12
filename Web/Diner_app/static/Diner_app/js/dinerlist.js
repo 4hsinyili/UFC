@@ -723,3 +723,7 @@ $(showMoreDom).click(function(){
     search(offset, true)
 })
 
+
+clearSearch.click(function(){
+    searchBox.val() = ''
+})
