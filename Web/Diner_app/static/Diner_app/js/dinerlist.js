@@ -109,6 +109,14 @@ function renderDiner(diner){
     let diner_info_ue = false
     let diner_info_fp = false
     let diner_favorite = diner['favorite']
+    let titleUe = dinerNode.querySelector('.title_ue')
+    let titleFp = dinerNode.querySelector('.title_fp')
+    let imageNodeFp = dinerNode.querySelector('.image_fp')
+    let imageNodeUe = dinerNode.querySelector('.image_ue')
+    
+    imageNodeFp.setAttribute('src', '')
+    imageNodeUe.setAttribute('src', '')
+    
     if (diner_uuid_ue != ''){
         diner_info_ue = {
             "title_ue": diner['title_ue'],
@@ -119,11 +127,14 @@ function renderDiner(diner){
             "link_ue": diner["link_ue"],
             "redirect_url": redirectUrl
         }
+        renderDinerInfo(diner_info_ue, dinerNode, 'ue')
         collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)
         if (diner_favorite){ 
             collectNode.setAttribute('data-favorite', 1)
             collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
+    } else{
+        removeInfo(dinerNode, 'ue')
     }
     if (diner_uuid_fp != ''){
         diner_info_fp = {
@@ -135,11 +146,14 @@ function renderDiner(diner){
             "link_fp": diner["link_fp"],
             "redirect_url": redirectUrl
         }
+        renderDinerInfo(diner_info_fp, dinerNode, 'fp')
         collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)
         if (diner_favorite){
             collectNode.setAttribute('data-favorite', 1)
             collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
+    } else{
+        removeInfo(dinerNode, 'fp')
     }
     if (diner_uuid_gm){
         diner_info_gm = {
@@ -148,23 +162,22 @@ function renderDiner(diner){
             "link_gm": diner["link_gm"]
         }
         renderGM(diner_info_gm, dinerNode, 'gm')
+    } else{
+        removeInfo(dinerNode, 'gm')
     }
-    if (!diner_uuid_ue){removeInfo(dinerNode, 'ue')}
-    if (!diner_uuid_fp){removeInfo(dinerNode, 'fp')}
-    if (!diner_uuid_gm){removeInfo(dinerNode, 'gm')}
-    let imageNodeFp = dinerNode.querySelector('.image_fp')
-    let imageNodeUe = dinerNode.querySelector('.image_ue')
-    imageNodeFp.setAttribute('src', '')
-    imageNodeUe.setAttribute('src', '')
-    if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
-    else {}
-    if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
     if (diner_favorite){collectNode.setAttribute('data-favorite', 1)}
+    else {collectNode.setAttribute('data-favorite', 0)}
+
     if ((imageNodeUe.getAttribute('src')) && (imageNodeFp.getAttribute('src'))){
         imageNodeFp.remove()
-    } else if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()
-    } else if (imageNodeUe.getAttribute('src') == ""){imageNodeUe.remove()}
-    else {collectNode.setAttribute('data-favorite', 0)}
+        titleFp.remove()
+    } else if (imageNodeFp.getAttribute('src') == ""){
+        imageNodeFp.remove()
+        titleFp.remove()
+    } else if (imageNodeUe.getAttribute('src') == ""){
+        imageNodeUe.remove()
+        titleUe.remove()
+    }
     collectNode.addEventListener('click', (e)=>{
         let favorited = parseInt(e.target.getAttribute('data-favorite'))
         let activate = 0
@@ -208,9 +221,6 @@ function renderList(data){
 
 function renderMore(data){
     renderList(data)
-    console.log(document.body.scrollHeight)
-    console.log(window.innerHeight)
-    console.log((document.body.scrollHeight - window.innerHeight))
     window.scrollTo(0,(document.body.scrollHeight - window.innerHeight));
 }
 
@@ -302,18 +312,18 @@ function renderFilter(dataNumber){
     let eachFilterType =  $(`select[name="filter-type"][data-number=${dataNumber}]`)
     let eachFilterOperator = $(`select[name="filter-operator"][data-number=${dataNumber}]`)
     let eachFilterValue =  $(`select[name="filter-value"][data-number=${dataNumber}]`)
-    for(let r=0; r<eachFilterType.length; r++){
-        $(eachFilterType[r]).hide();
-    }
+    
+    $(eachFilterType).hide()
     $(eachFilterType[0]).show().prop('disabled', 'disabled')
-    for(let r=0; r<eachFilterOperator.length; r++){
-        $(eachFilterOperator[r]).hide();
-    }
+    
+    $(eachFilterOperator).hide();
     $(eachFilterOperator[0]).show().prop('disabled', 'disabled')
-    for(let r=0; r<eachFilterValue.length; r++){
-        $(eachFilterValue[r]).hide();
-    }
+    
+    $(eachFilterValue).hide()
     $(eachFilterValue[0]).show().prop('disabled', 'disabled')
+
+    if (eachFilterSource.val() =='ue'){eachFilterSource.attr('data-source-css', 'ue')}
+    else if (eachFilterSource.val() =='fp'){eachFilterSource.attr('data-source-css', 'fp')}
 
     let chosedFilterType = $(`select[name*="filter-type"][data-number=${dataNumber}][class*="${eachFilterSource.val()}"]`)
     if (chosedFilterType.length == 1){
@@ -425,13 +435,11 @@ function renderSorter(dataNumber){
     let eachSorterSource = $(`select[name="sorter-source"][data-number=${dataNumber}]`)
     let eachSorterType =  $(`select[name="sorter-type"][data-number=${dataNumber}]`)
     let eachSorterOperator = $(`select[name="sorter-operator"][data-number=${dataNumber}]`)
-    for(let r=0; r<eachSorterType.length; r++){
-        $(eachSorterType[r]).hide();
-    }
+    
+    $(eachSorterType).hide()
     $(eachSorterType[0]).show().prop('disabled', 'disabled')
-    for(let r=0; r<eachSorterOperator.length; r++){
-        $(eachSorterOperator[r]).hide();
-    }
+    
+    $(eachSorterOperator).hide()
     $(eachSorterOperator[0]).show().prop('disabled', 'disabled')
 
     let chosedSorterType = $(`select[name*="sorter-type"][data-number=${dataNumber}][class*="${eachSorterSource.val()}"]`)
@@ -633,8 +641,7 @@ showLoading()
 
 ajaxGet(filtersAPI, function(response){
     renderFilters();
-    renderOptions(response, 'ue');
-    renderOptions(response, 'fp');
+    renderOptions(response);
     bringConditionBack()
 })
 

@@ -66,6 +66,15 @@ function removeInfo(dinerNode, source){
     infoRow.remove()
 }
 
+function renderGM(dinerInfo, dinerNode, source){
+    let rating = dinerInfo['rating_'.concat(source)]
+    let viewCount = dinerInfo['view_count_'.concat(source)]
+    let link = dinerInfo['link_'.concat(source)]
+    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = rating
+    dinerNode.querySelector('.view_count_value_'.concat(source)).innerText = viewCount
+    dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
+}
+
 function renderDiner(diner){
     let dinerNode = dinerTemplate.cloneNode(true)
     let collectNode = dinerNode.querySelector('[name=collect].icon')
@@ -77,6 +86,14 @@ function renderDiner(diner){
     let diner_info_ue = false
     let diner_info_fp = false
     let diner_favorite = diner['favorite']
+    let titleUe = dinerNode.querySelector('.title_ue')
+    let titleFp = dinerNode.querySelector('.title_fp')
+    let imageNodeFp = dinerNode.querySelector('.image_fp')
+    let imageNodeUe = dinerNode.querySelector('.image_ue')
+    
+    imageNodeFp.setAttribute('src', '')
+    imageNodeUe.setAttribute('src', '')
+    
     if (diner_uuid_ue != ''){
         diner_info_ue = {
             "title_ue": diner['title_ue'],
@@ -87,11 +104,14 @@ function renderDiner(diner){
             "link_ue": diner["link_ue"],
             "redirect_url": redirectUrl
         }
+        renderDinerInfo(diner_info_ue, dinerNode, 'ue')
         collectNode.setAttribute('data-uuid-ue', diner_uuid_ue)
         if (diner_favorite){ 
             collectNode.setAttribute('data-favorite', 1)
             collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
+    } else{
+        removeInfo(dinerNode, 'ue')
     }
     if (diner_uuid_fp != ''){
         diner_info_fp = {
@@ -103,28 +123,38 @@ function renderDiner(diner){
             "link_fp": diner["link_fp"],
             "redirect_url": redirectUrl
         }
+        renderDinerInfo(diner_info_fp, dinerNode, 'fp')
         collectNode.setAttribute('data-uuid-fp', diner_uuid_fp)
         if (diner_favorite){
             collectNode.setAttribute('data-favorite', 1)
             collectNode.setAttribute('src', "https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart_filled.svg")
         }
+    } else{
+        removeInfo(dinerNode, 'fp')
     }
-    if (!diner_uuid_ue){removeInfo(dinerNode, 'ue')}
-    if (!diner_uuid_fp){removeInfo(dinerNode, 'fp')}
-    if (!diner_uuid_gm){removeInfo(dinerNode, 'gm')}
-    let imageNodeFp = dinerNode.querySelector('.image_fp')
-    let imageNodeUe = dinerNode.querySelector('.image_ue')
-    imageNodeFp.setAttribute('src', '')
-    imageNodeUe.setAttribute('src', '')
-    if (diner_info_ue){ renderDinerInfo(diner_info_ue, dinerNode, 'ue')}
-    else {}
-    if (diner_info_fp){ renderDinerInfo(diner_info_fp, dinerNode, 'fp')}
+    if (diner_uuid_gm){
+        diner_info_gm = {
+            "rating_gm": diner['rating_gm'],
+            "view_count_gm": diner['view_count_gm'],
+            "link_gm": diner["link_gm"]
+        }
+        renderGM(diner_info_gm, dinerNode, 'gm')
+    } else{
+        removeInfo(dinerNode, 'gm')
+    }
     if (diner_favorite){collectNode.setAttribute('data-favorite', 1)}
+    else {collectNode.setAttribute('data-favorite', 0)}
+
     if ((imageNodeUe.getAttribute('src')) && (imageNodeFp.getAttribute('src'))){
         imageNodeFp.remove()
-    } else if (imageNodeFp.getAttribute('src') == ""){imageNodeFp.remove()
-    } else if (imageNodeUe.getAttribute('src') == ""){imageNodeUe.remove()}
-    else {collectNode.setAttribute('data-favorite', 0)}
+        titleFp.remove()
+    } else if (imageNodeFp.getAttribute('src') == ""){
+        imageNodeFp.remove()
+        titleFp.remove()
+    } else if (imageNodeUe.getAttribute('src') == ""){
+        imageNodeUe.remove()
+        titleUe.remove()
+    }
     collectNode.addEventListener('click', (e)=>{
         let favorited = parseInt(e.target.getAttribute('data-favorite'))
         let activate = 0
@@ -206,8 +236,11 @@ ajaxGet(getFavoritesAPI.concat('?offset=0'), function(response){
 $(showMoreDom).click(function(){
     let offset = parseInt(showMoreDom.getAttribute('data-offset'))
     let height = $(document).height()
+    $(showMoreDom).hide()
+    showLoading()
     ajaxGet(getFavoritesAPI.concat(`?offset=${offset}`), function(response){
         if (response.is_data == true){renderList(response)}
+        endLoading()
     })
 })
 
