@@ -10,11 +10,15 @@ let utcNow = moment().utcOffset(-(utcOffset))
 let todayStartRefresh = moment().set({'hour': 2 + (utcOffset /60), 'minutes': 30, 'second': 0}).utcOffset(-(utcOffset))
 let todayEndRefresh = moment().set({'hour': 3 + (utcOffset /60), 'minutes': 10, 'second': 0}).utcOffset(-(utcOffset))
 
-startDateDom.value = todayDate
+let weekAgo = moment().subtract(7, 'days');
+let initMoment = moment.max(today, weekAgo)
+let initDate = initMoment.format('YYYY-MM-DD')
+
+startDateDom.value = initDate
 endDateDom.value = todayDate
-startDateDom.min = '2021-06-12'
+startDateDom.min = '2021-06-13'
 startDateDom.max = todayDate
-endDateDom.min = '2021-06-12'
+endDateDom.min = '2021-06-13'
 endDateDom.max = todayDate
 startTimeDom.value = '00:00:00'
 endTimeDom.value = nowTime
