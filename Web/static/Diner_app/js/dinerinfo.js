@@ -3,6 +3,7 @@ let urlParams = new URLSearchParams(queryString);
 let uuidUE = urlParams.get('uuid_ue')
 let uuidFP = urlParams.get('uuid_fp')
 let dinerInfoAPI = 'api/v1/dinerinfo'.concat('?uuid_ue=').concat(uuidUE).concat('&uuid_fp=').concat(uuidFP)
+let nqAPI = 'api/v1/noteq'
 
 let dinerSection = document.querySelector('[name=section]')
 let dinerSubsection = document.querySelector('[name=subsection]')
@@ -11,35 +12,30 @@ let dinerItem = document.querySelector('[name=item]')
 let tabDom = document.querySelector('[name=section-tab]')
 let tabPkDom = document.querySelector('[name=section-tab-pk]')
 
+let reportError = document.getElementById('report-error')
 
 $('#diner-info').hide()
 
-function showLoading(){
-    Swal.fire({
-        title: "",
-        text: "Loading...",
-        didOpen: ()=>{
-            Swal.showLoading()
-        }
-    });
-}
-
-function endLoading() {
-    Swal.close()
-}
-
-function ajaxGet(src, callback){
-    let initialUrl = src;
-    let initaialXhr = new XMLHttpRequest();
-    initaialXhr.open('GET', initialUrl, true);
-    initaialXhr.onload = function() {
-    if (initaialXhr.status >= 200 && initaialXhr.status < 400) {
-        let data = JSON.parse(initaialXhr.responseText);
-        callback(data)
+reportError.addEventListener('click', (e)=>{
+    if (e.target.getAttribute('data-login') == "True"){
+        let reContent = document.getElementById('report-error-content').cloneNode(true)
+        Swal.fire({
+            title: '回報方式',
+            html: reContent,
+            customClass: 'justify-content-center',
+            showConfirmButton: false
+        })
+    } else {
+        let reContent = document.getElementById('login-first').cloneNode(true)
+        Swal.fire({
+            title: '回報方式',
+            html: reContent,
+            customClass: 'justify-content-center'
+        })
     }
-    };
-    initaialXhr.send();
-} 
+})
+
+const csrftoken = getCookie('csrftoken');
 
 function renderDiner(response, source){
     let diner = response.data
@@ -117,6 +113,8 @@ function renderTitle(diner, source){
     let titleDom = document.getElementById(selector)
     titleDom.innerText = diner['title_'.concat(source)]
     titleDom.setAttribute('href', diner['link_'.concat(source)])
+    let webTitle = document.getElementById('web-title')
+    webTitle.innerText = webTitle.innerText.concat(' | ').concat(diner['title_'.concat(source)])
     return titleDom
 }
 
@@ -328,6 +326,72 @@ function removeUEFPMenu(){
     document.getElementById('divider_fp').remove()
 }
 
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  })
+  
+document.addEventListener('click', (e)=>{
+    if (e.target.getAttribute('name') == 'nq-btn'){
+        let btn = e.target
+        let data = {
+            'uuid_ue': btn.getAttribute('data-uuid-ue'),
+            'uuid_fp': btn.getAttribute('data-uuid-fp'),
+            'uuid_gm': btn.getAttribute('data-uuid-gm')
+        }
+        showLoading()
+        ajaxPost(nqAPI, data, function(response){
+            console.log(response)
+            endLoading()
+            Toast.fire({
+                icon: 'success',
+                title: '回報成功！'
+              })
+        })
+    }
+})
+
+
+function addUENQFPBtn(uuidUE, uuidFP, uuidGM){
+    let btnGroup = document.getElementById('re-btn-group')
+    let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
+    btn.innerText = 'UE != FP'
+    btn.setAttribute('name', 'nq-btn')
+    btn.setAttribute('data-uuid-ue', uuidUE)
+    btn.setAttribute('data-uuid-fp', uuidFP)
+    btn.setAttribute('data-uuid-gm', uuidGM)
+    btnGroup.appendChild(btn)
+}
+
+function addUENQGMBtn(uuidUE, uuidFP, uuidGM){
+    let btnGroup = document.getElementById('re-btn-group')
+    let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
+    btn.innerText = 'UE != GM'
+    btn.setAttribute('name', 'nq-btn')
+    btn.setAttribute('data-uuid-ue', uuidUE)
+    btn.setAttribute('data-uuid-fp', uuidFP)
+    btn.setAttribute('data-uuid-gm', uuidGM)
+    btnGroup.appendChild(btn)
+}
+
+function addFPNQGMBtn(uuidUE, uuidFP, uuidGM){
+    let btnGroup = document.getElementById('re-btn-group')
+    let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
+    btn.innerText = 'FP != GM'
+    btn.setAttribute('name', 'nq-btn')
+    btn.setAttribute('data-uuid-ue', uuidUE)
+    btn.setAttribute('data-uuid-fp', uuidFP)
+    btn.setAttribute('data-uuid-gm', uuidGM)
+    btnGroup.appendChild(btn)
+}
+
 showLoading()
 ajaxGet(dinerInfoAPI, function(response){
     console.log(response)
@@ -345,17 +409,27 @@ ajaxGet(dinerInfoAPI, function(response){
     else {
         removeDiner('fp')
     }
-    if (uuidUE && uuidFP){
-        renderCheaper(response.data)
-    }
     if (!(uuidUE) | !(uuidFP)){
         removePk()
     }
-    if ((uuidUE) && (uuidFP)){
+    if (uuidUE && uuidFP){
+        renderCheaper(response.data)
         removeUEFPMenu()
     }
-    if (uuidGM){
+    if (uuidUE && uuidFP && uuidGM){
+        addUENQFPBtn(uuidUE, uuidFP, uuidGM)
+        addUENQGMBtn(uuidUE, uuidFP, uuidGM)
+        addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
+    } else if (uuidUE && uuidGM){
+        addUENQGMBtn(uuidUE, uuidFP, uuidGM)
         renderGMInfo(response)
+    } else if (uuidFP && uuidGM){
+        addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
+        renderGMInfo(response)
+    } else if (uuidUE && uuidFP){
+        renderCheaper(response.data)
+        removeUEFPMenu()
+        addUENQFPBtn(uuidUE, uuidFP, uuidGM)
     } else {
         removeGM()
     }

@@ -2,6 +2,10 @@
     display: none;
 }
 
+#top-margin{
+    height: 20px;
+}
+
 .text-align-center{
     height: 2rem;
     text-align: center;
