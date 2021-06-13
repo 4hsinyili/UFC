@@ -28,8 +28,6 @@ def login(request):
         form = LoginForm(data=request.POST)
         email = request.POST.get('email')
         password = request.POST.get('password')
-        print(email)
-        print(password)
         user = auth.authenticate(email=email, password=password)
         if user:
             auth.login(request, user)
