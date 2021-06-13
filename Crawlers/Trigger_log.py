@@ -33,7 +33,7 @@ class TriggerLog():
                             "triggered_by": "$triggered_by"
                         },
                         "data": {
-                            "$addToSet": "$$ROOT"
+                            "$push": "$$ROOT"
                         }
                     }
                 }
