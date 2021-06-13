@@ -410,7 +410,7 @@ function renderLambdaDinerCountGraph(infoArray, source){
         },
         margin: {
             t: 40,
-            b: 20
+            b: 30
         }
     }
     let graph = document.getElementById(source.concat('-lambda-bar-graph'))
@@ -454,7 +454,7 @@ function renderLambdaRunTimeGraph(infoArray, source){
         },
         margin: { 
             t: 40,
-            b: 20
+            b: 30
         }
     }
     let graph = document.getElementById(source.concat('-lambda-line-graph'))
@@ -497,7 +497,7 @@ function renderMDinerCountGraph(infoArray, source){
         },
         margin: { 
             t: 40,
-            b: 20
+            b: 30
         },
         barmode: 'stack'
     }
@@ -550,7 +550,7 @@ function renderPDinerCountGraph(infoArray, source){
         },
         margin: { 
             t: 40,
-            b: 20
+            b: 30
         },
         barmode: 'stack'
     }
@@ -584,7 +584,7 @@ function renderMRunTimeGraph(infoArray, source){
         },
         margin: { 
             t: 35,
-            b: 20
+            b: 30
         }
     }
     Plotly.newPlot(graph, data, layout);
@@ -617,7 +617,7 @@ function renderPRunTimeGraph(infoArray, source){
         },
         margin: { 
             t: 35,
-            b: 20
+            b: 30
         }
     }
     Plotly.newPlot(graph, data, layout);
