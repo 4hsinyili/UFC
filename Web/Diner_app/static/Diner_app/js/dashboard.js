@@ -324,8 +324,8 @@ function renderMatch(matchStartData, matchData, rowType){
     if ((!matchStartData) || (!matchData)){
         return false
     }
-    let startData = matchStartData[0]
-    let runData = matchData[0]
+    let startData = matchStartData[matchStartData.length - 1]
+    let runData = matchData[matchData.length -1]
     let startTime = moment(startData.log_time).add(8, 'hours');
     let endTime = moment(runData.log_time).add(8, 'hours');
     let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
@@ -348,8 +348,8 @@ function renderPlace(placeStartData, placeData, rowType){
     if ((!placeStartData) || (!placeData)){
         return false
     }
-    let startData = placeStartData[0]
-    let runData = placeData[0]
+    let startData = placeStartData[placeStartData.length -1]
+    let runData = placeData[placeData.length -1]
     let startTime = moment(startData.log_time).add(8, 'hours');
     let endTime = moment(runData.log_time).add(8, 'hours');
     let runTime = moment.duration(endTime.diff(startTime)).asMilliseconds() / 1000
