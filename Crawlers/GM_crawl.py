@@ -54,10 +54,10 @@ class GMCrawler():
                 '$sort': {'triggered_at_gm': 1}
             }, {
                 '$group': {
-                    '_id': None,
+                    '_id': {"uuid_ue": "$uuid_ue", "uuid_fp": "$uuid_fp"},
                     'triggered_at_gm': {'$last': '$triggered_at_gm'},
                     'data': {
-                        "$addToSet": {
+                        "$push": {
                             "uuid_ue": "$uuid_ue",
                             "uuid_fp": "$uuid_fp",
                             "uuid_gm": "$uuid_gm",
@@ -73,21 +73,14 @@ class GMCrawler():
         cursor = db[collection].aggregate(pipeline)
         update_records = []
         loop_count = 0
-        try:
-            datas = next(cursor)['data']
-            print('Record sample:')
-            print(datas[0])
-        except Exception:
-            print('No old records to update.')
-            cursor.close()
-            return None
-        for data in datas:
+        for diner_dict in cursor:
+            data = diner_dict['data'][-1]
             loop_count += 1
             record = UpdateOne(
                 {
+                    'triggered_at': triggered_at,
                     'uuid_ue': data['uuid_ue'],
                     'uuid_fp': data['uuid_fp'],
-                    'triggered_at': triggered_at
                 }, {'$set': data}
             )
             update_records.append(record)
@@ -126,7 +119,7 @@ class GMCrawler():
             },
             {
                 '$group': {
-                    '_id': None,
+                    '_id': {"uuid_ue": "$uuid_ue", "uuid_fp": "$uuid_fp"},
                     'data': {
                         "$addToSet": {
                             "uuid_ue": "$uuid_ue",
@@ -145,21 +138,14 @@ class GMCrawler():
         cursor = db[collection].aggregate(pipeline)
         update_records = []
         loop_count = 0
-        try:
-            datas = next(cursor)['data']
-            print('Record sample:')
-            print(datas[0])
-        except Exception:
-            print('No old records to update.')
-            cursor.close()
-            return None
-        for data in datas:
+        for diner_dict in cursor:
+            data = diner_dict['data'][-1]
             loop_count += 1
             record = UpdateOne(
                 {
+                    'triggered_at': triggered_at,
                     'uuid_ue': data['uuid_ue'],
                     'uuid_fp': data['uuid_fp'],
-                    'triggered_at': triggered_at
                 }, {'$set': data}
             )
             update_records.append(record)
