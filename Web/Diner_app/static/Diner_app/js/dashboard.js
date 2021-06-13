@@ -1,7 +1,10 @@
 let today = moment();
 let startDateDom = document.querySelector('#start-date')
 let endDateDom = document.querySelector('#end-date')
+let startTimeDom = document.querySelector('#start-time')
+let endTimeDom = document.querySelector('#end-time')
 let todayDate = today.format('YYYY-MM-DD')
+let nowTime = today.format('HH:mm:ss')
 let utcOffset = moment().utcOffset()
 let utcNow = moment().utcOffset(-(utcOffset))
 let todayStartRefresh = moment().set({'hour': 2 + (utcOffset /60), 'minutes': 30, 'second': 0}).utcOffset(-(utcOffset))
@@ -13,7 +16,10 @@ startDateDom.min = '2021-06-12'
 startDateDom.max = todayDate
 endDateDom.min = '2021-06-12'
 endDateDom.max = todayDate
-let initData = {"start_date": todayDate, "end_date": todayDate}
+startTimeDom.value = '00:00:00'
+endTimeDom.value = nowTime
+
+let initData = {"start_date": `${todayDate} ${startTimeDom.value}`, "end_date": `${todayDate} ${endTimeDom.value}`}
 
 let ueLambdaDinerCountGraph = document.getElementById('ue-lambda-bar-graph');
 let fpLambdaDinerCountGraph = document.getElementById('fp-lambda-bar-graph');
@@ -644,10 +650,12 @@ initPost(dashboardApi, initData)
 document.getElementById('select-dates').addEventListener('change', (e)=>{
     let startDate = startDateDom.value
     let endDate = endDateDom.value
+    let startTime = startTimeDom.value
+    let endTime = endTimeDom.value
     if (moment(endDate).isBefore(moment(startDate))){
         endGTStartWarn()
     } else {
-    let data = {'start_date': startDate, 'end_date': endDate}
+    let data = {"start_date": `${todayDate} ${startTimeDom.value}`, "end_date": `${todayDate} ${endTimeDom.value}`}
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
         resetTable()
