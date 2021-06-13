@@ -8,6 +8,33 @@ from Crawlers.Trigger_log import TriggerLog
 # Create your models here.
 
 
+class NoteqManager(models.Manager):
+    def add_noteq(self, user, uuid_ue, uuid_fp, uuid_gm):
+        noteq_sqlrecord = self.create(
+            user=user,
+            uuid_ue=uuid_ue,
+            uuid_fp=uuid_fp,
+            uuid_gm=uuid_gm,
+            count=1)
+        return noteq_sqlrecord
+
+
+class Noteq(models.Model):
+    uuid_ue = models.CharField(max_length=40, default=None, blank=True, null=True)
+    uuid_fp = models.CharField(max_length=40, default=None, blank=True, null=True)
+    uuid_gm = models.CharField(max_length=40, default=None, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    count = models.IntegerField(default=0)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+    objects = models.Manager()
+    manager = NoteqManager()
+
+    def __str__(self):
+        return f'user: {self.user.email} report {self.uuid_ue} ,{self.uuid_fp} ,{self.uuid_gm} not eq'
+
+
 class DashBoardModel():
     def __init__(self, db, cloudwatch):
         self.db = db

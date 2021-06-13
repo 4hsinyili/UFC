@@ -9,7 +9,7 @@ from rest_framework.parsers import JSONParser
 from .serializers import MatchSerializer, FilterSerializer, DashBoardSerializer
 # from django.db import transaction
 # from rest_framework.generics import GenericAPIView
-from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, DashBoardModel
+from .models import MatchChecker, MatchFilters, MatchSearcher, MatchDinerInfo, Favorites, Noteq, DashBoardModel
 import env
 from pymongo import MongoClient
 # import time
@@ -255,6 +255,23 @@ class FavoritesAPI(views.APIView):
             'data_count': len(results),
             'data': data
             })
+
+
+class NoteqAPI(views.APIView):
+
+    @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
+    def post(self, request):
+        request_data = request.data
+        if request.user.is_authenticated:
+            pass
+        else:
+            return Response({'message': 'need login'})
+        uuid_ue = request_data['uuid_ue']
+        uuid_fp = request_data['uuid_fp']
+        uuid_gm = request_data['uuid_gm']
+        noteq_sqlrecord = Noteq.manager.add_noteq(request.user, uuid_ue, uuid_fp, uuid_gm)
+        # print(noteq_sqlrecord)
+        return Response({'message': 'update favorite success', 'result': str(noteq_sqlrecord)})
 
 
 def dinerlist(request):

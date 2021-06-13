@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/v1/dinerinfo', views.DinerInfo.as_view()),
     path('api/v1/filters', views.Filters.as_view()),
     path('api/v1/favorites', views.FavoritesAPI.as_view()),
+    path('api/v1/noteq', views.NoteqAPI.as_view()),
     path('api/v1/dashboard', views.DashBoardView.as_view()),
     path('', views.dinerlist, name='dinerlist'),
     path('dinerinfo', views.dinerinfo, name='dinerinfo'),
