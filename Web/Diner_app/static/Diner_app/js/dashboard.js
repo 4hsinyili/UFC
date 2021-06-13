@@ -233,8 +233,8 @@ function renderPlaceRow(row, info){
     row.querySelector(`[data-cell="log-time"]`).innerText = info.start_time
     row.querySelector(`[data-cell="update-found-count"]`).innerText = info.update_found_count
     row.querySelector(`[data-cell="update-not-found-count"]`).innerText = info.update_not_found_count
-    row.querySelector(`[data-cell="api-count"]`).innerText = info.api_count
-    row.querySelector(`[data-cell="diner-count"]`).innerText = info.diner_count
+    row.querySelector(`[data-cell="api-found-count"]`).innerText = info.api_found
+    row.querySelector(`[data-cell="api-not-found-count"]`).innerText = info.api_not_found
     row.querySelector(`[data-cell="run-time"]`).innerText = info.run_time
     return row
 }
