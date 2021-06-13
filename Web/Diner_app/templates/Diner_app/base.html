@@ -34,12 +34,14 @@
                     <div class="nav-item col-2" data-fix-content>
                         <a id='current-page' name="bread-crumb-no-padding" class="nav-link disabled" href="">{{current_page}}</a>
                     </div>
+                    {% if current_page == '店家資訊' or current_page == '店家列表'  or current_page == '收藏' or current_page == '儀表板' %}
                     <div name="bread-crumb-line-no-padding" class="nav-item col-1" data-fix-content>
                         <a name="bread-crumb-line-no-padding" class="nav-link disabled" href="">/</a>
                     </div>
                     <div class="nav-item col-2" data-fix-content>
                         <a id='back-to-top' name="bread-crumb-no-padding" class="nav-link" href="#top">回到頂端</a>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="col">
@@ -52,6 +54,11 @@
                     {% if user_is_authenticated and current_page != '收藏' %}
                     <div class="nav-item col-1" data-fix-content>
                         <a name="nav-link-no-padding" class="nav-link" href="/favorites">收藏</a>
+                    </div>
+                    {% endif %}
+                    {% if current_page != '儀表板' %}
+                    <div class="nav-item col-2" data-fix-content>
+                        <a name="nav-link-no-padding" class="nav-link" href="/dashboard">儀表板</a>
                     </div>
                     {% endif %}
                     {% if user_is_authenticated%}
