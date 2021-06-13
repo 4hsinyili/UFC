@@ -183,7 +183,7 @@ function dispatchPlaceData(placeStartData, placeData, source){
         }
     }
     if (graphXArray.length > 0){
-        renderPDinerCountGraph([graphXArray, barInfoAC, barInfoUFC, barInfoUNFC], source)
+        renderPDinerCountGraph([graphXArray, barInfoAFC, barInfoANFC, barInfoUFC, barInfoUNFC], source)
         renderPRunTimeGraph([graphXArray, lineInfo], source)
     }
 }
@@ -349,7 +349,6 @@ function renderPlace(placeStartData, placeData, rowType){
     let apiNotFoundCount = runData.api_not_found
     let info = {
         'run_time': runTime,
-        'api_count': apiCount,
         'update_found_count': updateFoundCount,
         'update_not_found_count': updateNotFoundCount,
         'api_found': apiFoundCount,
@@ -507,31 +506,39 @@ function renderMDinerCountGraph(infoArray, source){
 
 function renderPDinerCountGraph(infoArray, source){
     let x = infoArray[0]
-    let pAC = infoArray[1]
-    let pUFC = infoArray[2]
-    let pUNFC = infoArray[3]
+    let pAFC = infoArray[1]
+    let pANFC = infoArray[2]
+    let pUFC = infoArray[3]
+    let pUNFC = infoArray[4]
     let plotConf = [
         {
             histfunc: "sum",
-            y: pAC,
+            y: pAFC,
             x: x,
             type: "bar",
             name: "有，以 Place API 查詢"
-          },
-          {
+        },
+        {
+            histfunc: "sum",
+            y: pANFC,
+            x: x,
+            type: "bar",
+            name: "有，以 Place API 查詢"
+        },
+        {
             histfunc: "sum",
             y: pUFC,
             x: x,
             type: "bar",
             name: "有，以現有資料更新"
-          },
-          {
+        },
+        {
             histfunc: "sum",
             y: pUNFC,
             x: x,
             type: "bar",
             name: "沒有"
-          }
+        }
     ]
     let graph = document.getElementById(source.concat('-bar-graph'))
     let plotTitle = 'Google Map 資料查詢結果'
