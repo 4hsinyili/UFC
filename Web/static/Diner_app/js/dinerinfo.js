@@ -30,7 +30,8 @@ reportError.addEventListener('click', (e)=>{
         Swal.fire({
             title: '回報方式',
             html: reContent,
-            customClass: 'justify-content-center'
+            customClass: 'justify-content-center',
+            showConfirmButton: false
         })
     }
 })
