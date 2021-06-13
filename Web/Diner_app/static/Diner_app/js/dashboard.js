@@ -392,13 +392,21 @@ function renderLambdaDinerCountGraph(infoArray, source){
             y: listDinerCount,
             x: x,
             type: "bar",
-            name: "遍歷候選餐廳總數"
+            name: "遍歷候選餐廳總數",
+            marker: {
+                color: '#5999d4',
+                opacity: 0.8,
+              }
           },
           {
             y: detailDinerCount,
             x: x,
             type: "bar",
-            name: "可外送到 Appworks School 餐廳數"
+            name: "可外送到 Appworks School 餐廳數",
+            marker: {
+                color: '#003585',
+                opacity: 0.8,
+              }
           }
     ]
     let plotTitle = ''
@@ -434,14 +442,22 @@ function renderLambdaRunTimeGraph(infoArray, source){
         x: x,
         y: listRunTime,
         name: '遍歷候選餐廳花費時間',
-        type: 'scatter'
+        type: 'scatter',
+        marker: {
+            color: '#5999d4',
+            opacity: 0.8,
+          }
       };
       
     let trace2 = {
         x: x,
         y: detailRunTime,
         name: '爬取可外送餐廳資訊花費時間',
-        type: 'scatter'
+        type: 'scatter',
+        marker: {
+            color: '#003585',
+            opacity: 0.8,
+          }
         };
     
     let data = [trace1, trace2];
@@ -480,14 +496,22 @@ function renderMDinerCountGraph(infoArray, source){
             y: mUnmatchedDinerCount,
             x: x,
             type: "bar",
-            name: "不同"
+            name: "不同",
+            marker: {
+                color: '#5999d4',
+                opacity: 0.8,
+              }
         },
         {
             histfunc: "sum",
             y: mMatchedDinerCount,
             x: x,
             type: "bar",
-            name: "相同"
+            name: "相同",
+            marker: {
+                color: '#003585',
+                opacity: 0.8,
+            }
         }
     ]
     let plotTitle = 'Uber Eats, Food Panda 餐廳比對結果'
@@ -526,28 +550,44 @@ function renderPDinerCountGraph(infoArray, source){
             y: pAFC,
             x: x,
             type: "bar",
-            name: "有，以 Place API 查詢"
+            name: "有，以 Place API 查詢",
+            marker: {
+                color: '#003585',
+                opacity: 0.8,
+            }
         },
         {
             histfunc: "sum",
             y: pANFC,
             x: x,
             type: "bar",
-            name: "有，以 Place API 查詢"
+            name: "沒有，以 Place API 查詢",
+            marker: {
+                color: '#5e33d4',
+                opacity: 0.8,
+            }
         },
         {
             histfunc: "sum",
             y: pUFC,
             x: x,
             type: "bar",
-            name: "有，以現有資料更新"
+            name: "有，以現有資料更新",
+            marker: {
+                color: '#5999d4',
+                opacity: 0.8,
+            }
         },
         {
             histfunc: "sum",
             y: pUNFC,
             x: x,
             type: "bar",
-            name: "沒有"
+            name: "沒有，以現有資料更新",
+            marker: {
+                color: '#2735f8',
+                opacity: 0.8,
+            }
         }
     ]
     let graph = document.getElementById(source.concat('-bar-graph'))
@@ -563,10 +603,10 @@ function renderPDinerCountGraph(infoArray, source){
           },
         legend: {
             "orientation": "h",
-            "y" : 1.05
+            "y" : 1.12
         },
         margin: { 
-            t: 40,
+            t: 60,
             b: 30
         },
         barmode: 'stack'
