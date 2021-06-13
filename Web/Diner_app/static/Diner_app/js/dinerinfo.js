@@ -117,6 +117,8 @@ function renderTitle(diner, source){
     let titleDom = document.getElementById(selector)
     titleDom.innerText = diner['title_'.concat(source)]
     titleDom.setAttribute('href', diner['link_'.concat(source)])
+    let webTitle = document.getElementById('web-title')
+    webTitle.innerText = webTitle.innerText.concat(' | ').concat(diner['title_'.concat(source)])
     return titleDom
 }
 
