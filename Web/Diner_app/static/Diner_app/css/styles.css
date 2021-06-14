@@ -74,3 +74,12 @@ html {
 [data-source-css=gm]{
     color: #0A58CA !important;
 }
+
+.btn-light{
+    background-color: #ebebeb !important;
+}
+
+.btn-light:hover{
+    background-color: #343A40 !important;
+    color: white !important;
+}

@@ -186,11 +186,6 @@ a:link {
     margin-top: 10px;
 }
 
-#show-more:hover{
-    background-color: black;
-    color: white;
-}
-
 .btn-danger{
     background-color: #DB625A !important;
     border-color: #DB625A !important;
