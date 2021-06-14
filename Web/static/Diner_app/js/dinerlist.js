@@ -74,8 +74,16 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
     titleNode.innerText = title
     let imageNode = dinerNode.querySelector('.image_'.concat(source))
     imageNode.setAttribute('src', image)
-    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = `${rating}(${viewCount})`
-    dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time} 分鐘)`
+    if (rating == 0){
+        dinerNode.querySelector('.rating_value_'.concat(source)).innerText = '新上架'
+    } else {
+        dinerNode.querySelector('.rating_value_'.concat(source)).innerText = `${rating}(${viewCount})`
+    }
+    if (deliver_fee == 0){
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `無資料`
+    } else {
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time} 分鐘)`
+    }
     dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
     let tagsText = dinerNode.querySelector('.tags_'.concat(source)).innerText
     for (let i = 0; i < tags.length; i++){
@@ -213,7 +221,16 @@ function renderDiner(diner){
     return dinerNode
 }
 
+function noData(){
+    Swal.fire({
+        'title': "無符合條件的店家，請重新查詢"
+    })
+}
+
 function renderList(data){
+    if (data.no_data == 1){
+        return false
+    }
     let results = data.data
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
@@ -224,13 +241,13 @@ function renderList(data){
         $(newDividerRow).show()
         $(diner).show()
     }
-    console.log(data)
     if (data.has_more == true){
         showMoreDom.setAttribute('data-offset', data.next_offset)
         $(showMoreDom).show()
     } else {
         $(showMoreDom).hide()
     }
+    return true
 }
 
 function renderMore(data){
@@ -506,20 +523,25 @@ function search(offset, showMore=false){
     conditions = turnFIltersToConditions(conditions, filterSet)
     conditions = turnSortersToConditions(conditions, sorterSet)
     data = {'condition': conditions, 'offset': offset}
-    console.log(conditions)
     if (showMore){
         let height = $(document).height()
         ajaxPost(dinerSearchAPI, data, function(response){
-            renderList(response)
+            result = renderList(response)
             window.scrollTo(0,(height - (200)));
             endLoading()
+            if (!result){
+                noData()
+            }
         })
     }
     else {
         ajaxPost(dinerSearchAPI, data, function(response){
             clearDIners()
-            renderList(response)
+            result = renderList(response)
             endLoading()
+            if (!result){
+                noData()
+            }
         })
     }
     Cookies.set('ufc_condition', JSON.stringify(conditions))
@@ -551,11 +573,9 @@ function bringConditionBack(){
         }
         if (conditionsKeys.includes('keyword')){
             keywordExist = bringKeywordBack(conditions.keyword)
-            console.log(conditions.keyword)
         }
     }
     if (ufc_offset > 0){
-        console.log('a')
     }
     if ((filtersExist) || (sortersExist) || (keywordExist)){
         search(ufc_offset)
@@ -573,7 +593,7 @@ function bringFiltersBack(cookieFilters){
     let realFilters = []
     for (let i=0; i<cookieFilters.length; i++){
         let filter = cookieFilters[i]
-        if ((filter.field == 'default') || (filter.filter == 'default') || (filter.value == null) ){ console.log('default filter')}
+        if ((filter.field == 'default') || (filter.filter == 'default') || (filter.value == null) ){}
         else{realFilters.push(filter)}
     }
     for (let i=1; i<realFilters.length; i++){
@@ -603,7 +623,7 @@ function bringSortersBack(cookieSorters){
     let realSorters = []
     for (let i=0; i<cookieSorters.length; i++){
         let sorter = cookieSorters[i]
-        if ((sorter.field == 'default') || (sorter.sorter == 'default')){ console.log('default sorter')}
+        if ((sorter.field == 'default') || (sorter.sorter == 'default')){}
         else{realSorters.push(sorter)}
     }
     for (let i=1; i<realSorters.length; i++){

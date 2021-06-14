@@ -58,3 +58,10 @@ function showLoading(){
 function endLoading() {
     Swal.close()
 }
+
+$(window).bind('beforeunload', function(){
+    let lastVisitUrl = window.location.href
+    if (lastVisitUrl.endsWith('login')){}
+    else if (lastVisitUrl.endsWith('register')){}
+    else (Cookies.set('ufc_last_visit', lastVisitUrl))
+});

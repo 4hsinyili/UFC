@@ -205,12 +205,9 @@ a:link {
     height: 24px;
 }
 
-[name="source-link"]{
-    text-decoration: underline !important;
-}
-
 [name="source-link-a"]{
     margin-bottom: 0 !important;
+    text-decoration: underline !important;
 }
 
 #search-box{
@@ -232,4 +229,23 @@ h4{
 
 [data-btn-group-no-padding]{
     padding: 0 !important;
+}
+
+[name=deliver_svg]{
+    color: #F7C133;
+}
+
+[name=diner-title-row]{
+    margin-bottom: 5px;
+}
+
+[name=logo_svg]{
+    height: 36px;
+    width: 36px;
+}
+
+.line{
+    height: 1px;
+    margin-top: 10px;
+    background-color: #ebebeb;
 }
