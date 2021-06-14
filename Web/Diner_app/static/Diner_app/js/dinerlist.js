@@ -241,7 +241,6 @@ function renderList(data){
         $(newDividerRow).show()
         $(diner).show()
     }
-    console.log(data)
     if (data.has_more == true){
         showMoreDom.setAttribute('data-offset', data.next_offset)
         $(showMoreDom).show()
@@ -524,7 +523,6 @@ function search(offset, showMore=false){
     conditions = turnFIltersToConditions(conditions, filterSet)
     conditions = turnSortersToConditions(conditions, sorterSet)
     data = {'condition': conditions, 'offset': offset}
-    console.log(conditions)
     if (showMore){
         let height = $(document).height()
         ajaxPost(dinerSearchAPI, data, function(response){
@@ -575,11 +573,9 @@ function bringConditionBack(){
         }
         if (conditionsKeys.includes('keyword')){
             keywordExist = bringKeywordBack(conditions.keyword)
-            console.log(conditions.keyword)
         }
     }
     if (ufc_offset > 0){
-        console.log('a')
     }
     if ((filtersExist) || (sortersExist) || (keywordExist)){
         search(ufc_offset)
@@ -597,7 +593,7 @@ function bringFiltersBack(cookieFilters){
     let realFilters = []
     for (let i=0; i<cookieFilters.length; i++){
         let filter = cookieFilters[i]
-        if ((filter.field == 'default') || (filter.filter == 'default') || (filter.value == null) ){ console.log('default filter')}
+        if ((filter.field == 'default') || (filter.filter == 'default') || (filter.value == null) ){}
         else{realFilters.push(filter)}
     }
     for (let i=1; i<realFilters.length; i++){
@@ -627,7 +623,7 @@ function bringSortersBack(cookieSorters){
     let realSorters = []
     for (let i=0; i<cookieSorters.length; i++){
         let sorter = cookieSorters[i]
-        if ((sorter.field == 'default') || (sorter.sorter == 'default')){ console.log('default sorter')}
+        if ((sorter.field == 'default') || (sorter.sorter == 'default')){}
         else{realSorters.push(sorter)}
     }
     for (let i=1; i<realSorters.length; i++){
