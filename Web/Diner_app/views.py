@@ -34,8 +34,8 @@ class DashBoardView(views.APIView):
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         model = DashBoardModel(db, cloudwatch)
-        end_date = datetime.datetime.strptime(request.data['end_date'], '%Y-%m-%d %H:%M:%S')
-        start_date = datetime.datetime.strptime(request.data['start_date'], '%Y-%m-%d %H:%M:%S')
+        end_date = datetime.datetime.strptime(request.data['end_date'], '%Y-%m-%d %H:%M')
+        start_date = datetime.datetime.strptime(request.data['start_date'], '%Y-%m-%d %H:%M')
         end_time = datetime.datetime.combine(end_date, datetime.time.max)
         start_time = datetime.datetime.combine(start_date, datetime.time.min)
         # start_time = datetime.datetime.combine(start_date, datetime.time(12, 30, 0))

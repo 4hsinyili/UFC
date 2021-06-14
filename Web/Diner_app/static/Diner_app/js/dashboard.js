@@ -4,7 +4,7 @@ let endDateDom = document.querySelector('#end-date')
 let startTimeDom = document.querySelector('#start-time')
 let endTimeDom = document.querySelector('#end-time')
 let todayDate = today.format('YYYY-MM-DD')
-let nowTime = today.format('HH:mm:ss')
+let nowTime = today.format('HH:mm')
 let utcOffset = moment().utcOffset()
 let utcNow = moment().utcOffset(-(utcOffset))
 let todayStartRefresh = moment().set({'hour': 2 + (utcOffset /60), 'minutes': 30, 'second': 0}).utcOffset(-(utcOffset))
@@ -20,7 +20,7 @@ startDateDom.min = '2021-06-13'
 startDateDom.max = todayDate
 endDateDom.min = '2021-06-13'
 endDateDom.max = todayDate
-startTimeDom.value = '00:00:00'
+startTimeDom.value = '00:00'
 endTimeDom.value = nowTime
 
 let initData = {"start_date": `${todayDate} ${startTimeDom.value}`, "end_date": `${todayDate} ${endTimeDom.value}`}
@@ -35,8 +35,8 @@ let dashboardApi = 'api/v1/dashboard';
 
 const csrftoken = getCookie('csrftoken');
 
-function initPost(dashboardApi, data){
-    ajaxPost(dashboardApi, data, function(response){
+function initPost(dashboardApi, intData){
+    ajaxPost(dashboardApi, intData, function(response){
         console.log(response)
         renderDashBoard(response)
     })
@@ -50,7 +50,10 @@ function setIntervalAndExecute(fn, t){
 function autoUpadte(){
     let startDate = startDateDom.value
     let endDate = endDateDom.value
-    let data = {'start_date': startDate, 'end_date': endDate}
+    let startTime = startTimeDom.value
+    let endTime = endTimeDom.value
+    let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
+    console.log(data)
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
         resetTable()
@@ -699,7 +702,8 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
     if (moment(endDate).isBefore(moment(startDate))){
         endGTStartWarn()
     } else {
-    let data = {"start_date": `${todayDate} ${startTimeDom.value}`, "end_date": `${todayDate} ${endTimeDom.value}`}
+    let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
+    console.log(data)
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
         resetTable()
