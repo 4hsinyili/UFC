@@ -40,19 +40,18 @@ const csrftoken = getCookie('csrftoken');
 
 function renderDiner(response, source){
     let diner = response.data
-    let titleDom = renderTitle(diner, source)
-    let imageDom = renderImage(diner, source)
-    let ratingDom = renderRating(diner, source)
-    let viewCountDom = renderViewCount(diner, source)
-    let deliverFeeDom = renderDeliverFee(diner, source)
-    let deliverTimeDom = renderDeliverTime(diner,source)
-    let openHoursDom = renderOpenHours(diner, source)
+    renderTitle(diner, source)
+    renderImage(diner, source)
+    renderRating(diner, source)
+    renderViewCount(diner, source)
+    renderDeliverFee(diner, source)
+    renderDeliverTime(diner,source)
+    renderOpenHours(diner, source)
     let pivotMenuResults = pivotMenu(diner, source)
     let sections = pivotMenuResults[0]
     let subsectionTitles = pivotMenuResults[1]
     renderMenu(sections, source)
     renderColumnName(diner, source)
-    return [titleDom, imageDom, ratingDom, viewCountDom, deliverFeeDom, deliverTimeDom, openHoursDom]
 }
 
 function renderGMInfo(response){
@@ -92,21 +91,16 @@ function removeDiner(source){
     deliverTimeDom.remove()
     let openHoursDom = document.getElementById(`open_hours_${source}`)
     openHoursDom.remove()
-    let menuDom = document.getElementById(`menu_${source}`)
+    let menuDom = document.getElementById(`menu-col_${source}`)
     menuDom.remove()
+    if (source == 'ue') {document.getElementById('menu-col_fp').className = 'col'}
+    if (source == 'fp') {document.getElementById('menu-col_ue').className = 'col'}
     let infoColumnNameDom = document.getElementById(`column_name_${source}`)
     infoColumnNameDom.remove()
     let showMoreDom = document.getElementById(`show-more-info_${source}`)
     showMoreDom.remove()
-    let dividerDom = document.getElementById(`divider_${source}`)
-    dividerDom.remove()
     let detailDom = document.getElementById(`detail_${source}`)
     detailDom.remove()
-}
-
-function removePk(){
-    document.getElementById('menu_pk').remove()
-    $('[id^="cheaper-item_"]').remove()
 }
 
 function renderTitle(diner, source){
@@ -229,10 +223,10 @@ function pivotMenu(diner,source){
     for (let i=0; i < menus.length; i++){
         let menu = menus[i]
         let sectionTitle = menu.section_title
-        let subsectionTitle = menu.subsection_title
-        subsectionTitleSet.push(subsectionTitle)
+        let subCateTitle = menu.subsection_title
+        subsectionTitleSet.push(subCateTitle)
         let items = {
-            'subsection_title': subsectionTitle,
+            'subsection_title': subCateTitle,
             'items': menu.items
         }
         sections[sectionTitle].push(items)
@@ -241,30 +235,54 @@ function pivotMenu(diner,source){
 }
 
 function renderMenu(sections, source){
-    let queryString = window.location.search;
-    let urlParams = new URLSearchParams(queryString);
-    let uuidUE = urlParams.get('uuid_ue')
-    let uuidFP = urlParams.get('uuid_fp')
     let keys = Object.keys(sections)
-    let menuSectionsDom = document.querySelector(`[name=sections_${source}]`)
-    let menuPkSectionsDom = document.querySelector(`[name=sections_pk_${source}]`)
-    let tabsDom = document.getElementById(`section-tabs_${source}`)
-    let tabsPkDom = document.getElementById(`section-tabs_pk_${source}`)
+    let mainCateSel = document.getElementById('main-cate_'.concat(source))
+    let subCateSelS = document.getElementById('sub-cates_'.concat(source))
+    
+    mainCateSel.setAttribute('data-source', source)
+    mainCateSel.addEventListener('change', (e)=>{
+        toggleSubCateSel(e.target)
+    })
+
     for (let i=0; i < keys.length; i++){
         let key = keys[i]
-        let subsections = sections[key]
-        let newSection = dinerSection.cloneNode(true)
-        for (let r=0; r < subsections.length; r++){
-            let subsection = subsections[r]
-            let items = subsection.items
-            let newSubsection = dinerSubsection.cloneNode(true)
-            let subsctionTitle = subsection.subsection_title
-            let subsectionTitleDom = newSubsection.querySelector('[name=subsection-title]')
-            subsectionTitleDom.addEventListener('click', function(e){
-                toggleItems(e.target)
-            })
+        let newOpt = document.createElement('option')
+        newOpt.value = i
+        newOpt.innerText = key
+        mainCateSel.appendChild(newOpt)
+        
+        let newSubCateSel = document.getElementsByName('sub-cate')[0].cloneNode(true)
+        newSubCateSel.name = 'sub-cate_'.concat(source)
+        $(newSubCateSel).attr('data-main-cate-number', i)
+        $(newSubCateSel).attr('data-source', source)
+        subCateSelS.appendChild(newSubCateSel)
+
+        let subCates = sections[key]
+        let newMainCate = dinerSection.cloneNode(true)
+
+        newSubCateSel.addEventListener('change', (e)=>{
+            let target = e.target
+            toggleSubCate(e.target)
+        })
+
+        for (let r=0; r < subCates.length; r++){
+            let subCate = subCates[r]
+            let newSubCateDom = dinerSubsection.cloneNode(true)
+
+            newSubCateDom.setAttribute('data-source', source)
+
+            let items = subCate.items
+            let subCateTitle = subCate.subsection_title
+            
+            let newSubOpt = document.createElement('option')
+
+            newSubOpt.value = r
+            newSubOpt.innerText = subCateTitle
+            newSubCateSel.appendChild(newSubOpt)
+            
             let newItemsDom = dinerItems.cloneNode(true)
-            subsectionTitleDom.innerText = subsctionTitle
+            $(newSubCateDom).attr('data-sub-cate-number', r)
+            
             for (let z=0; z < items.length; z++){
                 let item = items[z]
                 let newItem = dinerItem.cloneNode(true)
@@ -283,41 +301,32 @@ function renderMenu(sections, source){
                 $(newItem).show()
                 newItemsDom.appendChild(newItem)
             }
-            $(newItemsDom).hide()
-            newSubsection.appendChild(newItemsDom)
-            $(newSubsection).show()
-            newSection.appendChild(newSubsection)
-        }
-        let newTabDom = tabDom.cloneNode(true)
-        newTabDom.innerText = key
-        newTabDom.setAttribute('data-source', source)
-        $(newTabDom).show()
-        let newPkTabDom = tabPkDom.cloneNode(true)
-        newPkTabDom.innerText = key
-        newPkTabDom.setAttribute('data-source', source)
-        tabsDom.appendChild(newTabDom)
-        let newPkSection = newSection.cloneNode(true)
-        newSection.setAttribute('data-section-title', key)
-        newSection.setAttribute('data-source', source)
-        $(newSection).show()
-        menuSectionsDom.appendChild(newSection)
-        if (uuidUE && uuidFP){
-            $(newPkTabDom).show()
-            tabsPkDom.appendChild(newPkTabDom)
-            newPkSection.setAttribute('data-section-title-pk', key)
-            newPkSection.setAttribute('data-source', source)
-            $(newPkSection).hide()
-            $(newPkSection).find('[name=subsection-title]').click(function(e){
-                toggleItems(e.target)
-            })
-            menuPkSectionsDom.appendChild(newPkSection)
+            $(newItemsDom).show()
+            newSubCateDom.appendChild(newItemsDom)
+            // $(newSubCateDom).show()
+            newMainCate.appendChild(newSubCateDom)
+            document.getElementById('sub-cate_'.concat(source)).appendChild(newSubCateDom)
         }
     }
 }
 
-function toggleItems(subsectionTitleDom){
-    let itemsDom = subsectionTitleDom.parentNode.nextElementSibling
-    $(itemsDom).toggle()
+function toggleSubCateSel(target){
+    let dataMainCateNum = target.value
+    let source = target.getAttribute('data-source')
+    let subCates = document.querySelectorAll(`[name="sub-cate_${source}"]`)
+    let chosedSubCates = document.querySelector(`[name="sub-cate_${source}"][data-main-cate-number="${dataMainCateNum}"]`)
+    $(subCates).hide()
+    $(chosedSubCates).show()
+    return chosedSubCates
+}
+
+function toggleSubCate(target){
+    let dataSubCateNum = target.value
+    let source = target.getAttribute('data-source')
+    let subCates = document.querySelectorAll(`[name="subsection"][data-source=${source}]`)
+    let chosedSubCates = document.querySelector(`[name="subsection"][data-source=${source}][data-sub-cate-number="${dataSubCateNum}"]`)
+    $(subCates).hide()
+    $(chosedSubCates).show()
 }
 
 function removeUEFPMenu(){
@@ -349,7 +358,6 @@ document.addEventListener('click', (e)=>{
         }
         showLoading()
         ajaxPost(nqAPI, data, function(response){
-            console.log(response)
             endLoading()
             Toast.fire({
                 icon: 'success',
@@ -395,47 +403,68 @@ function addFPNQGMBtn(uuidUE, uuidFP, uuidGM){
 
 showLoading()
 ajaxGet(dinerInfoAPI, function(response){
-    console.log(response)
+    let uuidUE = response.data.uuid_ue
+    let uuidFP = response.data.uuid_fp
     let uuidGM = response.data.uuid_gm
-    if (uuidUE){
-        renderDiner(response, 'ue')
-        $('#info_ue').show()
-    } else {
-        removeDiner('ue')
-    }
-    if (uuidFP){
-        renderDiner(response, 'fp')
-        $('#info_fp').show()
-    }
-    else {
-        removeDiner('fp')
-    }
-    if (!(uuidUE) | !(uuidFP)){
-        removePk()
-    }
-    if (uuidUE && uuidFP){
-        renderCheaper(response.data)
-        removeUEFPMenu()
-    }
     if (uuidUE && uuidFP && uuidGM){
-        addUENQFPBtn(uuidUE, uuidFP, uuidGM)
-        addUENQGMBtn(uuidUE, uuidFP, uuidGM)
-        addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
-    } else if (uuidUE && uuidGM){
-        addUENQGMBtn(uuidUE, uuidFP, uuidGM)
-        renderGMInfo(response)
-    } else if (uuidFP && uuidGM){
-        addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
-        renderGMInfo(response)
-    } else if (uuidUE && uuidFP){
+        renderDiner(response, 'ue')
+        renderDiner(response, 'fp')
         renderCheaper(response.data)
-        removeUEFPMenu()
+        $('#info_ue').show()
+        $('#info_fp').show()
+
         addUENQFPBtn(uuidUE, uuidFP, uuidGM)
-    } else {
+        addUENQGMBtn(uuidUE, uuidFP, uuidGM)
+        addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
+
+    } else if (uuidUE && uuidGM){
+
+        renderDiner(response, 'ue')
+        addUENQGMBtn(uuidUE, uuidFP, uuidGM)
+        removeDiner('fp')
+        renderGMInfo(response)
+
+    } else if (uuidFP && uuidGM){
+
+        renderDiner(response, 'fp')
+        addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
+        removeDiner('ue')
+        renderGMInfo(response)
+
+    } else if (uuidUE && uuidFP){
+
+        renderDiner(response, 'ue')
+        renderDiner(response, 'fp')
+        renderCheaper(response.data)
+        addUENQFPBtn(uuidUE, uuidFP, uuidGM)
+
+    } else if (uuidUE){
+
+        renderDiner(response, 'ue')
+        removeDiner('fp')
         removeGM()
+
+    } else if (uuidFP){
+
+        renderDiner(response, 'fp')
+        removeDiner('ue')
+        removeGM()
+
     }
     $('#diner-info').show()
     $('[data-section-title]').hide()
+    
+    if (uuidUE){
+        let mainSelUE = document.getElementById('main-cate_ue')
+        let chosedSubCates = toggleSubCateSel(mainSelUE)
+        toggleSubCate(chosedSubCates)
+    }
+    if (uuidFP){
+        let mainSelFP = document.getElementById('main-cate_fp')
+        let chosedSubCates = toggleSubCateSel(mainSelFP)
+        toggleSubCate(chosedSubCates)
+    }
+    
     endLoading()
 })
 
@@ -494,3 +523,5 @@ document.addEventListener('click', (e)=>{
         $(`[data-section-title-pk="${dataSectionTitle}"][data-source=${source}]`).toggle()
     }
 })
+
+

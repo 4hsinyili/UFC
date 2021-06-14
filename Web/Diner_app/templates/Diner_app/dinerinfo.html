@@ -86,53 +86,52 @@
         <div name="divider-container" class="row justify-content-center">
             <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg" data-number=0>
         </div>
-        <div id="menu_ue" class="row">
-            <div class="col-12">
-                <div data-source-css='ue'>
-                    <h6>Uber Eats 菜單</h6>
+        <div id="menus" class="row">
+            <div class="col-6" id='menu-col_ue'>
+                <div class="row">
+                    <h6 data-source-css='ue'>Uber Eats 菜單</h6>
+                </div>
+                <div id="menus-select-ue" class="row">
+                    <div class="col-5">
+                        <select class="form-select form-select-lg" id="main-cate_ue" data-cate-select>
+                        </select>
+                    </div>
+                    <div class="col-7" id='sub-cates_ue'>
+                    </div>
+                </div>
+                <div id="sub-cate_ue" class="row menu">
                 </div>
             </div>
-            <div class="col-12">
-                <div id="section-tabs_ue" class="row"></div>
-            </div>
-            <div name="sections_ue" class="col">
-            </div>
-        </div>
-        <div name="divider-container" id="divider_ue" class="row justify-content-center">
-            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg" data-number=0>
-        </div>
-        <div id="menu_fp" class="row">
-            <div class="col-12">
-                <div data-source-css='fp'>
-                    <h6>Food Panda 菜單</h6>
+            <div class="col-6" id="menu-col_fp">
+                <div class="row">
+                    <h6 data-source-css='fp'>Food Panda 菜單</h6>
+                </div>
+                <div id="menus-select-fp" class="row">
+                    <div class="col-5">
+                        <select class="form-select form-select-lg" id="main-cate_fp" data-cate-select>
+                        </select>
+                    </div>
+                    <div class="col-7" id='sub-cates_fp'>
+                    </div>
+                </div>
+                <div id="sub-cate_fp" class="row menu">
                 </div>
             </div>
-            <div class="col-12">
-                <div id="section-tabs_fp" class="row"></div>
-            </div>
-            <div name="sections_fp" class="col">
-            </div>
         </div>
-        <div name="divider-container" id="divider_fp" class="row justify-content-center">
+        <div name="divider-container" class="row justify-content-center">
             <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg" data-number=0>
-        </div>
-        <div id="menu_pk" class="row">
-            <div class="col-6">
-                <h6 data-source-css='ue'>Uber Eats 菜單</h6>
-                <div id="section-tabs_pk_ue" class="row"></div>
-                <div name="sections_pk_ue" class="row"></div>
-            </div>
-            <div class="col-6">
-                <h6 data-source-css='fp'>Food Panda 菜單</h6>
-                <div id="section-tabs_pk_fp" class="row"></div>
-                <div name="sections_pk_fp" class="row"></div>
-            </div>
         </div>
         <div class="d-grid gap-2" data-padding-12>
             <div id='report-error' data-login="{{ user_is_authenticated }}" class="btn btn-light btn-lg" data-offset=0>頁面上混雜著不同店家的資訊嗎？請點此回報</div>
         </div>
     </div>
-    <div name="item" class="col-12" style="display: none">
+    <div name="section-tab" class="col-1 align-middle" style="display: none;"></div>
+    <div name="section" class="row" style="display: none">
+    </div>
+    <div name="subsection" class="col-12" style="display: none">
+    </div>
+    <div name="items" class="row justify-content-center" style="display: none"></div>
+    <div name="item" class="col-11" style="display: none">
         <div class="row" name="item-title-price">
             <div class="col-8">
                 <h6 name="item-title"></h6>  
@@ -150,20 +149,6 @@
             </div>
         </div>
     </div>
-    <div name="items" class="row justify-content-center" style="display: none"></div>
-    <div name="subsection" class="col-12" style="display: none">
-        <div class="row">
-            <div class="line"></div>
-        </div>
-        <div class="row">
-            <div name="subsection-title"></div>
-        </div>
-    </div>
-    <div name="section" class="row" style="display: none">
-        <div name="section-title"></div>
-    </div>
-    <div name="section-tab" class="col-1 align-middle" style="display: none;"></div>
-    <div name="section-tab-pk" class="col-1" style="display: none;"></div>
     <div name=hide-pre style="display: none;">
         <pre id="open_hours_ue"></pre>
         <pre id="open_hours_fp"></pre>
@@ -189,6 +174,8 @@
             </a>
         </div>
     </div>
+    <select class="form-select form-select-lg" name="sub-cate" data-cate-select style="display: none;">
+    </select>
 {% endblock %}
 
 {% block javascript %}
