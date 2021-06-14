@@ -376,6 +376,7 @@ function addUENQFPBtn(uuidUE, uuidFP, uuidGM){
     let btnGroup = document.getElementById('re-btn-group')
     let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
     btn.innerText = 'UE != FP'
+    $(btn).addClass('btn-warning')
     btn.setAttribute('name', 'nq-btn')
     btn.setAttribute('data-uuid-ue', uuidUE)
     btn.setAttribute('data-uuid-fp', uuidFP)
@@ -387,6 +388,7 @@ function addUENQGMBtn(uuidUE, uuidFP, uuidGM){
     let btnGroup = document.getElementById('re-btn-group')
     let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
     btn.innerText = 'UE != GM'
+    $(btn).addClass('btn-primary')
     btn.setAttribute('name', 'nq-btn')
     btn.setAttribute('data-uuid-ue', uuidUE)
     btn.setAttribute('data-uuid-fp', uuidFP)
@@ -398,6 +400,7 @@ function addFPNQGMBtn(uuidUE, uuidFP, uuidGM){
     let btnGroup = document.getElementById('re-btn-group')
     let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
     btn.innerText = 'FP != GM'
+    $(btn).addClass('btn-success')
     btn.setAttribute('name', 'nq-btn')
     btn.setAttribute('data-uuid-ue', uuidUE)
     btn.setAttribute('data-uuid-fp', uuidFP)

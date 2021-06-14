@@ -231,3 +231,8 @@
     outline: none !important;
 }
 
+[name=nq-btn]{
+    margin-left: 4px !important;
+    margin-right: 4px !important;
+    width: fit-content !important;
+}
