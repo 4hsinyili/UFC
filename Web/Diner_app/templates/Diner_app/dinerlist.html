@@ -316,59 +316,80 @@
     </div>
     <div id='diners' class="container justify-content-center">
         <div id='diner-template' class="row diner" style="display: none;">
-            <div class="col-9">
+            <div class="col">
                 <div class="row">
-                    <a class="redirect-href_ue col" href="" target="_blank" rel="noopener noreferrer">
-                        <h4 class="title_ue"></h4>
-                    </a>
-                    <a class="redirect-href_fp col" href="" target="_blank" rel="noopener noreferrer">
-                        <h4 class="title_fp"></h4>
-                    </a>
-                </div>
-                <div class="images row">
-                    <a class="redirect-href_ue" href="" target="_blank" rel="noopener noreferrer">
-                        <img class="image_ue image img-responsive" loading="lazy" src="">
-                    </a>
-                    <a class="redirect-href_fp" href="" target="_blank" rel="noopener noreferrer">
-                        <img class="image_fp image img-responsive" loading="lazy" src="">
-                    </a>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="row">
-                    {% if user_is_authenticated %}
-                        <div class="col d-flex justify-content-end">
-                            <img title="收藏" name="collect" class="col-2 icon" data-hover="yes" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart.svg" data-uuid-ue="" data-uuid-fp="">
+                    <div class="col-8">
+                        <div class="row">
+                            <a class="redirect-href_ue col" href="" target="_blank" rel="noopener noreferrer">
+                                <h4 class="title_ue"></h4>
+                            </a>
+                            <a class="redirect-href_fp col" href="" target="_blank" rel="noopener noreferrer">
+                                <h4 class="title_fp"></h4>
+                            </a>
                         </div>
-                    {% else %}
-                        <div class="col d-flex justify-content-end">
-                            <div id='empty-collect' name="collect" class="col-2 icon"></div>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="row align-self-center text-align-center" name="column_names">
-                    <div class="col-4 align-self-center"></div>
-                    <div title="評價" class="col-4 align-self-center">
-                        <img name="rating_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/rating.svg" data-number=0>
                     </div>
-                    <div title="評分次數" class="col-4 align-self-center">
-                        <img name="view_count_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/view_count.svg" data-number=0>
+                    <div class="col-4">
+                        <div class="row">
+                            {% if user_is_authenticated %}
+                                <div class="col d-flex justify-content-end">
+                                    <img title="收藏" name="collect" class="col-2 icon" data-hover="yes" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart.svg" data-uuid-ue="" data-uuid-fp="">
+                                </div>
+                            {% else %}
+                                <div class="col d-flex justify-content-end">
+                                    <div id='empty-collect' name="collect" class="col-2 icon"></div>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                <div class="info_ue align-self-center text-align-center row" data-source-css=ue>
-                    <a id='link_ue' name="source-link" class="icon_ue col-4 align-self-center" target="_blank" rel="noopener noreferrer" data-source-css=ue><h6>Uber Eats</h6></a>
-                    <div class="rating_value_ue col-4 align-self-center"></div>
-                    <div class="view_count_value_ue col-4 align-self-center"></div>
-                </div>
-                <div class="info_fp align-self-center text-align-center row" data-source-css=fp>
-                    <a id='link_fp' name="source-link" class="icon_fp col-4 align-self-center" target="_blank" rel="noopener noreferrer" data-source-css=fp><h6>Food Panda</h6></a>
-                    <div class="rating_value_fp col-4 align-self-center"></div>
-                    <div class="view_count_value_fp col-4 align-self-center"></div>
-                </div>
-                <div class="info_gm align-self-center text-align-center row" data-source-css=gm>
-                    <a id='link_gm' name="source-link" class="icon_gm col-4 align-self-center" target="_blank" rel="noopener noreferrer" data-source-css=gm><h6>Google Map</h6></a>
-                    <div class="rating_value_gm col-4 align-self-center"></div>
-                    <div class="view_count_value_gm col-4 align-self-center"></div>
+                <div class="row">
+                    <div class="col-8">
+                        <div class="images row">
+                            <a class="redirect-href_ue" href="" target="_blank" rel="noopener noreferrer">
+                                <img class="image_ue image img-responsive" loading="lazy" src="">
+                            </a>
+                            <a class="redirect-href_fp" href="" target="_blank" rel="noopener noreferrer">
+                                <img class="image_fp image img-responsive" loading="lazy" src="">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="row align-self-center text-align-center" name="column_names">
+                            <div class="col-4 align-self-center"></div>
+                            <div title="評價" class="col-4 align-self-center">
+                                <img name="rating_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/rating.svg" data-number=0>
+                            </div>
+                            <div title="外送資訊" class="col-4 align-self-center">
+                                <img name="view_count_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/view_count.svg" data-number=0>
+                            </div>
+                        </div>
+                        <div class="info_ue align-self-center text-align-center row" data-source-css=ue>
+                            <a id='link_ue' name="source-link" class="icon_ue col-4 align-self-center align-items-center" target="_blank" rel="noopener noreferrer" data-source-css=ue>
+                                <h6 name="source-link-a">Uber Eats</h6>
+                            </a>
+                            <div class="rating_value_ue col-4 align-self-center"></div>
+                            <div class="deliver_fee_time_ue col-4 align-self-center"></div>
+                        </div>
+                        <div class="info_fp align-self-center text-align-center row" data-source-css=fp>
+                            <a id='link_fp' name="source-link" class="icon_fp col-4 align-self-center" target="_blank" rel="noopener noreferrer" data-source-css=fp>
+                                <h6 name="source-link-a">Food Panda</h6>
+                            </a>
+                            <div class="rating_value_fp col-4 align-self-center"></div>
+                            <div class="deliver_fee_time_fp col-4 align-self-center"></div>
+                        </div>
+                        <div class="info_gm align-self-center text-align-center row" data-source-css=gm>
+                            <a id='link_gm' name="source-link" class="icon_gm col-4 align-self-center" target="_blank" rel="noopener noreferrer" data-source-css=gm>
+                                <h6 name="source-link-a">Google Map</h6>
+                            </a>
+                            <div class="rating_value_gm col-4 align-self-center"></div>
+                        </div>
+                        <div class="tags align-self-start text-align-start row" data-source-css=ue>
+                            <div class="tags_ue col align-self-center"></div>
+                        </div>
+                        <div class="tags align-self-start text-align-start row" data-source-css=fp>
+                            <div class="tags_fp col align-self-center"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

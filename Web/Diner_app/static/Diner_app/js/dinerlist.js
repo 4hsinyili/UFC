@@ -66,14 +66,22 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
     let rating = dinerInfo['rating_'.concat(source)]
     let viewCount = dinerInfo['view_count_'.concat(source)]
     let link = dinerInfo['link_'.concat(source)]
+    let tags = dinerInfo['tags_'.concat(source)]
+    let deliver_fee = dinerInfo['deliver_fee_'.concat(source)]
+    let deliver_time = dinerInfo['deliver_time_'.concat(source)]
     let redirectUrl = dinerInfo['redirect_url']
     let titleNode = dinerNode.querySelector('.title_'.concat(source))
     titleNode.innerText = title
     let imageNode = dinerNode.querySelector('.image_'.concat(source))
     imageNode.setAttribute('src', image)
-    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = rating
-    dinerNode.querySelector('.view_count_value_'.concat(source)).innerText = viewCount
+    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = `${rating}(${viewCount})`
+    dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time} 分鐘)`
     dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
+    let tagsText = dinerNode.querySelector('.tags_'.concat(source)).innerText
+    for (let i = 0; i < tags.length; i++){
+        tagsText = tagsText.concat('#').concat(tags[i]).concat(' ')
+    }
+    dinerNode.querySelector('.tags_'.concat(source)).innerText = tagsText
     let redirectHrefNode = dinerNode.querySelectorAll('.redirect-href_'.concat(source))
     for (let i = 0; i < redirectHrefNode.length; i++){
         redirectHrefNode[i].setAttribute('href', redirectUrl)
@@ -94,8 +102,7 @@ function renderGM(dinerInfo, dinerNode, source){
     let rating = dinerInfo['rating_'.concat(source)]
     let viewCount = dinerInfo['view_count_'.concat(source)]
     let link = dinerInfo['link_'.concat(source)]
-    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = rating
-    dinerNode.querySelector('.view_count_value_'.concat(source)).innerText = viewCount
+    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = `${rating}(${viewCount})`
     dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
 }
 
@@ -126,6 +133,9 @@ function renderDiner(diner){
             "budget_ue": diner['budget_ue'],
             "image_ue": diner["image_ue"],
             "link_ue": diner["link_ue"],
+            'tags_ue': diner['tags_ue'],
+            'deliver_fee_ue': diner['deliver_fee_ue'],
+            'deliver_time_ue': diner['deliver_time_ue'],
             "redirect_url": redirectUrl
         }
         renderDinerInfo(diner_info_ue, dinerNode, 'ue')
@@ -145,6 +155,9 @@ function renderDiner(diner){
             "budget_fp": diner['budget_fp'],
             "image_fp": diner["image_fp"],
             "link_fp": diner["link_fp"],
+            'tags_fp': diner['tags_fp'],
+            'deliver_fee_fp': diner['deliver_fee_fp'],
+            'deliver_time_fp': diner['deliver_time_fp'],
             "redirect_url": redirectUrl
         }
         renderDinerInfo(diner_info_fp, dinerNode, 'fp')
