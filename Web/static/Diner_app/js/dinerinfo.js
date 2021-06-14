@@ -205,6 +205,10 @@ function renderCheaper(diner){
     if (text == ''){document.getElementById('cheaper-item_fp').remove()}
 }
 
+function removeCheaper(source){
+    document.getElementById('cheaper-item_'.concat(source)).remove()
+}
+
 function pivotMenu(diner,source){
     let menus = diner['menu_'.concat(source)]
     let sectionTitlesSet = new Set()
@@ -409,13 +413,13 @@ ajaxGet(dinerInfoAPI, function(response){
     if (uuidUE && uuidFP && uuidGM){
         renderDiner(response, 'ue')
         renderDiner(response, 'fp')
-        renderCheaper(response.data)
         $('#info_ue').show()
         $('#info_fp').show()
 
         addUENQFPBtn(uuidUE, uuidFP, uuidGM)
         addUENQGMBtn(uuidUE, uuidFP, uuidGM)
         addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
+        renderCheaper(response.data)
 
     } else if (uuidUE && uuidGM){
 
@@ -435,8 +439,8 @@ ajaxGet(dinerInfoAPI, function(response){
 
         renderDiner(response, 'ue')
         renderDiner(response, 'fp')
-        renderCheaper(response.data)
         addUENQFPBtn(uuidUE, uuidFP, uuidGM)
+        renderCheaper(response.data)
 
     } else if (uuidUE){
 
@@ -458,11 +462,13 @@ ajaxGet(dinerInfoAPI, function(response){
         let mainSelUE = document.getElementById('main-cate_ue')
         let chosedSubCates = toggleSubCateSel(mainSelUE)
         toggleSubCate(chosedSubCates)
+        removeCheaper('ue')
     }
     if (uuidFP){
         let mainSelFP = document.getElementById('main-cate_fp')
         let chosedSubCates = toggleSubCateSel(mainSelFP)
         toggleSubCate(chosedSubCates)
+        removeCheaper('fp')
     }
     
     endLoading()
