@@ -42,11 +42,6 @@ function initPost(dashboardApi, intData){
     })
 }
 
-function setIntervalAndExecute(fn, t){
-    fn();
-    return(setInterval(fn, t))
-}
-
 function autoUpadte(){
     let startDate = startDateDom.value
     let endDate = endDateDom.value
@@ -63,6 +58,7 @@ function autoUpadte(){
 
 function renderDashBoard(response){
     let data = response.data.trigger_log_data
+    console.log(data)
     try{
         let ueListStartData = data.get_ue_list_start
         let ueListData = data.get_ue_list
@@ -712,26 +708,30 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
     }
 })
 
+function setIntervalAndExecute(fn, startTimeout, stopTimeout){
+    fn();
+    let intervalId = setInterval(fn, startTimeout)
+    setTimeout(function(){
+        clearInterval(intervalId)
+    }, stopTimeout
+    )
+}
+
 if (utcNow.isBetween(todayStartRefresh, todayEndRefresh)){
     console.log('start interval')
-    let intervalId = setIntervalAndExecute(autoUpadte, 5000)
+    let startTimer = 0
     let endTimer = moment.duration(utcNow.diff(todayEndRefresh)).asMilliseconds()
-    function clearAutoUpdate(){
-        clearInterval(intervalId)
-    }
-    setTimeout(clearAutoUpdate, endTimer)
+    setTimeout(function(){
+        setIntervalAndExecute(autoUpadte, startTimer, endTimer) 
+    }, startTimer)
+
 } else if (utcNow.isBefore(todayStartRefresh)){
     console.log('too early')
     let startTimer = moment.duration(utcNow.diff(todayStartRefresh)).asMilliseconds()
-    function startAutoUpdate(){
-        return setIntervalAndExecute(autoUpadte, 5000)
-    }
-    setTimeout(startAutoUpdate, startTimer)
     let endTimer = moment.duration(utcNow.diff(todayEndRefresh)).asMilliseconds()
-    function clearAutoUpdate(){
-        clearInterval(intervalId)
-    }
-    setTimeout(clearAutoUpdate, endTimer)
+    setTimeout(function(){
+        setIntervalAndExecute(autoUpadte, startTimer, endTimer) 
+    }, startTimer)
 } else{
     console.log('too late')
 }
