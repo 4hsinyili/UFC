@@ -117,6 +117,17 @@ function renderDashBoard(response){
     }
 }
 
+function errorTest(){
+    graphError('ue-lambda-bar')
+    graphError('ue-lambda-line')
+    graphError('fp-lambda-bar')
+    graphError('fp-lambda-line')
+    graphError('match-bar')
+    graphError('match-line')
+    graphError('place-bar')
+    graphError('place-line')
+}
+
 function dispatchLambdaData(listStartData, listData, detailData, source){
     let batchIds = Object.keys(listStartData)
     batchIds = batchIds.sort()
