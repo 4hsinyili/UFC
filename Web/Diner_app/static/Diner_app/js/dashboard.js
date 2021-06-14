@@ -741,7 +741,9 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
 
 function setIntervalAndExecute(fn, startTimeout, stopTimeout){
     fn();
-    let intervalId = setInterval(fn, startTimeout)
+    setTimeout(function(){
+        intervalId = setInterval(fn, 3000)
+    }, startTimeout)
     setTimeout(function(){
         clearInterval(intervalId)
     }, stopTimeout
