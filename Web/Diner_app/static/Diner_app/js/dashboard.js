@@ -63,7 +63,6 @@ function autoUpadte(){
     let startTime = startTimeDom.value
     let endTime = endTimeDom.value
     let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
-    console.log(data)
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
         resetTable()
@@ -77,7 +76,6 @@ function autoUpadte(){
 
 function renderDashBoard(response){
     let data = response.data.trigger_log_data
-    console.log(data)
     try{
         let ueListStartData = data.get_ue_list_start
         let ueListData = data.get_ue_list
@@ -282,7 +280,6 @@ function renderList(listStartData, listData, rowType){
         return false
     }
     if (listStartData.length != listData.length){
-        console.log('old data')
         return false
     }
     let branchesCount = listData.length
@@ -730,11 +727,11 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
         endGTStartWarn()
     } else {
     let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
-    console.log(data)
+    showLoading()
     ajaxPost(dashboardApi, data, function(response){
-        console.log(response)
         resetTable()
         renderDashBoard(response)
+        endLoading()
     })
     }
 })
