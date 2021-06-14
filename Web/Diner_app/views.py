@@ -64,6 +64,12 @@ class DinerSearch(views.APIView):
             diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset, request.user)
         else:
             diners, diners_count = match_searcher.get_search_result(condition, triggered_at, offset)
+
+        if not diners:
+            return Response({
+                'no_data': 1
+            })
+
         if offset + 6 < diners_count:
             has_more = True
         else:
@@ -81,7 +87,8 @@ class DinerSearch(views.APIView):
             'has_more': has_more,
             'max_page': diners_count // 6,
             'data_count': len(diners),
-            'data': data
+            'data': data,
+            'no_data': 0
             })
 
 

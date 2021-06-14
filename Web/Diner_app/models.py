@@ -239,6 +239,8 @@ class MatchSearcher():
         raw = next(cursor)
         raw_diners = raw['data']
         raw_count = raw['count']
+        if len(raw_count) == 0:
+            return False, False
         result_count = raw_count[0]['uuid_ue']
         if user:
             favorites = Favorites.manager.get_favorites(user)

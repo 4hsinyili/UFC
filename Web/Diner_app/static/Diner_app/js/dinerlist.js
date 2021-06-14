@@ -213,7 +213,16 @@ function renderDiner(diner){
     return dinerNode
 }
 
+function noData(){
+    Swal.fire({
+        'title': "無符合條件的店家，請重新查詢"
+    })
+}
+
 function renderList(data){
+    if (data.no_data == 1){
+        return false
+    }
     let results = data.data
     for (let i = 0; i < results.length; i++){
         let diner = results[i]
@@ -231,6 +240,7 @@ function renderList(data){
     } else {
         $(showMoreDom).hide()
     }
+    return true
 }
 
 function renderMore(data){
@@ -510,16 +520,22 @@ function search(offset, showMore=false){
     if (showMore){
         let height = $(document).height()
         ajaxPost(dinerSearchAPI, data, function(response){
-            renderList(response)
+            result = renderList(response)
             window.scrollTo(0,(height - (200)));
             endLoading()
+            if (!result){
+                noData()
+            }
         })
     }
     else {
         ajaxPost(dinerSearchAPI, data, function(response){
             clearDIners()
-            renderList(response)
+            result = renderList(response)
             endLoading()
+            if (!result){
+                noData()
+            }
         })
     }
     Cookies.set('ufc_condition', JSON.stringify(conditions))
