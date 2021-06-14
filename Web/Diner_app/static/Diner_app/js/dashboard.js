@@ -163,6 +163,7 @@ function dispatchLambdaData(listStartData, listData, detailData, source){
         renderLambdaDinerCountGraph([graphXArray, listBarInfo, detailBarInfo], source)
         renderLambdaRunTimeGraph([graphXArray, listLineInfo, detailLineInfo], source)
     }
+    document.querySelector('[name="lambda-table"]').classList = 'table table-hover table-striped'
 }
 
 function dispatchMatchData(matchStartData, matchData, source){
@@ -555,10 +556,10 @@ function renderMDinerCountGraph(infoArray, source){
           },
         legend: {
             "orientation": "h",
-            "y" : 1.05
+            "y" : 1.12
         },
         margin: { 
-            t: 40,
+            t: 60,
             b: 30
         },
         barmode: 'stack'
