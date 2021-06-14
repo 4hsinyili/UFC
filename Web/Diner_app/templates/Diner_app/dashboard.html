@@ -17,13 +17,20 @@
     <div id="top-margin"></div>
     <div class="container">
         <div id="select-dates" class="row">
+            <div class="date row justify-content-center">
+                <div class="col fit-content text-align-center">
+                    <h5>儀表板時間範圍</h6>
+                </div>
+            </div>
             <div class='date row justify-content-center'>
-                <label class='col-xl-2 col-4'>起始日期</label>
-                <input id='start-date' type='date' min="2021-06-12" class='col-xl-2 col-4'>
-                <input id='start-time' type="time" step="3600000" class='col-xl-2 col-4'>
-                <label class='col-xl-2 col-4'>結束日期</label>
-                <input id='end-date' type='date' class='col-xl-2 col-4'>
-                <input id='end-time' type="time" step="3600000" class='col-xl-2 col-4'>
+                <label class='col-2 fit-content'>起始日期</label>
+                <input id='start-date' type='date' min="2021-06-12" class='col-3'>
+                <input id='start-time' type="time" step="3600000" class='col-3'>
+            </div>
+            <div class='date row justify-content-center'>
+                <label class='col-2 fit-content'>結束日期</label>
+                <input id='end-date' type='date' class='col-3'>
+                <input id='end-time' type="time" step="3600000" class='col-3'>
             </div>
         </div>
         <div name="divider-container" class="row justify-content-center">
@@ -32,14 +39,36 @@
         <div name="lambda-graph" class="row">
             <div id='ue-lambda-bar-graph' name="graph" class='col-xl-6 col-12' data-show="yes"></div>
             <div id='ue-lambda-bar-404' name="error" class='col-xl-6 col-12 text-align-center' data-show="no" data-error-svg-container>
-                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Uber Eats 資料爬取異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
+                    </div>
+                </div>
             </div>
             <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
                 <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
             </div>
             <div id='fp-lambda-bar-graph' name="graph" class='col-xl-6 col-12' data-show="yes"></div>
             <div id='fp-lambda-bar-404' name="error" class='col-xl-6 col-12 text-align-center' data-show="no" data-error-svg-container>
-                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Food Panda 資料爬取異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
         <div name="divider-container" class="row justify-content-center">
@@ -48,14 +77,36 @@
         <div name="lambda-graph" class="row">
             <div id='ue-lambda-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
             <div id='ue-lambda-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
-                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Uber Eats 資料爬取異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
+                    </div>
+                </div>
             </div>
             <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
                 <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
             </div>
             <div id='fp-lambda-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
             <div id='fp-lambda-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
-                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Food Panda 資料爬取異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
         <div name="divider-container" class="row justify-content-center">
@@ -64,7 +115,18 @@
         <div name="match-place-graph" class="row">
             <div id='match-bar-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
             <div id='match-bar-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
-                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Uber Eate, Food Panda 資料比對異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
+                    </div>
+                </div>
             </div>
             <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
                 <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
@@ -78,9 +140,9 @@
                     <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
                 </div>
                 <div class="row justify-content-center" >
-                    <div class="col">
-                        <p>嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中，稍後再來吧～</p>
-                        <p>資料生成時間為 每天早上 10:30 - 11:10 (GMT + 8)</p>
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
                     </div>
                 </div>
             </div>
@@ -91,26 +153,59 @@
         <div name="match-place-graph" class="row">
             <div id='match-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
             <div id='match-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
-                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Uber Eate, Food Panda 資料比對異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
+                    </div>
+                </div>
             </div>
             <div name="divider-container" class="col-12 d-flex justify-content-center d-xl-none">
                 <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
             </div>
             <div id='place-line-graph' name="graph" class="col-xl-6 col-12" data-show="yes"></div>
             <div id='place-line-404' name="error" class="col-xl-6 col-12 text-align-center" data-show="no" data-error-svg-container>
-                <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                <div class="row justify-content-center text-align-center" >
+                    <h6>Google Map 資料查詢異常</h6>
+                </div>
+                <div class="row justify-content-center">
+                    <img name="error-svg" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/error.svg">
+                </div>
+                <div class="row justify-content-center" >
+                    <div class="col-10">
+                        <p class="">嗨，你會看到這個圖可能代表目前時間早於資料生成時間，或是資料出現了異常，如果是後者，我應該正在搶修中。你可以試試看選取其他時間範圍，或是稍後再來。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div name="divider-container" class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+        </div>
+        <div id="lambda-data-title" class="row">
+            <div class="col no-padding">
+                <h5>Lambda 執行紀錄</h5>
             </div>
         </div>
         <div id="lambda-data" class="row">
             <table name="lambda-table" class="table">
-                <thead>
+                <caption>＊ 清單：在兩個外送輸入 Appworks School 的地址，取得頁面上所有的餐廳。</caption>
+                <caption>＊ 詳情：爬取所有 清單 中的店家，剔除無法外送到 Appworks School 或沒有營業的</caption>
+                <caption>＊ 由於 Uber Eats 的網站在同一頁最多只會有約七百間餐廳，因此我多開了四台 Lambda 爬取 School 東南西北各 2.5 公里的四個地點，設法讓資料完整</caption>
+                <thead class="table-primary">
                     <tr>
-                        <th scope="col">紀錄時間</th>
+                        <th scope="col">開始時間</th>
                         <th scope="col">目標</th>
                         <th scope="col">爬取類型</th>
-                        <th scope="col">分枝數量</th>
-                        <th scope="col">獲取店家數量</th>
-                        <th scope="col">執行時間</th>
+                        <th scope="col">Lambda 數量</th>
+                        <th scope="col">總獲取店家數量</th>
+                        <th scope="col">平均執行秒數</th>
                     </tr>
                 </thead>
                 <tbody name="lambda-table-body">
@@ -149,14 +244,23 @@
                 </tbody>
             </table>
         </div>
+        <div name="divider-container" class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+        </div>
+        <div id="match-data-title" class="row">
+            <div class="col no-padding">
+                <h5>資料比對 執行紀錄</h5>
+            </div>
+        </div>
         <div id="match-data" class="row">
-            <table name="match-table"  class="table">
-                <thead>
+            <table name="match-table"  class="table table-striped table-hover">
+                <caption>比對方式為比對店家名稱以及 gps 座標，如果 U-1 與 F-1, F-2, F-3 都相似，會取其中相似度最高者（名稱最像，距離最小）</caption>
+                <thead class="table-info">
                     <tr>
-                        <th scope="col">紀錄時間</th>
+                        <th scope="col">開始時間</th>
                         <th scope="col">店家總數</th>
                         <th scope="col">相同餐廳</th>
-                        <th scope="col">執行時間</th>
+                        <th scope="col">執行秒數</th>
                     </tr>
                 </thead>
                 <tbody name="match-table-body">
@@ -169,25 +273,37 @@
                 </tbody>
             </table>
         </div>
+        <div name="divider-container" class="row justify-content-center">
+            <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg">
+        </div>
+        <div id="place-data-title" class="row">
+            <div class="col no-padding">
+                <h5>Google Place API 查詢紀錄</h5>
+            </div>
+        </div>
         <div id="place-data" class="row">
-            <table name="place-table" class="table">
-                <thead>
+            <table name="place-table" class="table table-striped table-hover">
+                <caption>＊ 有效查詢：將店家的名稱、地址與 GPS 座標送到 Google Place API 查詢，並取得有效結果</caption>
+                <caption>＊ 無效查詢：查詢方式同上，但未找到店家，可能是店家使用不同名稱，或是沒有 Google Map 頁面</caption>
+                <caption>＊ 使用有效資料更新：從既有資料中找出相同編號，且有在七天內有效查詢記錄的店家，使用其資料進行更新</caption>
+                <caption>＊ 使用無效資料更新：從既有資料中找出相同編號，且有在七天內無效查詢記錄的店家，使用其資料進行更新</caption>
+                <thead class="table-success">
                     <tr>
-                        <th scope="col">紀錄時間</th>
+                        <th scope="col">開始時間</th>
+                        <th scope="col">有效查詢</th>
+                        <th scope="col">無效查詢</th>
                         <th scope="col">使用有效資料更新</th>
                         <th scope="col">使用無效資料更新</th>
-                        <th scope="col">新增查詢有效</th>
-                        <th scope="col">新增查詢無效</th>
                         <th scope="col">執行時間</th>
                     </tr>
                 </thead>
                 <tbody name="place-table-body">
                     <tr data-number=0 name="place-table-place-row" style="display: none;">
                         <th data-cell="log-time" name="row-title" scope="row">2020-06-08 13:00:00</th>
-                        <td data-cell="update-found-count">678</td>
-                        <td data-cell="update-not-found-count">678</td>
                         <td data-cell="api-found-count">678</td>
                         <td data-cell="api-not-found-count">678</td>
+                        <td data-cell="update-found-count">678</td>
+                        <td data-cell="update-not-found-count">678</td>
                         <td data-cell="run-time">270.5</td>
                     </tr>
                 </tbody>

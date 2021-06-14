@@ -25,7 +25,8 @@
 }
 
 [name=error-svg]{
-    height: 240px;
+    margin: 10px;
+    height: 160px;
     width: auto;
 }
 
@@ -37,4 +38,38 @@
 [name=graph]{
     height: 400px;
     min-width: 600px;
+}
+
+.error-text{
+    font-size: 0.9rem;
+    line-height: 1.2rem;
+}
+
+.fit-content{
+    width: fit-content !important;
+}
+
+.date{
+    margin: 5px !important;
+}
+
+.table-primary{
+    border-style: none !important;
+}
+
+.table-info{
+    border-style: none !important;
+}
+
+.table-success{
+    border-style: none !important;
+}
+
+.no-padding{
+    padding: 0 !important;
+}
+
+caption{
+    font-size: 0.9rem;
+    padding: 0.2rem !important;
 }
