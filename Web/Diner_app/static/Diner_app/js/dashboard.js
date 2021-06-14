@@ -35,12 +35,27 @@ let dashboardApi = 'api/v1/dashboard';
 
 const csrftoken = getCookie('csrftoken');
 
+
 function initPost(dashboardApi, intData){
+    showLoading()
     ajaxPost(dashboardApi, intData, function(response){
         console.log(response)
         renderDashBoard(response)
+        endLoading()
     })
 }
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 1200,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  })
 
 function autoUpadte(){
     let startDate = startDateDom.value
@@ -53,6 +68,10 @@ function autoUpadte(){
         console.log(response)
         resetTable()
         renderDashBoard(response)
+        Toast.fire({
+            icon: 'success',
+            title: '資料更新'
+          })
     })
 }
 
