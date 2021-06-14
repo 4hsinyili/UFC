@@ -9,7 +9,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'Diner_app/css/dashboard.css' %}">
     {% load static %}
     <script type="text/javascript" src="{% static 'Diner_app/js/moment.js' %}"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    {% load static %}
+    <script type="text/javascript" src="{% static 'Diner_app/js/plotly.js' %}"></script>
 {% endblock %}
 
 {% block content %}
