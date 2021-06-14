@@ -226,3 +226,8 @@
     outline: none !important;
     font-size: 1rem !important;
 }
+
+.no-outline{
+    outline: none !important;
+}
+
