@@ -67,8 +67,16 @@ a:link {
 
 .text-align-center{
     text-align: center;
-    height: 75px;
+    min-height: 1.5rem;
     vertical-align: middle;
+    margin-bottom: 10px;
+}
+
+.text-align-start{
+    text-align: start;
+    min-height: 1.2rem;
+    vertical-align: middle;
+    margin-bottom: 10px;
 }
 
 [data-select-nopadding]{
@@ -197,8 +205,12 @@ a:link {
     height: 24px;
 }
 
-[name="source-link" ]{
+[name="source-link"]{
     text-decoration: underline !important;
+}
+
+[name="source-link-a"]{
+    margin-bottom: 0 !important;
 }
 
 #search-box{
