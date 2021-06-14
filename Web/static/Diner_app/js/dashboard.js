@@ -35,12 +35,27 @@ let dashboardApi = 'api/v1/dashboard';
 
 const csrftoken = getCookie('csrftoken');
 
+
 function initPost(dashboardApi, intData){
+    showLoading()
     ajaxPost(dashboardApi, intData, function(response){
         console.log(response)
         renderDashBoard(response)
+        endLoading()
     })
 }
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 1200,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  })
 
 function autoUpadte(){
     let startDate = startDateDom.value
@@ -53,6 +68,10 @@ function autoUpadte(){
         console.log(response)
         resetTable()
         renderDashBoard(response)
+        Toast.fire({
+            icon: 'success',
+            title: '資料更新'
+          })
     })
 }
 
@@ -98,6 +117,17 @@ function renderDashBoard(response){
     }
 }
 
+function errorTest(){
+    graphError('ue-lambda-bar')
+    graphError('ue-lambda-line')
+    graphError('fp-lambda-bar')
+    graphError('fp-lambda-line')
+    graphError('match-bar')
+    graphError('match-line')
+    graphError('place-bar')
+    graphError('place-line')
+}
+
 function dispatchLambdaData(listStartData, listData, detailData, source){
     let batchIds = Object.keys(listStartData)
     batchIds = batchIds.sort()
@@ -133,6 +163,7 @@ function dispatchLambdaData(listStartData, listData, detailData, source){
         renderLambdaDinerCountGraph([graphXArray, listBarInfo, detailBarInfo], source)
         renderLambdaRunTimeGraph([graphXArray, listLineInfo, detailLineInfo], source)
     }
+    document.querySelector('[name="lambda-table"]').classList = 'table table-hover table-striped'
 }
 
 function dispatchMatchData(matchStartData, matchData, source){
@@ -525,10 +556,10 @@ function renderMDinerCountGraph(infoArray, source){
           },
         legend: {
             "orientation": "h",
-            "y" : 1.05
+            "y" : 1.12
         },
         margin: { 
-            t: 40,
+            t: 60,
             b: 30
         },
         barmode: 'stack'
@@ -710,7 +741,9 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
 
 function setIntervalAndExecute(fn, startTimeout, stopTimeout){
     fn();
-    let intervalId = setInterval(fn, startTimeout)
+    setTimeout(function(){
+        intervalId = setInterval(fn, 3000)
+    }, startTimeout)
     setTimeout(function(){
         clearInterval(intervalId)
     }, stopTimeout

@@ -27,7 +27,7 @@ function ajaxPost(src, params, callback){
         let data = JSON.parse(initaialXhr.responseText);
         callback(data)
     } else if (initaialXhr.status == 403){
-        console.log('limited')
+        forbidden()
     }
     };
 } 
@@ -44,6 +44,14 @@ function ajaxGet(src, callback){
     };
     initaialXhr.send();
 } 
+
+function forbidden(){
+    Swal.fire({
+        title: "請求遭拒",
+        text: "嗨，你可能在短時間內刷新了太多次頁面，或是瀏覽器的快取出了點問題，請嘗試清除快取（ctrl+shift+del）再重新整理。",
+        footer: '如果持續看到這段訊息，請聯絡開發者：4hsinyili@gmail.com'
+    });
+}
 
 function showLoading(){
     Swal.fire({

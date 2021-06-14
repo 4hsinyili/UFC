@@ -376,6 +376,7 @@ function addUENQFPBtn(uuidUE, uuidFP, uuidGM){
     let btnGroup = document.getElementById('re-btn-group')
     let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
     btn.innerText = 'UE != FP'
+    $(btn).addClass('btn-warning')
     btn.setAttribute('name', 'nq-btn')
     btn.setAttribute('data-uuid-ue', uuidUE)
     btn.setAttribute('data-uuid-fp', uuidFP)
@@ -387,6 +388,7 @@ function addUENQGMBtn(uuidUE, uuidFP, uuidGM){
     let btnGroup = document.getElementById('re-btn-group')
     let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
     btn.innerText = 'UE != GM'
+    $(btn).addClass('btn-primary')
     btn.setAttribute('name', 'nq-btn')
     btn.setAttribute('data-uuid-ue', uuidUE)
     btn.setAttribute('data-uuid-fp', uuidFP)
@@ -398,6 +400,7 @@ function addFPNQGMBtn(uuidUE, uuidFP, uuidGM){
     let btnGroup = document.getElementById('re-btn-group')
     let btn = document.querySelector('[name="re-btn"]').cloneNode(true)
     btn.innerText = 'FP != GM'
+    $(btn).addClass('btn-success')
     btn.setAttribute('name', 'nq-btn')
     btn.setAttribute('data-uuid-ue', uuidUE)
     btn.setAttribute('data-uuid-fp', uuidFP)
@@ -447,12 +450,14 @@ ajaxGet(dinerInfoAPI, function(response){
         renderDiner(response, 'ue')
         removeDiner('fp')
         removeGM()
+        removeCheaper('ue')
 
     } else if (uuidFP){
 
         renderDiner(response, 'fp')
         removeDiner('ue')
         removeGM()
+        removeCheaper('fp')
 
     }
     $('#diner-info').show()
@@ -462,13 +467,13 @@ ajaxGet(dinerInfoAPI, function(response){
         let mainSelUE = document.getElementById('main-cate_ue')
         let chosedSubCates = toggleSubCateSel(mainSelUE)
         toggleSubCate(chosedSubCates)
-        removeCheaper('ue')
+        
     }
     if (uuidFP){
         let mainSelFP = document.getElementById('main-cate_fp')
         let chosedSubCates = toggleSubCateSel(mainSelFP)
         toggleSubCate(chosedSubCates)
-        removeCheaper('fp')
+        
     }
     
     endLoading()
