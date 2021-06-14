@@ -74,8 +74,16 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
     titleNode.innerText = title
     let imageNode = dinerNode.querySelector('.image_'.concat(source))
     imageNode.setAttribute('src', image)
-    dinerNode.querySelector('.rating_value_'.concat(source)).innerText = `${rating}(${viewCount})`
-    dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time} 分鐘)`
+    if (rating == 0){
+        dinerNode.querySelector('.rating_value_'.concat(source)).innerText = '新上架'
+    } else {
+        dinerNode.querySelector('.rating_value_'.concat(source)).innerText = `${rating}(${viewCount})`
+    }
+    if (deliver_fee == 0){
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `無資料`
+    } else {
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time} 分鐘)`
+    }
     dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
     let tagsText = dinerNode.querySelector('.tags_'.concat(source)).innerText
     for (let i = 0; i < tags.length; i++){
