@@ -189,6 +189,12 @@ class MatchSearcher():
                     continue
                 elif filter['field'] not in ['tags', 'open_days']:
                     match_condition['$match'][filter['field']] = {filter['filter']: filter['value']}
+                    if filter['filter'] == '$lte':
+                        match_condition['$match'][filter['field']].update({'$gt': 0})
+                    elif filter['field'] == 'choice_fp':
+                        match_condition['$match']['uuid_fp'] = {'$ne': ""}
+                    elif filter['field'] == 'choice_ue':
+                        match_condition['$match']['uuid_ue'] = {'$ne': ""}
                 else:
                     match_condition['$match'][filter['field']] = {
                         '$elemMatch': {'$eq': filter['value']}
@@ -201,6 +207,10 @@ class MatchSearcher():
                 if (sorter == {}) or (sorter['field'] is None) or (sorter['sorter'] is None):
                     continue
                 sort_conditions['$sort'][sorter['field']] = sorter['sorter']
+                if sorter['field'].endswith('_ue'):
+                    match_condition['$match']['uuid_ue'] = {'$ne': ""}
+                elif sorter['field'].endswith('_fp'):
+                    match_condition['$match']['uuid_ue'] = {'$ne': ""}
             if sort_conditions != {"$sort": {}}:
                 conditions.append(sort_conditions)
         except Exception:
