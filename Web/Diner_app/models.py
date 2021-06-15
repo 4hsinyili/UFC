@@ -72,6 +72,17 @@ class FavoritesManager(models.Manager):
         else:
             return False
 
+    def check_favorite(self, user, uuid_ue, uuid_fp):
+        favorite_records = self.filter(user=user, uuid_ue=uuid_ue, uuid_fp=uuid_fp).order_by('created_at')
+        if favorite_records:
+            activate = favorite_records[0].activate
+            if activate:
+                return True
+            else:
+                return False
+        else:
+            return False
+
 
 class Favorites(models.Model):
     uuid_ue = models.CharField(max_length=40, default=None, blank=True, null=True)
@@ -351,20 +362,14 @@ class MatchDinerInfo():
         cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
         # stop = time.time()
         # print('mongodb query took: ', stop - start, 's.')
+        diner = next(cursor)
         if user:
-            favorites = Favorites.manager.get_favorites(user)
+            favorites = Favorites.manager.check_favorite(user, diner['uuid_ue'], diner['uuid_fp'])
         else:
             favorites = False
-        try:
-            diner = next(cursor)
-            if favorites:
-                if (diner['uuid_ue'] in favorites) or (diner['uuid_fp'] in favorites):
-                    diner['favorite'] = True
-                else:
-                    diner['favorite'] = False
-            else:
-                diner['favorite'] = False
-        except Exception:
-            return False
+        if favorites:
+            diner['favorite'] = True
+        else:
+            diner['favorite'] = False
         cursor.close()
         return diner
