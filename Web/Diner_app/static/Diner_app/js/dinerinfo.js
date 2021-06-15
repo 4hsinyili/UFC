@@ -430,6 +430,7 @@ ajaxGet(dinerInfoAPI, function(response){
         addUENQGMBtn(uuidUE, uuidFP, uuidGM)
         removeDiner('fp')
         renderGMInfo(response)
+        removeCheaper('ue')
 
     } else if (uuidFP && uuidGM){
 
@@ -437,6 +438,7 @@ ajaxGet(dinerInfoAPI, function(response){
         addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
         removeDiner('ue')
         renderGMInfo(response)
+        removeCheaper('ue')
 
     } else if (uuidUE && uuidFP){
 
