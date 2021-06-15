@@ -88,7 +88,7 @@ class FavoritesManager(models.Manager):
             return False
 
     def check_favorite(self, user, uuid_ue, uuid_fp):
-        favorite_records = self.filter(user=user, uuid_ue=uuid_ue, uuid_fp=uuid_fp).order_by('created_at')
+        favorite_records = self.filter(user=user, uuid_ue=uuid_ue, uuid_fp=uuid_fp).order_by('-updated_at')
         if favorite_records:
             activate = favorite_records[0].activate
             if activate:
