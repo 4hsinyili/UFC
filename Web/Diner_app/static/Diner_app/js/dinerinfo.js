@@ -58,6 +58,7 @@ function renderDiner(response, source){
 }
 
 function renderFavorites(diner){
+    console.log(diner)
     updateFavorite.setAttribute('data-uuid_ue', diner.uuid_ue)
     updateFavorite.setAttribute('data-uuid_fp', diner.uuid_fp)
     if (diner.favorite){
