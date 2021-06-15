@@ -58,6 +58,7 @@
                                     <option value='default'></option>
                                     <option value="ue" data-source-css=ue>Uber Eats</option>
                                     <option value="fp" data-source-css=fp>Food Panda</option>
+                                    <option value="gm" data-source-css=gm>Google Map</option>
                                 </select>
                             </div>
                             <div name="filter-types" data-select-nopadding data-number=0 class="col-3">
@@ -82,6 +83,11 @@
                                     <option value="view_count_fp">評分次數</option>
                                     <option value="tags_fp">標籤</option>
                                     <option value="open_days_fp">服務時間</option>
+                                </select>
+                                <select name="filter-type" data-number=0 class="gm form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="rating_gm">評價</option>
+                                    <option value="view_count_gm">評分次數</option>
                                 </select>
                             </div>
                             <div name="filter-operator" data-select-nopadding data-number=0 class="col-2">
@@ -112,6 +118,11 @@
                                 </select>
                                 <select name="filter-operator" class="fp open_days_fp form-select form-select-lg" data-number=0  value="$in">
                                     <option value='$in'>包含</option>
+                                </select>
+                                <select name="filter-operator" class="gm rating_gm view_count_gm form-select form-select-lg" data-number=0>
+                                    <option value='default'></option>
+                                    <option value='$gte'>大等於</option>
+                                    <option value='$lte'>小等於</option>
                                 </select>
                             </div> 
                             <div name="filter-value" data-select-nopadding data-number=0 class="col-3">
@@ -255,6 +266,32 @@
                                     <option value=6>星期六</option>
                                     <option value=7>星期日</option>
                                 </select>
+                                <select name="filter-value" class="gm rating_gm form-select form-select-lg" data-number=0 data-type='float'>
+                                    <option value="default" disabled selected></option>
+                                    <option value=1.0>1.0</option>
+                                    <option value=2.0>2.0</option>
+                                    <option value=3.0>3.0</option>
+                                    <option value=4.0>4.0</option>
+                                    <option value=4.1>4.1</option>
+                                    <option value=4.2>4.2</option>
+                                    <option value=4.3>4.3</option>
+                                    <option value=4.4>4.4</option>
+                                    <option value=4.5>4.5</option>
+                                    <option value=4.6>4.6</option>
+                                    <option value=4.7>4.7</option>
+                                    <option value=4.8>4.8</option>
+                                    <option value=4.9>4.9</option>
+                                    <option value=5.0>5.0</option>
+                                </select>
+                                <select name="filter-value" class="gm view_count_gm form-select form-select-lg" data-number=0 data-type='number'>
+                                    <option value="default" disabled selected></option>
+                                    <option value=100>100</option>
+                                    <option value=300>300</option>
+                                    <option value=500>500</option>
+                                    <option value=1000>1000</option>
+                                    <option value=1500>1500</option>
+                                    <option value=2000>2000</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -273,6 +310,7 @@
                                     <option value='default'></option>
                                     <option value="ue">Uber Eats</option>
                                     <option value="fp">Food Panda</option>
+                                    <option value="gm">Google Map</option>
                                 </select>
                             </div>
                             <div name="filter-types" data-select-nopadding data-number=0 class="col-3">
@@ -292,6 +330,11 @@
                                     <option value="rating_fp">評價</option>
                                     <option value="view_count_fp">評分次數</option>
                                 </select>
+                                <select name="sorter-type" data-number=0  class="gm form-select form-select-lg">
+                                    <option value='default'></option>
+                                    <option value="rating_gm">評價</option>
+                                    <option value="view_count_gm">評分次數</option>
+                                </select>
                             </div>
                             <div name="sorter-operator" data-select-nopadding data-number=0 class="col-5">
                                 <select name="sorter-operator" class="ue deliver_fee_ue deliver_time_ue budget_ue rating_ue view_count_ue form-select form-select-lg" data-number=0>
@@ -300,6 +343,11 @@
                                     <option value=-1>由高到低</option>
                                 </select>
                                 <select name="sorter-operator" class="fp deliver_fee_fp deliver_time_fp budget_fp rating_fp view_count_fp form-select form-select-lg" data-number=0>
+                                    <option value='default'></option>
+                                    <option value=1>由低到高</option>
+                                    <option value=-1>由高到低</option>
+                                </select>
+                                <select name="sorter-operator" class="gm rating_gm view_count_gm form-select form-select-lg" data-number=0>
                                     <option value='default'></option>
                                     <option value=1>由低到高</option>
                                     <option value=-1>由高到低</option>
