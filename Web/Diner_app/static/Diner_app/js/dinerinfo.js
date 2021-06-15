@@ -191,7 +191,7 @@ function renderCheaper(diner){
     for (let i=0; i < cheaperUE.length; i++){
         let key = cheaperUE[i][0]
         let value = cheaperUE[i][1]
-        if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
+        if (value > 0){text = text.concat(`${key}：比 Food Panda 上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperUEDom.innerText = text
     if (text == ''){document.getElementById('cheaper-item_ue').remove()}
@@ -199,7 +199,7 @@ function renderCheaper(diner){
     for (let i=0; i < cheaperFP.length; i++){
         let key = cheaperFP[i][0]
         let value = cheaperFP[i][1]
-        if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
+        if (value > 0){text = text.concat(`${key}：比 Uber Eats 上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperFPDom.innerText = text
     if (text == ''){document.getElementById('cheaper-item_fp').remove()}
@@ -438,7 +438,7 @@ ajaxGet(dinerInfoAPI, function(response){
         addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
         removeDiner('ue')
         renderGMInfo(response)
-        removeCheaper('ue')
+        removeCheaper('fp')
 
     } else if (uuidUE && uuidFP){
 
