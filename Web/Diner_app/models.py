@@ -112,8 +112,10 @@ class Favorites(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['created_at']),
-            models.Index(fields=['user'])
+            models.Index(fields=['user']),
+            models.Index(fields=['user', 'uuid_ue', 'uuid_fp']),
+            models.Index(fields=['user', 'activate']),
+            models.Index(fields=['-updated_at']),
             ]
 
     def __str__(self):
