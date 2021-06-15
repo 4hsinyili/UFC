@@ -11,7 +11,13 @@ let todayStartRefresh = moment().set({'hour': 2 + (utcOffset /60), 'minutes': 30
 let todayEndRefresh = moment().set({'hour': 3 + (utcOffset /60), 'minutes': 10, 'second': 0}).utcOffset(-(utcOffset))
 
 let weekAgo = moment().subtract(7, 'days');
-let initMoment = moment.max(today, weekAgo)
+let initMoment = today
+if (weekAgo.isAfter(moment('2021-06-13'))){
+    initMoment = weekAgo
+} else {
+    initMoment = moment('2021-06-13')
+}
+
 let initDate = initMoment.format('YYYY-MM-DD')
 
 startDateDom.value = initDate
@@ -23,7 +29,7 @@ endDateDom.max = todayDate
 startTimeDom.value = '00:00'
 endTimeDom.value = nowTime
 
-let initData = {"start_date": `${todayDate} ${startTimeDom.value}`, "end_date": `${todayDate} ${endTimeDom.value}`}
+let initData = {"start_date": `${initDate} ${startTimeDom.value}`, "end_date": `${todayDate} ${endTimeDom.value}`}
 
 let ueLambdaDinerCountGraph = document.getElementById('ue-lambda-bar-graph');
 let fpLambdaDinerCountGraph = document.getElementById('fp-lambda-bar-graph');
