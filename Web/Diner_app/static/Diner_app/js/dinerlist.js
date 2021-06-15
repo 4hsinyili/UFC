@@ -355,6 +355,7 @@ function renderFilter(dataNumber){
 
     if (eachFilterSource.val() =='ue'){eachFilterSource.attr('data-source-css', 'ue')}
     else if (eachFilterSource.val() =='fp'){eachFilterSource.attr('data-source-css', 'fp')}
+    else if (eachFilterSource.val() =='gm'){eachFilterSource.attr('data-source-css', 'gm')}
 
     let chosedFilterType = $(`select[name*="filter-type"][data-number=${dataNumber}][class*="${eachFilterSource.val()}"]`)
     if (chosedFilterType.length == 1){
@@ -475,6 +476,8 @@ function renderSorter(dataNumber){
 
     if (eachSorterSource.val() =='ue'){eachSorterSource.attr('data-source-css', 'ue')}
     else if (eachSorterSource.val() =='fp'){eachSorterSource.attr('data-source-css', 'fp')}
+    else if (eachSorterSource.val() =='gm'){eachSorterSource.attr('data-source-css', 'gm')}
+
     let chosedSorterType = $(`select[name*="sorter-type"][data-number=${dataNumber}][class*="${eachSorterSource.val()}"]`)
     if (chosedSorterType.length == 1){
         $(eachSorterType[0]).hide()
