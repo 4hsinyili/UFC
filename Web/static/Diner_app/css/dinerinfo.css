@@ -236,3 +236,7 @@
     margin-right: 4px !important;
     width: fit-content !important;
 }
+
+#update-favorite{
+    cursor: pointer;
+}

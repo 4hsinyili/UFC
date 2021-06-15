@@ -4,6 +4,7 @@ let uuidUE = urlParams.get('uuid_ue')
 let uuidFP = urlParams.get('uuid_fp')
 let dinerInfoAPI = 'api/v1/dinerinfo'.concat('?uuid_ue=').concat(uuidUE).concat('&uuid_fp=').concat(uuidFP)
 let nqAPI = 'api/v1/noteq'
+let favoritesAPI = 'api/v1/favorites'
 
 let dinerSection = document.querySelector('[name=section]')
 let dinerSubsection = document.querySelector('[name=subsection]')
@@ -13,6 +14,7 @@ let tabDom = document.querySelector('[name=section-tab]')
 let tabPkDom = document.querySelector('[name=section-tab-pk]')
 
 let reportError = document.getElementById('report-error')
+let updateFavorite = document.getElementById('update-favorite')
 
 $('#diner-info').hide()
 
@@ -52,6 +54,69 @@ function renderDiner(response, source){
     let subsectionTitles = pivotMenuResults[1]
     renderMenu(sections, source)
     renderColumnName(diner, source)
+    renderFavorites(diner)
+}
+
+function renderFavorites(diner){
+    updateFavorite.setAttribute('data-uuid_ue', diner.uuid_ue)
+    updateFavorite.setAttribute('data-uuid_fp', diner.uuid_fp)
+    if (diner.favorite){
+        updateFavorite.innerText = '已收藏'
+        updateFavorite.setAttribute('data-activate', 1)
+        updateFavorite.style.color = '#D18384'
+    } else {
+        updateFavorite.innerText = '未收藏'
+        updateFavorite.setAttribute('data-activate', 0)   
+        updateFavorite.style.color = '#0d6efd'
+    }
+    favoriteListener(updateFavorite)
+}
+
+function toggleFavorite(favBtn){
+    let data = {
+        'uuid_ue': $(favBtn).attr('data-uuid_ue'),
+        'uuid_fp': $(favBtn).attr('data-uuid_fp'),
+    }
+    if ($(favBtn).attr('data-activate') == 0){
+        favBtn.innerText = '已收藏'
+        favBtn.setAttribute('data-activate', 1)
+        favBtn.style.color = '#D18384'
+        data.activate = 1
+    } else {
+        updateFavorite.innerText = '未收藏'
+        updateFavorite.setAttribute('data-activate', 0)   
+        updateFavorite.style.color = '#0d6efd'
+        data.activate = 0
+    }
+    ajaxPost(favoritesAPI, data, console.log)
+}
+
+function hoverFavorite(favBtn){
+    if ($(favBtn).attr('data-activate') == 0){
+        favBtn.innerText = '加入收藏'
+    } else {
+        updateFavorite.innerText = '移除收藏'
+    }
+}
+
+function outFavorite(favBtn){
+    if ($(favBtn).attr('data-activate') == 0){
+        favBtn.innerText = '未收藏'
+    } else {
+        updateFavorite.innerText = '已收藏'
+    }
+}
+
+function favoriteListener(favBtn){
+    favBtn.addEventListener('click', (e)=>{
+        toggleFavorite(e.target)
+    })
+    favBtn.addEventListener('mouseover', (e)=>{
+        hoverFavorite(e.target)
+    })
+    favBtn.addEventListener('mouseleave', (e)=>{
+        outFavorite(e.target)
+    })
 }
 
 function renderGMInfo(response){
@@ -191,7 +256,7 @@ function renderCheaper(diner){
     for (let i=0; i < cheaperUE.length; i++){
         let key = cheaperUE[i][0]
         let value = cheaperUE[i][1]
-        if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
+        if (value > 0){text = text.concat(`${key}：比 Food Panda 上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperUEDom.innerText = text
     if (text == ''){document.getElementById('cheaper-item_ue').remove()}
@@ -199,7 +264,7 @@ function renderCheaper(diner){
     for (let i=0; i < cheaperFP.length; i++){
         let key = cheaperFP[i][0]
         let value = cheaperFP[i][1]
-        if (value > 0){text = text.concat(`${key}：比熊貓上的同名品項便宜 ${value} 元\n`)}
+        if (value > 0){text = text.concat(`${key}：比 Uber Eats 上的同名品項便宜 ${value} 元\n`)}
     }
     cheaperFPDom.innerText = text
     if (text == ''){document.getElementById('cheaper-item_fp').remove()}
@@ -438,7 +503,7 @@ ajaxGet(dinerInfoAPI, function(response){
         addFPNQGMBtn(uuidUE, uuidFP, uuidGM)
         removeDiner('ue')
         renderGMInfo(response)
-        removeCheaper('ue')
+        removeCheaper('fp')
 
     } else if (uuidUE && uuidFP){
 
