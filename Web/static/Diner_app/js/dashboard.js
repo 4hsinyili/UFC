@@ -37,6 +37,8 @@ const csrftoken = getCookie('csrftoken');
 
 
 function initPost(dashboardApi, intData){
+    resetTableS()
+    resetGraphS()
     showLoading()
     ajaxPost(dashboardApi, intData, function(response){
         console.log(response)
@@ -65,7 +67,7 @@ function autoUpadte(){
     let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
-        resetTable()
+        resetTableS()
         renderDashBoard(response)
         Toast.fire({
             icon: 'success',
@@ -75,14 +77,7 @@ function autoUpadte(){
 }
 
 function renderDashBoard(response){
-    resetGraph('ue-lambda-bar')
-    resetGraph('ue-lambda-line')
-    resetGraph('fp-lambda-bar')
-    resetGraph('fp-lambda-line')
-    resetGraph('match-bar')
-    resetGraph('match-line')
-    resetGraph('place-bar')
-    resetGraph('place-line')
+    
     let data = response.data.trigger_log_data
     try{
         let ueListStartData = data.get_ue_list_start
@@ -407,11 +402,22 @@ function renderPlace(placeStartData, placeData, rowType){
     return info
 }
 
-function resetTable(){
+function resetTableS(){
     let rows = document.querySelectorAll('[data-number]:not([data-number="0"])')
     for (let i=0; i < rows.length; i++){
         rows[i].remove()
     }
+}
+
+function resetGraphS(){
+    resetGraph('ue-lambda-bar')
+    resetGraph('ue-lambda-line')
+    resetGraph('fp-lambda-bar')
+    resetGraph('fp-lambda-line')
+    resetGraph('match-bar')
+    resetGraph('match-line')
+    resetGraph('place-bar')
+    resetGraph('place-line')
 }
 
 function resetGraph(graphId){
@@ -743,7 +749,8 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
     let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
     showLoading()
     ajaxPost(dashboardApi, data, function(response){
-        resetTable()
+        resetTableS()
+        resetGraphS()
         renderDashBoard(response)
         endLoading()
     })
