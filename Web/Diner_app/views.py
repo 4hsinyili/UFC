@@ -200,6 +200,7 @@ class FavoritesAPI(views.APIView):
             })
             response.set_cookie('ufc_favorites_count', favorites_count)
             return response
+        favorites = Favorites.manager.get_favorites(request.user, offset, 6)
         if not favorites:
             return Response({
                 'is_data': False
@@ -214,7 +215,7 @@ class FavoritesAPI(views.APIView):
         else:
             next_offset = 0
         or_conditions = []
-        for favorite in favorites[offset: offset+6]:
+        for favorite in favorites:
             uuid_ue = favorite[0]
             uuid_fp = favorite[1]
             match = {"uuid_ue": uuid_ue, "uuid_fp": uuid_fp}
@@ -261,13 +262,20 @@ class FavoritesAPI(views.APIView):
             return Response({
                 'is_data': False
             })
-        results = []
+        result = {}
         for diner_dict in diners:
             diner = diner_dict['data'][-1]
             diner['favorite'] = True
-            results.append(diner)
+            key = (diner['uuid_ue'], diner['uuid_fp'])
+            result[key] = diner
+        results = []
+        for favorite in favorites:
+            uuid_ue = favorite[0]
+            uuid_fp = favorite[1]
+            sort_key = (uuid_ue, uuid_fp)
+            results.append(result[sort_key])
         data = MatchSerializer(results, many=True).data
-        return Response({
+        response = Response({
             'is_data': True,
             'next_offset': next_offset,
             'has_more': has_more,

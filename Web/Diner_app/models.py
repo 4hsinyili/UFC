@@ -60,10 +60,13 @@ class FavoritesManager(models.Manager):
             defaults={'activate': activate})
         return favorite_sqlrecord
 
-    def get_favorites(self, user, offset=0):
+    def get_favorites(self, user, offset=0, limit=0):
         if user.id is None:
             return False
-        favorite_records = self.filter(user=user, activate=1).order_by('created_at')
+        if (offset > 0) and (limit > 0):
+            favorite_records = self.filter(user=user, activate=1).order_by('-updated_at')[offset:offset+limit]
+        else:
+            favorite_records = self.filter(user=user, activate=1).order_by('-updated_at')
         if favorite_records:
             favorites = []
             for i in favorite_records:
