@@ -37,6 +37,7 @@ const csrftoken = getCookie('csrftoken');
 
 
 function initPost(dashboardApi, intData){
+    resetTableS()
     resetGraphS()
     showLoading()
     ajaxPost(dashboardApi, intData, function(response){
@@ -66,7 +67,7 @@ function autoUpadte(){
     let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
-        resetTable()
+        resetTableS()
         renderDashBoard(response)
         Toast.fire({
             icon: 'success',
@@ -401,7 +402,7 @@ function renderPlace(placeStartData, placeData, rowType){
     return info
 }
 
-function resetTable(){
+function resetTableS(){
     let rows = document.querySelectorAll('[data-number]:not([data-number="0"])')
     for (let i=0; i < rows.length; i++){
         rows[i].remove()
@@ -748,7 +749,7 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
     let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
     showLoading()
     ajaxPost(dashboardApi, data, function(response){
-        resetTable()
+        resetTableS()
         resetGraphS()
         renderDashBoard(response)
         endLoading()
