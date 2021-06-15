@@ -176,8 +176,11 @@ class FavoritesAPI(views.APIView):
         uuid_fp = request_data['uuid_fp']
         activate = request_data['activate']
         favorite_sqlrecord = Favorites.manager.update_favorite(request.user, uuid_ue, uuid_fp, activate)
+        favorites_count = Favorites.manager.count_favorites(request.user)
         # print(favorite_sqlrecord)
-        return Response({'message': 'update favorite success', 'result': str(favorite_sqlrecord)})
+        response = Response({'message': 'update favorite success', 'result': str(favorite_sqlrecord)})
+        response.set_cookie('ufc_favorites_count', favorites_count)
+        return response
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
@@ -186,13 +189,23 @@ class FavoritesAPI(views.APIView):
         else:
             return Response({'message': 'need login'})
         offset = int(self.request.query_params.get('offset', None))
-        favorites = Favorites.manager.get_favorites(request.user, offset)
+        favorites_count = request.COOKIES.get('ufc_favorites_count')
+        if favorites_count is None:
+            favorites_count = Favorites.manager.count_favorites(request.user)
+        else:
+            favorites_count = int(favorites_count)
+        if favorites_count == 0:
+            response = Response({
+                'is_data': False
+            })
+            response.set_cookie('ufc_favorites_count', favorites_count)
+            return response
         if not favorites:
             return Response({
                 'is_data': False
             })
         diners = []
-        if offset + 6 < len(favorites):
+        if offset + 6 < favorites_count:
             has_more = True
         else:
             has_more = False
@@ -262,6 +275,8 @@ class FavoritesAPI(views.APIView):
             'data_count': len(results),
             'data': data
             })
+        response.set_cookie('ufc_favorites_count', favorites_count)
+        return response
 
 
 class NoteqAPI(views.APIView):
