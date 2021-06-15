@@ -75,6 +75,14 @@ function autoUpadte(){
 }
 
 function renderDashBoard(response){
+    resetGraph('ue-lambda-bar')
+    resetGraph('ue-lambda-line')
+    resetGraph('fp-lambda-bar')
+    resetGraph('fp-lambda-line')
+    resetGraph('match-bar')
+    resetGraph('match-line')
+    resetGraph('place-bar')
+    resetGraph('place-line')
     let data = response.data.trigger_log_data
     try{
         let ueListStartData = data.get_ue_list_start
@@ -125,6 +133,7 @@ function errorTest(){
     graphError('place-bar')
     graphError('place-line')
 }
+
 
 function dispatchLambdaData(listStartData, listData, detailData, source){
     let batchIds = Object.keys(listStartData)
@@ -403,6 +412,11 @@ function resetTable(){
     for (let i=0; i < rows.length; i++){
         rows[i].remove()
     }
+}
+
+function resetGraph(graphId){
+    document.getElementById(graphId.concat('-graph')).setAttribute('data-show', 'yes')
+    document.getElementById(graphId.concat('-404')).setAttribute('data-show', 'no')
 }
 
 function graphError(graphId){
