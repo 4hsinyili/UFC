@@ -37,6 +37,7 @@ const csrftoken = getCookie('csrftoken');
 
 
 function initPost(dashboardApi, intData){
+    resetGraphS()
     showLoading()
     ajaxPost(dashboardApi, intData, function(response){
         console.log(response)
@@ -75,14 +76,7 @@ function autoUpadte(){
 }
 
 function renderDashBoard(response){
-    resetGraph('ue-lambda-bar')
-    resetGraph('ue-lambda-line')
-    resetGraph('fp-lambda-bar')
-    resetGraph('fp-lambda-line')
-    resetGraph('match-bar')
-    resetGraph('match-line')
-    resetGraph('place-bar')
-    resetGraph('place-line')
+    
     let data = response.data.trigger_log_data
     try{
         let ueListStartData = data.get_ue_list_start
@@ -412,6 +406,17 @@ function resetTable(){
     for (let i=0; i < rows.length; i++){
         rows[i].remove()
     }
+}
+
+function resetGraphS(){
+    resetGraph('ue-lambda-bar')
+    resetGraph('ue-lambda-line')
+    resetGraph('fp-lambda-bar')
+    resetGraph('fp-lambda-line')
+    resetGraph('match-bar')
+    resetGraph('match-line')
+    resetGraph('place-bar')
+    resetGraph('place-line')
 }
 
 function resetGraph(graphId){
@@ -744,6 +749,7 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
     showLoading()
     ajaxPost(dashboardApi, data, function(response){
         resetTable()
+        resetGraphS()
         renderDashBoard(response)
         endLoading()
     })
