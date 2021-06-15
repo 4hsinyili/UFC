@@ -473,6 +473,8 @@ function renderSorter(dataNumber){
     $(eachSorterOperator).hide()
     $(eachSorterOperator[0]).show().prop('disabled', 'disabled')
 
+    if (eachSorterSource.val() =='ue'){eachSorterSource.attr('data-source-css', 'ue')}
+    else if (eachSorterSource.val() =='fp'){eachSorterSource.attr('data-source-css', 'fp')}
     let chosedSorterType = $(`select[name*="sorter-type"][data-number=${dataNumber}][class*="${eachSorterSource.val()}"]`)
     if (chosedSorterType.length == 1){
         $(eachSorterType[0]).hide()
