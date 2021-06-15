@@ -304,7 +304,10 @@ def favorites(request):
 
 
 def dashboard(request):
-    return render(request, 'Diner_app/dashboard.html', {'user_is_authenticated': False, 'current_page': '儀表板'})
+    if request.user.is_authenticated:
+        return render(request, 'Diner_app/dashboard.html', {'user_is_authenticated': True, 'current_page': '儀表板'})
+    else:
+        return render(request, 'Diner_app/dashboard.html', {'user_is_authenticated': False, 'current_page': '儀表板'})
 
 
 def test_500():
