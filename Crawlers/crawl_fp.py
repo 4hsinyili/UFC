@@ -172,7 +172,7 @@ class FPDinerDispatcher():
         self.triggered_at = self.get_triggered_at()
         self.diners_cursor = self.get_diners_info(offset, limit)
 
-    def get_triggered_at(self, tirggered_by='get_fp_list', collection='trigger_log'):
+    def get_triggered_at(self):
         db = self.db
         pipeline = [
             {
@@ -186,6 +186,8 @@ class FPDinerDispatcher():
                     '_id': None,
                     'triggered_at': {'$last': '$triggered_at'}
                     }
+        log_collection = self.log_collection
+        triggered_by = self.triggered_by
             }
         ]
         cursor = db[collection].aggregate(pipeline=pipeline)
@@ -361,7 +363,7 @@ class FPDinerDetailCrawler():
             detail['deliver_fee'] = 0
         return detail
 
-    def get_diners_details(self, data_range=0):
+    def get_diners_detail(self):
         diners_cursor = self.diners_cursor
         diners_info = list(diners_cursor)
         diners = []
@@ -507,7 +509,7 @@ class FPDinerDetailCrawler():
         limit = self.limit
 
         start = time.time()
-        diners, error_logs = self.get_diners_details(limit)
+        diners, error_logs = self.get_diners_detail()
         if error_logs == []:
             pass
         else:
