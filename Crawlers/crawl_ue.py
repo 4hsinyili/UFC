@@ -56,7 +56,7 @@ targets = [
 ]
 
 db = admin_client['ufc']
-driver_path = env.driver_path
+driver_path = env.DRIVER_PATH
 
 
 class UEDinerListCrawler():
