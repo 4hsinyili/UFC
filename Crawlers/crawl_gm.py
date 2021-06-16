@@ -17,7 +17,7 @@ import requests
 from urllib.parse import urlencode
 
 # home-made module
-from Crawlers import UF_match
+from Crawlers import match_uf
 
 API_KEY = env.PLACE_API_KEY
 MONGO_EC2_URI = env.MONGO_EC2_URI
@@ -26,68 +26,78 @@ db = admin_client['ufc']
 
 
 class GMCrawler():
-    def __init__(self, db, collection, matched_checker):
+    def __init__(self, db, r_w_collection, matched_checker, api_key, limit):
         self.db = db
-        self.collection = collection
+        self.r_w_collection = r_w_collection
         self.matched_checker = matched_checker
+        self.api_key = api_key
+        self.limit = limit
 
     def update_from_previous_found(self):
         start = time.time()
         db = self.db
-        collection = self.collection
+        r_w_collection = self.r_w_collection
         matched_checker = self.matched_checker
         triggered_at_gm = self.generate_triggered_at()
         last_week = triggered_at_gm - timedelta(weeks=1)
-        triggered_at, batch_id = matched_checker.get_triggered_at()
-        print('Update from ', triggered_at_gm, 'to ', last_week, "'s found records")
+
+        triggered_at = matched_checker.get_triggered_at()
+        print('Update from ', triggered_at_gm, 'to ', last_week,
+              "'s found records")
         print('Will update ', triggered_at, "'s records.")
-        pipeline = [
-            {
-                '$match': {
-                    'triggered_at_gm': {
-                                '$gte': last_week,
-                                '$lt': triggered_at_gm,
-                                "$exists": True
-                                }
-                        }
-            }, {
-                '$sort': {'triggered_at_gm': 1}
-            }, {
-                '$group': {
-                    '_id': {"uuid_ue": "$uuid_ue", "uuid_fp": "$uuid_fp"},
-                    'triggered_at_gm': {'$last': '$triggered_at_gm'},
-                    'data': {
-                        "$push": {
-                            "uuid_ue": "$uuid_ue",
-                            "uuid_fp": "$uuid_fp",
-                            "uuid_gm": "$uuid_gm",
-                            "title_gm": "$title_gm",
-                            "rating_gm": "$rating_gm",
-                            "view_count_gm": "$view_count_gm",
-                            "link_gm": "$link_gm",
-                        }
+
+        pipeline = [{
+            '$match': {
+                'triggered_at_gm': {
+                    '$gte': last_week,
+                    '$lt': triggered_at_gm,
+                    "$exists": True
+                }
+            }
+        }, {
+            '$sort': {
+                'triggered_at_gm': 1
+            }
+        }, {
+            '$group': {
+                '_id': {
+                    "uuid_ue": "$uuid_ue",
+                    "uuid_fp": "$uuid_fp"
+                },
+                'triggered_at_gm': {
+                    '$last': '$triggered_at_gm'
+                },
+                'data': {
+                    "$push": {
+                        "uuid_ue": "$uuid_ue",
+                        "uuid_fp": "$uuid_fp",
+                        "uuid_gm": "$uuid_gm",
+                        "title_gm": "$title_gm",
+                        "rating_gm": "$rating_gm",
+                        "view_count_gm": "$view_count_gm",
+                        "link_gm": "$link_gm",
                     }
                 }
             }
-        ]
-        cursor = db[collection].aggregate(pipeline)
+        }]
+        cursor = db[r_w_collection].aggregate(pipeline)
         update_records = []
-        loop_count = 0
+        old_record_count = 0
         for diner_dict in cursor:
             data = diner_dict['data'][-1]
-            loop_count += 1
+            old_record_count += 1
             record = UpdateOne(
                 {
                     'triggered_at': triggered_at,
                     'uuid_ue': data['uuid_ue'],
                     'uuid_fp': data['uuid_fp'],
-                }, {'$set': data}
-            )
+                }, {'$set': data})
             update_records.append(record)
         cursor.close()
-        print('There are ', loop_count, ' old records that could be used to update.')
+        print('There are ', old_record_count,
+              ' old records that could be used to update.')
         if len(update_records) > 0:
-            result = db[collection].bulk_write(update_records)
+            result = db[r_w_collection].bulk_write(update_records)
         print('Bulk result:')
         print(result.bulk_api_result)
         stop = time.time()
@@ -97,62 +107,63 @@ class GMCrawler():
     def update_from_previous_not_found(self):
         start = time.time()
         db = self.db
-        collection = self.collection
+        r_w_collection = self.r_w_collection
         matched_checker = self.matched_checker
         triggered_at_gm = self.generate_triggered_at()
         last_week = triggered_at_gm - timedelta(weeks=1)
         triggered_at, batch_id = matched_checker.get_triggered_at()
-        print('Update from ', triggered_at_gm, 'to ', last_week, "'s not found records")
+        print('Update from ', triggered_at_gm, 'to ', last_week,
+              "'s not found records")
         print('Will update ', triggered_at, "'s records.")
-        pipeline = [
-            {
-                '$match': {
-                    'not_found_gm': {
-                                "$exists": True
-                                },
-                    'triggered_at': {
-                                    '$gte': last_week,
-                                    '$lt': triggered_at_gm,
-                                    "$exists": True
-                                    }
-                        }
-            },
-            {
-                '$group': {
-                    '_id': {"uuid_ue": "$uuid_ue", "uuid_fp": "$uuid_fp"},
-                    'data': {
-                        "$addToSet": {
-                            "uuid_ue": "$uuid_ue",
-                            "uuid_fp": "$uuid_fp",
-                            "uuid_gm": "$uuid_gm",
-                            "title_gm": "$title_gm",
-                            "rating_gm": "$rating_gm",
-                            "view_count_gm": "$view_count_gm",
-                            "link_gm": "$link_gm",
-                            'not_found_gm': "$not_found_gm"
-                        }
+        pipeline = [{
+            '$match': {
+                'not_found_gm': {
+                    "$exists": True
+                },
+                'triggered_at': {
+                    '$gte': last_week,
+                    '$lt': triggered_at_gm,
+                    "$exists": True
+                }
+            }
+        }, {
+            '$group': {
+                '_id': {
+                    "uuid_ue": "$uuid_ue",
+                    "uuid_fp": "$uuid_fp"
+                },
+                'data': {
+                    "$addToSet": {
+                        "uuid_ue": "$uuid_ue",
+                        "uuid_fp": "$uuid_fp",
+                        "uuid_gm": "$uuid_gm",
+                        "title_gm": "$title_gm",
+                        "rating_gm": "$rating_gm",
+                        "view_count_gm": "$view_count_gm",
+                        "link_gm": "$link_gm",
+                        'not_found_gm': "$not_found_gm"
                     }
                 }
             }
-        ]
-        cursor = db[collection].aggregate(pipeline)
+        }]
+        cursor = db[r_w_collection].aggregate(pipeline)
         update_records = []
-        loop_count = 0
+        old_record_count = 0
         for diner_dict in cursor:
             data = diner_dict['data'][-1]
-            loop_count += 1
+            old_record_count += 1
             record = UpdateOne(
                 {
                     'triggered_at': triggered_at,
                     'uuid_ue': data['uuid_ue'],
                     'uuid_fp': data['uuid_fp'],
-                }, {'$set': data}
-            )
+                }, {'$set': data})
             update_records.append(record)
         cursor.close()
-        print('There are ', loop_count, ' old records that could be used to update.')
+        print('There are ', old_record_count,
+              ' old records that could be used to update.')
         if len(update_records) > 0:
-            result = db[collection].bulk_write(update_records)
+            result = db[r_w_collection].bulk_write(update_records)
         print('Bulk result:')
         print(result.bulk_api_result)
         stop = time.time()
@@ -161,33 +172,35 @@ class GMCrawler():
 
     def get_targets(self, limit=0):
         db = self.db
-        collection = self.collection
+        r_w_collection = self.r_w_collection
         matched_checker = self.matched_checker
-        triggered_at, batch_id = matched_checker.get_triggered_at()
-        pipeline = [
-            {
-                '$match': {
-                    'triggered_at': triggered_at,
-                    "uuid_gm": {"$exists": False}
-                    }
-            }, {
-                '$sort': {'_id': 1}
-            }, {
-                '$project': {
-                    '_id': 0,
-                    'uuid_ue': 1,
-                    'title_ue': 1,
-                    'gps_ue': 1,
-                    'uuid_fp': 1,
-                    'title_fp': 1,
-                    'gps_fp': 1,
-                    'triggered_at': 1,
-                    }
+        triggered_at = matched_checker.get_triggered_at()
+        pipeline = [{
+            '$match': {
+                'triggered_at': triggered_at,
+                "uuid_gm": {
+                    "$exists": False
+                }
             }
-        ]
+        }, {
+            '$sort': {
+                '_id': 1
+            }
+        }, {
+            '$project': {
+                '_id': 0,
+                'uuid_ue': 1,
+                'title_ue': 1,
+                'gps_ue': 1,
+                'uuid_fp': 1,
+                'title_fp': 1,
+                'gps_fp': 1,
+                'triggered_at': 1,
+            }
+        }]
         if limit > 0:
             pipeline.append({'$limit': limit})
-        cursor = db[collection].aggregate(pipeline=pipeline)
+        cursor = db[r_w_collection].aggregate(pipeline=pipeline)
         return cursor
 
     def parse_troublesome_title(self, title):
@@ -227,7 +240,8 @@ class GMCrawler():
                 'uuid_fp': target['uuid_fp'],
             }
             parsed_targets.append(parsed_target)
-        print('There are', len(parsed_targets), 'diners need to send to google map API')
+        print('There are', len(parsed_targets),
+              'diners need to send to google map API')
         cursor.close()
         return parsed_targets
 
@@ -262,12 +276,19 @@ class GMCrawler():
             try:
                 place = places['candidates'][0]
                 diner = {
-                    'title_gm': place['name'],
-                    'rating_gm': place['rating'],
-                    'view_count_gm': place['user_ratings_total'],
-                    'uuid_gm': place['place_id'],
-                    'link_gm': 'https://www.google.com/maps/place/?q=place_id:' + place['place_id'],
-                    'triggered_at_gm': triggered_at_gm
+                    'title_gm':
+                    place['name'],
+                    'rating_gm':
+                    place['rating'],
+                    'view_count_gm':
+                    place['user_ratings_total'],
+                    'uuid_gm':
+                    place['place_id'],
+                    'link_gm':
+                    'https://www.google.com/maps/place/?q=place_id:' +
+                    place['place_id'],
+                    'triggered_at_gm':
+                    triggered_at_gm
                 }
                 return diner, True
             except Exception:
@@ -282,9 +303,11 @@ class GMCrawler():
                 return diner, False
         else:
             if 'error_message' in list(places.keys()):
-                print(target['title'], 'has failed, due to', places['error_message'])
+                print(target['title'], 'has failed, due to',
+                      places['error_message'])
             else:
-                print(target['title'], "has failed, due to can't find it on google map.")
+                print(target['title'],
+                      "has failed, due to can't find it on google map.")
             diner = {
                 'title_gm': '',
                 'rating_gm': 0,
@@ -303,15 +326,16 @@ class GMCrawler():
                     'uuid_ue': diner['uuid_ue'],
                     'uuid_fp': diner['uuid_fp'],
                     'triggered_at': diner['triggered_at']
-                    }, {'$set': diner}
-            )
+                }, {'$set': diner})
             records.append(record)
         return records
 
-    def save_to_matched(self, db, collection, records):
-        db[collection].bulk_write(records)
+    def save_to_matched(self, db, r_w_collection, records):
+        db[r_w_collection].bulk_write(records)
 
-    def save_triggered_at(self, triggered_at, update_found_count, update_not_found_count, api_found, api_not_found, batch_id):
+    def save_triggered_at(self, triggered_at, update_found_count,
+                          update_not_found_count, api_found, api_not_found,
+                          batch_id):
         db = self.db
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
@@ -322,7 +346,7 @@ class GMCrawler():
             'api_not_found': api_not_found,
             'batch_id': batch_id,
             'triggered_by': 'place'
-            })
+        })
 
     def save_start_at(self):
         db = self.db
@@ -332,18 +356,12 @@ class GMCrawler():
             'triggered_at': triggered_at,
             'triggered_by': 'place_start',
             'batch_id': batch_id,
-            })
+        })
         return batch_id
 
-    def main(self, db, api_key, limit=0):
-        batch_id = self.save_start_at()
-        db = self.db
-        triggered_at_gm = self.generate_triggered_at()
-        update_found_count = self.update_from_previous_found()
-        update_not_found_count = self.update_from_previous_not_found()
-        start = time.time()
-        cursor = self.get_targets(limit)
-        targets = self.parse_targets(cursor)
+    def get_places(self, targets, triggered_at_gm):
+        api_key = self.api_key
+
         diners = []
         api_found = 0
         api_not_found = 0
@@ -359,60 +377,95 @@ class GMCrawler():
             for key in ['title', 'gps']:
                 del diner[key]
             diners.append(diner)
+        return diners, api_found, api_not_found
+
+    def main(self):
+        batch_id = self.save_start_at()
+        db = self.db
+        limit = self.limit
+        triggered_at_gm = self.generate_triggered_at()
+        update_found_count = self.update_from_previous_found()
+        update_not_found_count = self.update_from_previous_not_found()
+
+        start = time.time()
+        cursor = self.get_targets(limit)
+        targets = self.parse_targets(cursor)
+        diners, api_found, api_not_found = self.get_places(
+            targets, triggered_at_gm)
         records = self.transfer_diners_to_records(diners)
+
         try:
             self.save_to_matched(db, 'matched', records)
             print('Saved to db.')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
-        self.save_triggered_at(triggered_at_gm, update_found_count, update_not_found_count, api_found, api_not_found, batch_id)
+
+        self.save_triggered_at(triggered_at_gm, update_found_count,
+                               update_not_found_count, api_found,
+                               api_not_found, batch_id)
         stop = time.time()
-        print('Send ', len(diners), ' to place API and save to db took: ', stop - start, 's.')
+        print('Send ', len(diners), ' to place API and save to db took: ',
+              stop - start, 's.')
 
 
 class GMChecker():
-    def __init__(self, db, collection):
+    def __init__(self, db, read_collection, limit):
         self.db = db
-        self. collection = collection
+        self.read_collection = read_collection
         self.triggered_at = self.get_triggered_at()
+        self.limit = limit
 
     def get_triggered_at(self):
         db = self.db
-        collection = self.collection
-        pipeline = [
-            {
-                '$sort': {'triggered_at': 1}
-            },
-            {
-                '$group': {
-                    '_id': None,
-                    'triggered_at': {'$last': '$triggered_at'}
-                    }
+        read_collection = self.read_collection
+        pipeline = [{
+            '$sort': {
+                'triggered_at': 1
             }
-        ]
-        cursor = db[collection].aggregate(pipeline=pipeline)
+        }, {
+            '$group': {
+                '_id': None,
+                'triggered_at': {
+                    '$last': '$triggered_at'
+                }
+            }
+        }]
+        cursor = db[read_collection].aggregate(pipeline=pipeline)
         result = next(cursor)['triggered_at']
         cursor.close()
         return result
 
-    def get_last_records(self, limit=0):
+    def get_last_records(self):
         db = self.db
-        collection = self.collection
+        read_collection = self.read_collection
         triggered_at = self.triggered_at
-        print(triggered_at)
-        pipeline = [
-            {'$match': {
+        limit = self.limit
+        pipeline = [{
+            '$match': {
                 'triggered_at': triggered_at,
-                'uuid_gm': {'$exists': True, '$ne': ''}
-                }}
-        ]
+                'uuid_gm': {
+                    '$exists': True,
+                    '$ne': ''
+                }
+            }
+        }]
         if limit > 0:
             pipeline.append({'$limit': limit})
-        result = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        result = db[read_collection].aggregate(pipeline=pipeline,
+                                               allowDiskUse=True)
         return result
 
 
 if __name__ == '__main__':
-    matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
-    crawler = GMCrawler(db, 'matched', matched_checker)
-    crawler.main(db, API_KEY, 0)
+    read_collection = 'matched'
+    log_collection = 'trigger_log'
+    triggered_by = 'match'
+
+    matched_checker = match_uf.MatchedChecker(db, read_collection,
+                                              log_collection, triggered_by)
+
+    r_w_collection = 'matched'
+    limit = 0
+
+    crawler = GMCrawler(db, r_w_collection, matched_checker, API_KEY, 0)
+    crawler.main()
