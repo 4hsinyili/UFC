@@ -12,8 +12,8 @@ db = admin_client[DB_NAME]
 if __name__ == '__main__':
     db['ue_list'].create_index([('uuid', ASCENDING), ('triggered_at', ASCENDING)])
     db['fp_list'].create_index([('uuid', ASCENDING), ('triggered_at', ASCENDING)])
-    db['ue_detail'].create_index([('link', ASCENDING), ('triggered_at', ASCENDING)])
-    db['fp_detail'].create_index([('link', ASCENDING), ('triggered_at', ASCENDING)])
+    db['ue_detail'].create_index([('uuid', ASCENDING), ('triggered_at', ASCENDING)])
+    db['fp_detail'].create_index([('uuid', ASCENDING), ('triggered_at', ASCENDING)])
     db['matched'].create_index([
         ('triggered_at', ASCENDING)
         ])
