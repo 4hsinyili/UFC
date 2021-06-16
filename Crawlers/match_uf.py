@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
-from Crawlers.FP_crawl import FPChecker
-from Crawlers.UE_crawl import UEChecker
+from datetime import datetime, timedelta  # , timedelta
+from Crawlers.crawl_fp import FPChecker
+from Crawlers.crawl_ue import UEChecker
 from pymongo import MongoClient, UpdateOne
 import env
 from itertools import product
@@ -17,39 +17,27 @@ db = admin_client['ufc']
 
 
 class Match():
-    def __init__(self, db, collection):
+    def __init__(self, db, read_collection_ue, read_collection_fp,
+                 write_collection, triggered_by_ue, triggered_by_fp):
         self.db = db
-        self.collection = collection
-        self.triggered_at = self.get_triggered_at()
-
-    def get_triggered_at(self, collection='stepfunction_log'):
-        db = self.db
-        pipeline = [
-            {
-                '$sort': {'ue_triggered_at': 1}
-            },
-            {
-                '$group': {
-                    '_id': None,
-                    'triggered_at': {'$last': '$ue_triggered_at'}
-                    }
-            }
-        ]
-        cursor = db[collection].aggregate(pipeline=pipeline)
-        result = next(cursor)['triggered_at']
-        return result
+        self.read_collection_ue = read_collection_ue
+        self.read_collection_fp = read_collection_fp
+        self.write_collection = write_collection
+        self.triggered_by_ue = triggered_by_ue
+        self.triggered_by_fp = triggered_by_fp
 
     def get_records(self):
-        db = self.db
-        uechecker = UEChecker(db, 'ue_detail', 'get_ue_detail')
-        ue_cursor = uechecker.get_last_records()
-        ue_records = list(ue_cursor)
+        uechecker = UEChecker(self.db, self.read_collection_ue,
+                              self.triggered_by_ue)
+        ue_cursor = uechecker.get_latest_records()
+        records_ue = list(ue_cursor)
         ue_cursor.close()
-        fpchecker = FPChecker(db, 'fp_detail', 'get_fp_detail')
-        fp_cursor = fpchecker.get_last_records()
-        fp_records = list(fp_cursor)
+        fpchecker = FPChecker(self.db, self.read_collection_fp,
+                              self.triggered_by_fp)
+        fp_cursor = fpchecker.get_latest_records()
+        records_fp = list(fp_cursor)
         fp_cursor.close()
-        return ue_records, fp_records
+        return records_ue, records_fp
 
     def filter_need_compare_records(self, records):
         needed_fields = ['uuid', 'title', 'gps', 'item_pair']
@@ -59,14 +47,14 @@ class Match():
             filtered_records.append(filtered_record)
         return filtered_records
 
-    def compare(self, ue_records, fp_records):
-        ue_records = self.filter_need_compare_records(ue_records)
-        fp_records = self.filter_need_compare_records(fp_records)
+    def compare(self, records_ue, records_fp):
+        records_ue = self.filter_need_compare_records(records_ue)
+        records_fp = self.filter_need_compare_records(records_fp)
         gc.collect()
-        all_combinations = product(ue_records, fp_records)
+        all_combinations = product(records_ue, records_fp)
         similarities = []
-        loop_count = 0
-        log = []
+        similar_count = 0
+        # log = []
         for ue, fp in all_combinations:
             gps_ue = tuple(ue['gps'])
             gps_fp = tuple(fp['gps'])
@@ -75,7 +63,7 @@ class Match():
                 continue
             else:
                 if meter > 0:
-                    meter_similarity = (50-meter) / 50
+                    meter_similarity = (50 - meter) / 50
                 else:
                     meter_similarity = 1
                 title_ue = ue['title']
@@ -85,14 +73,15 @@ class Match():
                 similarity = meter_similarity + title_similarity
                 if similarity > 1.4:
                     cheaper_ue, cheaper_fp = self.compare_item(ue, fp)
-                    similarities.append((ue['uuid'], fp['uuid'], similarity, cheaper_ue, cheaper_fp))
-                    loop_count += 1
-                    log.append([ue['title'], fp['title'], similarity, cheaper_ue, cheaper_fp])
+                    similarities.append((ue['uuid'], fp['uuid'], similarity,
+                                         cheaper_ue, cheaper_fp))
+                    similar_count += 1
+                    # log.append([ue['title'], fp['title'], similarity, cheaper_ue, cheaper_fp])
                 else:
                     continue
-        print('There are ', loop_count, ' similar diners')
+        print('There are ', similar_count, ' similar diners')
         # pprint.pprint(log)
-        return similarities, loop_count
+        return similarities, similar_count
 
     def compare_item(self, ue_record, fp_record):
         cheaper_ue = []
@@ -106,21 +95,28 @@ class Match():
             item_price_ue = item_pair_ue[item_ue]
             item_price_fp = item_pair_fp[item_fp]
             if (item_price_ue - item_price_fp > 0):
-                cheaper_fp.append([item_fp, int(item_price_ue - item_price_fp)])
+                cheaper_fp.append(
+                    [item_fp, int(item_price_ue - item_price_fp)])
             elif (item_price_ue - item_price_fp < 0):
-                cheaper_ue.append([item_ue, int(item_price_fp - item_price_ue)])
+                cheaper_ue.append(
+                    [item_ue, int(item_price_fp - item_price_ue)])
         return cheaper_ue, cheaper_fp
 
     def transfer_records(self, records, source):
         if source == 'ue':
-            op = 'fp'
+            op = '_fp'
         else:
-            op = 'ue'
+            op = '_ue'
         source = '_' + source
-        op = '_' + op
         new_records = {}
-        list_fields = ['tags_ue', 'gps_ue', 'open_days_ue', 'open_hours_ue', 'tags_fp', 'gps_fp', 'open_days_fp', 'open_hours_fp']
-        int_fields = ['deliver_fee_ue', 'deliver_time_ue', 'budget_ue', 'view_count_ue', 'deliver_fee_fp', 'deliver_time_fp', 'budget_fp', 'view_count_fp']
+        list_fields = [
+            'tags_ue', 'gps_ue', 'open_days_ue', 'open_hours_ue', 'tags_fp',
+            'gps_fp', 'open_days_fp', 'open_hours_fp'
+        ]
+        int_fields = [
+            'deliver_fee_ue', 'deliver_time_ue', 'budget_ue', 'view_count_ue',
+            'deliver_fee_fp', 'deliver_time_fp', 'budget_fp', 'view_count_fp'
+        ]
         float_fields = ['rating_ue', 'rating_fp']
         dict_fields = ['menu_ue', 'menu_fp']
         bool_fields = ['choice_ue', 'choice_fp']
@@ -151,7 +147,7 @@ class Match():
             new_records[(record['uuid_ue'], record['uuid_fp'])] = record
         return new_records
 
-    def merge_records(self, records_ue, records_fp, similarites):
+    def get_max_similarities(self, similarites):
         max_similarities = {}
         for similarity in similarites:
             uuid_ue = similarity[0]
@@ -162,40 +158,56 @@ class Match():
             if uuid_ue in max_similarities.keys():
                 sim_old = max_similarities[uuid_ue][1]
                 if sim_new > sim_old:
-                    max_similarities[uuid_ue] = (uuid_fp, sim_new, cheaper_ue, cheaper_fp)
+                    max_similarities[uuid_ue] = (uuid_fp, sim_new, cheaper_ue,
+                                                 cheaper_fp)
             else:
-                max_similarities[uuid_ue] = (uuid_fp, sim_new, cheaper_ue, cheaper_fp)
-        similarities_ue = set()
-        similarities_fp = set()
-        similarities_mathced = {}
+                max_similarities[uuid_ue] = (uuid_fp, sim_new, cheaper_ue,
+                                             cheaper_fp)
+        return max_similarities
+
+    def parse_filters(self, max_similarities):
+        matched_ue_set = set()
+        matched_fp_set = set()
+        matched_info_dict = {}
         for key in max_similarities:
             uuid_ue = key
             uuid_fp = max_similarities[key][0]
             sim = max_similarities[key][1]
             cheaper_ue = max_similarities[key][2]
             cheaper_fp = max_similarities[key][3]
-            similarities_ue.add(uuid_ue)
-            similarities_fp.add(uuid_fp)
-            similarities_mathced[(uuid_ue, uuid_fp)] = (sim, cheaper_ue, cheaper_fp)
-        records_ue = self.transfer_records(records_ue, 'ue')
-        records_fp = self.transfer_records(records_fp, 'fp')
-        records_combined = {}
-        records_combined.update(records_ue)
-        records_combined.update(records_fp)
-        for key in similarities_ue:
-            del records_combined[(key, '')]
-        for key in similarities_fp:
-            del records_combined[('', key)]
-        for key in records_combined:
-            records_combined[key]['similarity'] = 0
-            records_combined[key]['cheaper_ue'] = []
-            records_combined[key]['cheaper_fp'] = []
-        for key in similarities_mathced:
+            matched_ue_set.add(uuid_ue)
+            matched_fp_set.add(uuid_fp)
+            matched_info_dict[(uuid_ue, uuid_fp)] = (sim, cheaper_ue,
+                                                     cheaper_fp)
+
+        return matched_ue_set, matched_fp_set, matched_info_dict
+
+    def remove_matched(self, records_ue, records_fp, matched_ue_set,
+                       matched_fp_set):
+        records_unmatched = {}
+        records_unmatched.update(records_ue)
+        records_unmatched.update(records_fp)
+
+        for matched_ue in matched_ue_set:
+            del records_unmatched[(matched_ue, '')]
+        for matched_fp in matched_fp_set:
+            del records_unmatched[('', matched_fp)]
+        for key in records_unmatched:
+            records_unmatched[key]['similarity'] = 0
+            records_unmatched[key]['cheaper_ue'] = []
+            records_unmatched[key]['cheaper_fp'] = []
+
+        return records_unmatched
+
+    def combine_records(self, records_ue, records_fp, records_unmatched,
+                        matched_info_dict):
+        records_dict = records_unmatched
+        for key in matched_info_dict:
             uuid_ue = key[0]
             uuid_fp = key[1]
             record_ue = records_ue[(uuid_ue, '')]
             record_fp = records_fp[('', uuid_fp)]
-            record_matched = {}
+            record = {}
             ue_keys = list(record_ue.keys())
             for ue_key in ue_keys:
                 if ('_fp' in ue_key):
@@ -204,30 +216,46 @@ class Match():
             for fp_key in fp_keys:
                 if ('_ue' in fp_key):
                     del record_fp[fp_key]
-            record_matched.update(record_ue)
-            record_matched.update(record_fp)
-            record_matched['similarity'] = similarities_mathced[key][0]
-            record_matched['cheaper_ue'] = similarities_mathced[key][1]
-            record_matched['cheaper_fp'] = similarities_mathced[key][2]
-            records_combined[key] = record_matched
-        return records_combined
+            record.update(record_ue)
+            record.update(record_fp)
+            record['similarity'] = matched_info_dict[key][0]
+            record['cheaper_ue'] = matched_info_dict[key][1]
+            record['cheaper_fp'] = matched_info_dict[key][2]
+            records_dict[key] = record
+        return records_dict
 
-    def save_to_matched(self, diners):
+    def merge_records(self, records_ue, records_fp, similarites):
+        max_similarities = self.get_max_similarities(similarites)
+
+        matched_ue_set, matched_fp_set, matched_info_dict = self.parse_filters(
+            max_similarities)
+        # matched_ue_set and matched_fp_set will be used to remove those diner who has matched
+        # so when records_ue and records_fp merged, there won't be duplicate diner
+        # after merged, will use matched_info_dict to add those diner back
+
+        records_ue = self.transfer_records(records_ue, 'ue')
+        records_fp = self.transfer_records(records_fp, 'fp')
+        records_unmatched = self.remove_matched(records_ue, records_fp,
+                                                matched_ue_set, matched_fp_set)
+        # records_unmatched is records without matched
+
+        records_dict = self.combine_records(records_ue, records_fp,
+                                            records_unmatched,
+                                            matched_info_dict)
+        # this function will combine records_unmatched with matched records
+
+        return records_dict
+
+    def save_to_matched(self, triggered_at, records_dict):
         db = self.db
-        collection = self.collection
+        write_collection = self.write_collection
         records = []
-        for key in diners:
-            diner = diners[key]
-            diner['uuid_matched'] = {
-                'uuid_fp': diner['uuid_fp'],
-                'uuid_ue': diner['uuid_ue']
-            }
-            if diner['triggered_at_ue'] == datetime.min:
-                triggered_at = diner['triggered_at_fp']
-            else:
-                triggered_at = diner['triggered_at_ue']
+
+        for key in records_dict:
+            diner = records_dict[key]
             diner['triggered_at'] = triggered_at
             records.append(diner)
+
         diners_count = len(records)
         slice_count = 10
         divider = diners_count // slice_count
@@ -235,33 +263,39 @@ class Match():
         offsets = [i * divider for i in range(slice_count)]
         remainder = diners_count - offsets[-1]
         limits.append(remainder)
-        indexes = [{'offset': offsets[i], 'limit': limits[i]} for i in range(slice_count)]
+        indexes = [{
+            'offset': offsets[i],
+            'limit': limits[i]
+        } for i in range(slice_count)]
+
         for index in indexes:
             offset = index['offset']
             limit = index['limit']
-            record_slice = records[offset: offset+limit]
-            print('Going to save ', len(record_slice), 'diners to db.matched in this slice.')
+            record_slice = records[offset:offset + limit]
+            print('Going to save ', len(record_slice),
+                  'diners to db.matched in this slice.')
             upsert_records = []
             for diner in record_slice:
                 record = UpdateOne(
                     {
                         'uuid_ue': diner['uuid_ue'],
                         'uuid_fp': diner['uuid_fp'],
-                        'uuid_matched': diner['uuid_matched'],
                         'triggered_at_ue': diner['triggered_at_ue'],
                         'triggered_at_fp': diner['triggered_at_fp'],
                         'triggered_at': triggered_at
-                        }, {'$set': diner}, upsert=True
-                )
+                    }, {'$set': diner},
+                    upsert=True)
                 upsert_records.append(record)
-            db[collection].bulk_write(upsert_records)
+            db[write_collection].bulk_write(upsert_records)
             gc.collect()
-        print('Totally save ', len(records), 'diners to db.matched in this slice.')
+        print('Totally save ', len(records),
+              'diners to db.matched in this slice.')
         pprint.pprint('write into matched successed')
+        return len(records)
 
-    def save_triggered_at(self, records_count, matched_count, batch_id):
+    def save_triggered_at(self, triggered_at, records_count, matched_count,
+                          batch_id):
         db = self.db
-        triggered_at = self.triggered_at
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
@@ -269,118 +303,158 @@ class Match():
             'matched_count': matched_count,
             'batch_id': batch_id,
             'triggered_by': 'match'
-            })
+        })
 
-    def save_start_at(self):
+    def save_start_at(self, triggered_at):
         db = self.db
         now = datetime.utcnow()
         batch_id = now.timestamp()
-        triggered_at = self.triggered_at
         trigger_log = 'trigger_log'
         db[trigger_log].insert_one({
             'triggered_at': triggered_at,
             'triggered_by': 'match_start',
             'batch_id': batch_id,
-            })
+        })
         return batch_id
 
-    def remove_old_records(self):
-        db = self.db
-        triggered_at = self.triggered_at
-        last_week = triggered_at - timedelta(weeks=1)
-        db.ue_detail.delete_many({"triggered_at": {"$lt": last_week}})
-        db.fp_detail.delete_many({"triggered_at": {"$lt": last_week}})
-        db.matched.delete_many({"triggered_at": {"$lt": last_week}})
+    # def remove_old_records(self):
+    #     db = self.db
+    #     triggered_at = self.triggered_at
+    #     last_week = triggered_at - timedelta(weeks=1)
+    #     db.ue_detail.delete_many({"triggered_at": {"$lt": last_week}})
+    #     db.fp_detail.delete_many({"triggered_at": {"$lt": last_week}})
+    #     db.matched.delete_many({"triggered_at": {"$lt": last_week}})
 
-    def main(self, data_range=0):
-        batch_id = self.save_start_at()
-        print('Start comparsion, using', self.triggered_at, "'s records.")
-        start = time.time()
-        ue_records, fp_records = self.get_records()
+    def main(self, triggered_at, data_range=0):
+        print('Start comparsion, using', triggered_at, "'s records.")
+
+        p_start = time.time()
+        batch_id = self.save_start_at(triggered_at)
+        records_ue, records_fp = self.get_records()
+
         if data_range == 0:
             pass
         else:
-            ue_records = ue_records[:data_range]
-            fp_records = fp_records[:data_range]
+            records_ue = records_ue[:data_range]
+            records_fp = records_fp[:data_range]
+
         c_start = time.time()
-        similarities, matched_count = self.compare(ue_records, fp_records)
+        similarities, matched_count = self.compare(records_ue, records_fp)
         c_stop = time.time()
         print('compare took: ', c_stop - c_start)
-        matched_records = self.merge_records(ue_records, fp_records, similarities)
-        del ue_records
-        del fp_records
+
+        records_dict = self.merge_records(records_ue, records_fp, similarities)
+        del records_ue
+        del records_fp
         del similarities
         gc.collect()
-        records_count = len(list(matched_records.keys()))
-        stop = time.time()
-        print('process took: ', stop - start)
-        self.save_to_matched(matched_records)
-        self.save_triggered_at(records_count, matched_count, batch_id)
+
+        p_stop = time.time()
+        print('process took: ', p_stop - p_start)
+
+        s_start = time.time()
+        records_count = self.save_to_matched(triggered_at, records_dict)
+        self.save_triggered_at(triggered_at, records_count, matched_count,
+                               batch_id)
+        s_stop = time.time()
+        print('save to db took: ', s_stop - s_start)
         # self.remove_old_records()
 
 
 class MatchedChecker():
-    def __init__(self, db, collection, triggered_by):
+    def __init__(self, db, read_collection, log_collection, triggered_by):
         self.db = db
-        self.collection = collection
+        self.read_collection = read_collection
+        self.log_collection = log_collection
         self.triggered_by = triggered_by
-        self.triggered_at, self.batch_id = self.get_triggered_at()
+        self.triggered_at = self.get_triggered_at()
 
-    def get_triggered_at(self, collection='trigger_log'):
+    def get_triggered_at(self):
         db = self.db
-        pipeline = [
-            {
-                '$match': {'triggered_by': self.triggered_by}
-            },
-            {
-                '$sort': {'triggered_at': 1}
-            },
-            {
-                '$group': {
-                    '_id': None,
-                    'triggered_at': {'$last': '$triggered_at'},
-                    'batch_id': {'$last': '$batch_id'}
-                    }
+        log_collection = self.log_collection
+        pipeline = [{
+            '$match': {
+                'triggered_by': self.triggered_by
             }
-        ]
-        cursor = db[collection].aggregate(pipeline=pipeline)
-        result = next(cursor)
-        cursor.close()
-        triggered_at = result['triggered_at']
-        batch_id = result['batch_id']
-        return triggered_at, batch_id
-
-    def get_last_records(self, limit=0):
-        db = self.db
-        collection = self.collection
-        triggered_at = self.get_triggered_at()
-        print(triggered_at)
-        pipeline = [
-            {
-                '$match': {
-                    'triggered_at': triggered_at,
-                    'uuid_gm': {'$exists': True},
+        }, {
+            '$sort': {
+                'triggered_at': 1
+            }
+        }, {
+            '$group': {
+                '_id': None,
+                'triggered_at': {
+                    '$last': '$triggered_at'
                 }
             }
-        ]
+        }]
+        cursor = db[log_collection].aggregate(pipeline=pipeline)
+        result = next(cursor)['triggered_at']
+        cursor.close()
+        return result
+
+    def get_batch_id(self):
+        db = self.db
+        log_collection = self.log_collection
+        pipeline = [{
+            '$match': {
+                'triggered_by': self.triggered_by
+            }
+        }, {
+            '$sort': {
+                'triggered_at': 1
+            }
+        }, {
+            '$group': {
+                '_id': None,
+                'batch_id': {
+                    '$last': '$batch_id'
+                }
+            }
+        }]
+        cursor = db[log_collection].aggregate(pipeline=pipeline)
+        result = next(cursor)['batch_id']
+        cursor.close()
+        return result
+
+    def get_latest_records(self, limit=0):
+        db = self.db
+        read_collection = self.read_collection
+        triggered_at = self.get_triggered_at()
+        pipeline = [{
+            '$match': {
+                'triggered_at': triggered_at,
+                'uuid_gm': {
+                    '$exists': True
+                },
+            }
+        }]
         if limit > 0:
             pipeline.append({'$limit': limit})
-        cursor = db[collection].aggregate(pipeline=pipeline, allowDiskUse=True)
+        cursor = db[read_collection].aggregate(pipeline=pipeline,
+                                               allowDiskUse=True)
         return cursor
 
 
 if __name__ == '__main__':
-    collection = 'matched'
-    data_range = 0
-    matcher = Match(db, collection)
-    # matcher.remove_old_records()
-    # print(matcher.triggered_at)
-    # matcher.main(data_range)
-    # checker = MatchedChecker(db, collection, 'match')
-    # cursor = checker.get_last_records()
-    # cursor.close()
-    # print(checker.triggered_at)
-    # records = checker.get_last_records(1)
-    # for record in records:
-    #     pprint.pprint(record)
-    #     pprint.pprint(record.keys())
+    read_collection_ue = 'ue_detail'
+    read_collection_fp = 'fp_detail'
+    write_collection = 'matched'
+    log_collection = 'trigger_log'
+    triggered_by_ue = 'get_ue_detail'
+    triggered_by_fp = 'get_fp_detail'
+    triggered_at = datetime.now().replace(hour=2, minute=0, second=0, microsecond=0) - timedelta(days=1)
+
+    data_range = 400
+    matcher = Match(db, read_collection_ue, read_collection_fp,
+                    write_collection, triggered_by_ue, triggered_by_fp)
+    matcher.main(triggered_at, data_range)
+
+    read_collection = 'matched'
+    triggered_by = 'match'
+    checker = MatchedChecker(db, read_collection, log_collection, triggered_by)
+    cursor = checker.get_latest_records(1)
+    for record in cursor:
+        pprint.pprint(record)
+        pprint.pprint(record.keys())
+    cursor.close()
