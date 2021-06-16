@@ -1,9 +1,13 @@
 from pymongo import MongoClient, ASCENDING
 import env
+import configparser
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
+CONFIG = configparser.ConfigParser()
+CONFIG.read('crawler.conf')
+DB_NAME = CONFIG['Local']['db_name']
 admin_client = MongoClient(MONGO_EC2_URI)
-db = admin_client['ufc']
+db = admin_client[DB_NAME]
 
 if __name__ == '__main__':
     db['ue_list'].create_index([('uuid', ASCENDING), ('triggered_at', ASCENDING)])
