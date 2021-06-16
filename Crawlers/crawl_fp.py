@@ -63,7 +63,7 @@ class FPDinerListCrawler():
             link = diner['redirection_url']
             title = diner['name']
             uuid = diner['code']
-            FP_choice = int(diner['is_best_in_city'])
+            choice = int(diner['is_best_in_city'])
             deliver_fee = diner['minimum_delivery_fee']
             deliver_time = diner['minimum_delivery_time']
             result = {
@@ -71,7 +71,7 @@ class FPDinerListCrawler():
                 'link': link,
                 'deliver_fee': deliver_fee,
                 'deliver_time': deliver_time,
-                'FP_choice': FP_choice,
+                'choice': choice,
                 'uuid': uuid,
                 'triggered_at': triggered_at
             }

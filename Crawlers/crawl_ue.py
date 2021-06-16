@@ -281,9 +281,10 @@ class UEDinerListCrawler():
             diner_div.xpath(
                 ".//img[@src='https://d4p17acsd5wyj.cloudfront.net/eatsfeed/other_icons/top_eats.png']"
             )[0]
-            UE_choice = 1
+            choice = 1
         except Exception:
-            UE_choice = 0
+            choice = 0
+
         if diner_div.xpath(".//span[contains(.,'費用')]/text()") == []:
             deliver_fee = 0
         else:
@@ -298,8 +299,8 @@ class UEDinerListCrawler():
             'link': link,
             'deliver_fee': deliver_fee,
             'deliver_time': deliver_time,
-            'UE_choice': UE_choice,
-            'triggered_at': triggered_at
+            'choice': choice,
+            'triggered_at': self.triggered_at
         }
         return diner
 

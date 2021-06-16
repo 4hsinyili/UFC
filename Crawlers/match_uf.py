@@ -44,16 +44,10 @@ class Match():
         uechecker = UEChecker(db, 'ue_detail', 'get_ue_detail')
         ue_cursor = uechecker.get_last_records()
         ue_records = list(ue_cursor)
-        for ue_record in ue_records:
-            ue_record['choice'] = ue_record['UE_choice']
-            del ue_record['UE_choice']
         ue_cursor.close()
         fpchecker = FPChecker(db, 'fp_detail', 'get_fp_detail')
         fp_cursor = fpchecker.get_last_records()
         fp_records = list(fp_cursor)
-        for fp_record in fp_records:
-            fp_record['choice'] = fp_record['FP_choice']
-            del fp_record['FP_choice']
         fp_cursor.close()
         return ue_records, fp_records
 
