@@ -1,11 +1,9 @@
 #  for db control
-from pymongo import MongoClient, UpdateOne, InsertOne
+from pymongo import MongoClient, UpdateOne
 
 # for crawling from js-website
 from seleniumwire import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 
 # for crawling from API
@@ -18,6 +16,7 @@ from lxml import etree
 import os
 import json
 import env
+import configparser
 
 # for timing and not to get caught
 import time
@@ -27,38 +26,29 @@ from datetime import datetime
 # for preview
 import pprint
 
+# home-made modules
+from Crawlers import utils
+
 MONGO_EC2_URI = env.MONGO_EC2_URI
+DRIVER_PATH = env.DRIVER_PATH
+CONFIG = configparser.ConfigParser()
+CONFIG.read('crawler.conf')
+DB_NAME = CONFIG['Local']['db_name']
+
+LIST_COLLECTION = CONFIG['Collections']['ue_list']
+LIST_TEMP_COLLECTION = CONFIG['Collections']['ue_list_temp']
+DETAIL_COLLECTION = CONFIG['Collections']['ue_detail']
+LOG_COLLECTION = CONFIG['Collections']['trigger_log']
+GET_UE_LIST = CONFIG['TriggeredBy']['get_ue_list']
+GET_UE_DETAIL = CONFIG['TriggeredBy']['get_ue_detail']
+
+API_JSON = utils.read_json('api_ue.json')
+HEADERS = API_JSON['headers']
+DETAIL_URL = API_JSON['detail_url']
+TARGETS = utils.read_json('targets_ue.json')
+
 admin_client = MongoClient(MONGO_EC2_URI)
-
-targets = [{
-    'title': 'Appworks School',
-    'address': '110台北市信義區基隆路一段178號',
-    'gps': (25.0424488, 121.562731),
-    'batch_id': 0.0001
-}, {
-    'title': '宏大弘資源回收場',
-    'address': '105台北市松山區撫遠街409號',
-    'gps': (25.0657733, 121.5649126),
-    'batch_id': 0.0001
-}, {
-    'title': '永清工程行',
-    'address': '115南港區成福路121巷30號',
-    'gps': (25.0424398, 121.5858762),
-    'batch_id': 0.0001
-}, {
-    'title': '7-ELEVEN 惠安門市',
-    'address': '110台北市信義區吳興街520號',
-    'gps': (25.0221574, 121.5666836),
-    'batch_id': 0.0001
-}, {
-    'title': '路易莎咖啡',
-    'address': '106台北市大安區忠孝東路三段217巷4弄2-5號',
-    'gps': (25.0424876, 121.5400285),
-    'batch_id': 0.0001
-}]
-
-db = admin_client['ufc']
-driver_path = env.DRIVER_PATH
+db = admin_client[DB_NAME]
 
 
 class UEDinerListCrawler():
@@ -67,6 +57,7 @@ class UEDinerListCrawler():
                  db,
                  write_collection,
                  log_collection,
+                 w_triggered_by,
                  driver_path='lambda',
                  headless=False,
                  auto_close=False,
@@ -76,9 +67,10 @@ class UEDinerListCrawler():
         self.db = db
         self.write_collection = write_collection
         self.log_collection = log_collection
+        self.w_triggered_by = w_triggered_by
         self.driver = self.chrome_create(driver_path, headless, auto_close,
                                          inspect)
-        self.triggered_at = self.generate_triggered_at()
+        self.triggered_at = utils.generate_triggered_at()
 
     def chrome_create(self, driver_path, headless, auto_close, inspect):
         if driver_path != 'lambda':
@@ -141,12 +133,6 @@ class UEDinerListCrawler():
     def chrome_close(self, driver):
         driver.close()
 
-    def generate_triggered_at(self):
-        now = datetime.utcnow()
-        triggered_at = datetime.combine(now.date(), datetime.min.time())
-        triggered_at = triggered_at.replace(hour=now.hour)
-        return triggered_at
-
     def send_location_to_UE(self):
         target = self.target
         triggered_at = self.triggered_at
@@ -164,7 +150,7 @@ class UEDinerListCrawler():
             error_log = {'error': 'send location wrong'}
             print('Send location wrong.')
             return False, False, error_log
-        time.sleep(10)
+        utils.selenium_wait_js_load()
 
         try:
             try:
@@ -177,7 +163,7 @@ class UEDinerListCrawler():
             error_log = {'error': 'click button wrong'}
             print('Click button wrong.')
             return False, False, error_log
-        time.sleep(10)
+        utils.selenium_wait_js_load()
 
         if lang == 'en':
             locator_xpath = '//button[text() = "Show more"]'
@@ -189,19 +175,17 @@ class UEDinerListCrawler():
         try:
             while len(driver.find_elements_by_xpath(locator_xpath)) > 0:
                 try:
-                    WebDriverWait(driver, 40, 0.5).until(
-                        EC.presence_of_element_located(locator))
+                    utils.selenium_wait_btn_show(driver, locator)
                     driver.find_element_by_xpath(locator_xpath).send_keys(
                         Keys.ENTER)
-                    WebDriverWait(driver, 40, 0.5).until(
-                        EC.presence_of_element_located(locator))
+                    utils.selenium_wait_btn_show(driver, locator)
                 except Exception:
                     break
         except Exception:
             error_log = {'error': 'scroll wrong'}
             print('Scroll wrong.')
             return False, False, error_log
-        time.sleep(20)
+        utils.selenium_wait_all_diners_load()
 
         html = driver.page_source
         selector = etree.HTML(html)
@@ -327,27 +311,6 @@ class UEDinerListCrawler():
                 diner['uuid'] = False
         return diners_info
 
-    def save_triggered_at(self, records_count):
-        db = self.db
-        log_collection = self.log_collection
-        db[log_collection].insert_one({
-            'triggered_at': self.triggered_at,
-            'records_count': records_count,
-            'triggered_by': 'get_ue_list',
-            'batch_id': self.batch_id,
-            'target': self.target,
-        })
-
-    def save_start_at(self):
-        db = self.db
-        log_collection = self.log_collection
-        db[log_collection].insert_one({
-            'triggered_at': self.triggered_at,
-            'triggered_by': 'get_ue_list_start',
-            'batch_id': self.batch_id,
-            'target': self.target
-        })
-
     def assemble_diners_info(self, diner_divs, title_uuid_dict):
         diners_info = []
         for diner_div in diner_divs:
@@ -374,7 +337,7 @@ class UEDinerListCrawler():
         return len(records)
 
     def main(self):
-        self.save_start_at()
+        utils.save_start_at(self)
         start = time.time()
         selector, title_uuid_dict, error_log = self.send_location_to_UE()
         records_count = 0
@@ -398,92 +361,11 @@ class UEDinerListCrawler():
             pprint.pprint(error_log)
 
         stop = time.time()
-        self.save_triggered_at(records_count)
+        utils.save_triggered_at(self, records_count=records_count)
         print('Get diner list near ', self.target['title'], ' took ',
               stop - start, ' seconds.')
         self.chrome_close(self.driver)
         return records_count
-
-
-class UEDinerDispatcher():
-    def __init__(self,
-                 db,
-                 read_collection,
-                 write_collection,
-                 log_collection,
-                 triggered_by,
-                 offset=False,
-                 limit=False):
-        self.db = db
-        self.read_collection = read_collection
-        self.write_collection = write_collection
-        self.log_collection = log_collection
-        self.triggered_by = triggered_by
-        self.triggered_at = self.get_triggered_at()
-        self.diners_cursor = self.get_diners_info(offset, limit)
-
-    def get_triggered_at(self):
-        db = self.db
-        log_collection = self.log_collection
-        triggered_by = self.triggered_by
-        pipeline = [{
-            '$match': {
-                'triggered_by': triggered_by
-            }
-        }, {
-            '$sort': {
-                'triggered_at': 1
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'triggered_at': {
-                    '$last': '$triggered_at'
-                }
-            }
-        }]
-        cursor = db[log_collection].aggregate(pipeline=pipeline)
-        result = next(cursor)['triggered_at']
-        cursor.close()
-        return result
-
-    def get_diners_info(self, offset=0, limit=0):
-        db = self.db
-        triggered_at = self.triggered_at
-        read_collection = self.read_collection
-        pipeline = [{
-            '$match': {
-                'title': {
-                    "$exists": True
-                },
-                'triggered_at': triggered_at
-            }
-        }, {
-            '$sort': {
-                'uuid': 1
-            }
-        }]
-        if offset > 0:
-            pipeline.append({'$skip': offset})
-        if limit > 0:
-            pipeline.append({'$limit': limit})
-        cursor = db[read_collection].aggregate(pipeline=pipeline,
-                                               allowDiskUse=True)
-        return cursor
-
-    def main(self):
-        db = self.db
-        write_collection = self.write_collection
-        diners_cursor = self.diners_cursor
-        db[write_collection].drop()
-        records = []
-        diners_count = 0
-        for diner in diners_cursor:
-            record = InsertOne(diner)
-            records.append(record)
-            diners_count += 1
-        db[write_collection].bulk_write(records)
-        return diners_count
 
 
 class UEDinerDetailCrawler():
@@ -495,7 +377,8 @@ class UEDinerDetailCrawler():
                  read_collection,
                  write_collection,
                  log_collection,
-                 triggered_by,
+                 r_triggered_by,
+                 w_triggered_by,
                  offset=False,
                  limit=False):
         self.target = target
@@ -505,65 +388,11 @@ class UEDinerDetailCrawler():
         self.read_collection = read_collection
         self.write_collection = write_collection
         self.log_collection = log_collection
-        self.triggered_by = triggered_by
-        self.triggered_at, self.batch_id = self.get_pre_run_info()
-        self.diners_cursor = self.get_diners_cursor(offset,
-                                                    limit)
+        self.r_triggered_by = r_triggered_by
+        self.w_triggered_by = w_triggered_by
+        self.triggered_at, self.batch_id = utils.get_pre_run_info(self)
+        self.diners_cursor = utils.get_diners_cursor(self, offset, limit)
         self.order_time = self.generate_order_time()
-
-    def get_pre_run_info(self):
-        db = self.db
-        tirggered_by = self.triggered_by
-        log_collection = self.log_collection
-        pipeline = [{
-            '$match': {
-                'triggered_by': tirggered_by
-            }
-        }, {
-            '$sort': {
-                'triggered_at': 1
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'triggered_at': {
-                    '$last': '$triggered_at'
-                },
-                'batch_id': {
-                    '$last': '$batch_id'
-                }
-            }
-        }]
-        cursor = db[log_collection].aggregate(pipeline=pipeline)
-        raw = next(cursor)
-        triggered_at = raw['triggered_at']
-        batch_id = raw['batch_id']
-        cursor.close()
-        return triggered_at, batch_id
-
-    def get_diners_cursor(self, offset=0, limit=0):
-        db = self.db
-        triggered_at = self.triggered_at
-        read_collection = self.read_collection
-        pipeline = [{
-            '$match': {
-                'title': {
-                    "$exists": True
-                },
-                'triggered_at': triggered_at
-            }
-        }, {
-            '$sort': {
-                'uuid': 1
-            }
-        }]
-        if offset > 0:
-            pipeline.append({'$skip': offset})
-        if limit > 0:
-            pipeline.append({'$limit': limit})
-        cursor = db[read_collection].aggregate(pipeline=pipeline,
-                                               allowDiskUse=True)
-        return cursor
 
     def generate_order_time(self):
         now = datetime.utcnow()
@@ -578,7 +407,8 @@ class UEDinerDetailCrawler():
         order_time = str(self.order_time)
         error_log = {}
         headers = self.headers
-        headers['cookie'] = headers['cookie'].replace('{order_time}', order_time)
+        headers['cookie'] = headers['cookie'].replace('{order_time}',
+                                                      order_time)
         deatil_url = self.ue_detail_url
 
         try:
@@ -816,16 +646,6 @@ class UEDinerDetailCrawler():
         diner['open_days'] = list(open_days)
         return diner
 
-    def save_triggered_at(self, records_count):
-        db = self.db
-        trigger_log = self.log_collection
-        db[trigger_log].insert_one({
-            'triggered_at': self.triggered_at,
-            'records_count': records_count,
-            'triggered_by': self.triggered_by,
-            'batch_id': self.batch_id
-        })
-
     def save_records(self, diners):
         write_collection = self.write_collection
         records = []
@@ -833,7 +653,7 @@ class UEDinerDetailCrawler():
             if diner:
                 record = UpdateOne(
                     {
-                        'link': diner['link'],
+                        'uuid': diner['uuid'],
                         'triggered_at': diner['triggered_at']
                     }, {'$setOnInsert': diner},
                     upsert=True)
@@ -865,158 +685,38 @@ class UEDinerDetailCrawler():
         if diners:
             print('Get ', diners_count, ' diner detail took ', stop - start,
                   ' seconds.')
-            self.save_triggered_at(diners_count)
+            utils.save_triggered_at(self, records_count=diners_count)
         return diners, error_logs
 
 
-class UEChecker():
-    def __init__(self, db, read_collection, triggered_by):
-        self.db = db
-        self.read_collection = read_collection
-        self.triggered_by = triggered_by
-        self.triggered_at = self.get_triggered_at()
-
-    def get_triggered_at(self, collection='trigger_log'):
-        db = self.db
-        pipeline = [{
-            '$match': {
-                'triggered_by': self.triggered_by
-            }
-        }, {
-            '$sort': {
-                'triggered_at': 1
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'triggered_at': {
-                    '$last': '$triggered_at'
-                }
-            }
-        }]
-        cursor = db[collection].aggregate(pipeline=pipeline)
-        result = next(cursor)['triggered_at']
-        cursor.close()
-        return result
-
-    def get_latest_records(self, limit=0):
-        db = self.db
-        read_collection = self.read_collection
-        triggered_at = self.triggered_at
-        pipeline = [{
-            '$match': {
-                'title': {
-                    "$exists": True
-                },
-                'triggered_at': triggered_at
-            }
-        }, {
-            '$sort': {
-                'uuid': 1
-            }
-        }]
-        if limit > 0:
-            pipeline.append({'$limit': limit})
-        result = db[read_collection].aggregate(pipeline=pipeline,
-                                               allowDiskUse=True)
-        return result
-
-    def get_latest_records_count(self):
-        db = self.db
-        read_collection = self.read_collection
-        triggered_at = self.triggered_at
-        pipeline = [{
-            '$match': {
-                'title': {
-                    "$exists": True
-                },
-                'triggered_at': triggered_at
-            }
-        }, {
-            '$count': 'triggered_at'
-        }]
-        cursor = db[read_collection].aggregate(pipeline=pipeline,
-                                               allowDiskUse=True)
-        result = next(cursor)['triggered_at']
-        return result
-
-    def get_latest_errorlogs(self):
-        db = self.db
-        read_collection = self.read_collection
-        triggered_at = self.get_triggered_at()
-        pipeline = [{
-            '$match': {
-                'title': {
-                    "$exists": False
-                },
-                'triggered_at': triggered_at
-            }
-        }]
-        cursor = db[read_collection].aggregate(pipeline=pipeline,
-                                               allowDiskUse=True)
-        return cursor
-
-    def check_records(self, records, fields, data_range):
-        loop_count = 0
-        for record in records:
-            if loop_count > data_range:
-                break
-            pprint.pprint([record[field] for field in fields])
-            loop_count += 1
-
-
 if __name__ == '__main__':
-    running = {'list': False, 'detail': True, 'check': True}
+    running = {'list': True, 'detail': False, 'check': False}
     data_ranges = {'list': 0, 'detail': 10, 'check': 10}
-    check_collection = 'ue_detail'
+    check_collection = DETAIL_COLLECTION
     check_triggered_by = 'get_' + check_collection
-    headers = {
-        'User-Agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
-        'origin':
-        'https://www.ubereats.com',
-        'x-csrf-token':
-        'x',
-        'authority':
-        'www.ubereats.com',
-        'accept':
-        '*/*',
-        'citySlug':
-        "taipei",
-        'content-type':
-        'application/json',
-        'cookie':
-        'uev2.id.xp=78999d6e-5782-46e9-8ec9-51c900995591; dId=3f972b64-72b1-4786-a1b8-eb6d9ff757bd; uev2.id.session=68755d7c-dfc2-4e16-85b3-6011bb87ddb3; uev2.ts.session=1621306919673; uev2.loc=%7B%22address%22%3A%7B%22\
-                address1%22%3A%22AppWorks%20School%22%2C%22address2%22%3A%22%E5%9F%BA%E9%9A%86%E8%B7%AF%E4%B8%80%E6%AE%B5178%E8%99%9F%2C%20%E5%8F%B0%E5%8C%97%E5%B8%82%E4%BF%A1%E7%BE%A9%E5%8D%80%22%2C%22aptOrSuite%22%3A%22%22%2C%22eaterFormattedAddress%22%3A%22110%E5%8F%B0%E7%81%A3%E5%8F%B0%E5%8C%97%E5%B8%82%E4%BF%A1%E7%BE%A9%E5%8D%80%E5%9F%BA%E9%9A%86%E8%B7%AF%E4%B8%80%E6%AE%B5178%E8%99%9F%22%2C%22\
-                    subtitle%22%3A%22%E5%9F%BA%E9%9A%86%E8%B7%AF%E4%B8%80%E6%AE%B5178%E8%99%9F%2C%20%E5%8F%B0%E5%8C%97%E5%B8%82%E4%BF%A1%E7%BE%A9%E5%8D%80%22%2C%22title%22%3A%22AppWorks%20School%22%2C%22uuid%22%3A%22%22%7D%2C%22latitude%22%3A25.042416%2C%22longitude%22%3A121.56506%2C%22reference%22%3A%22ChIJg0OvDk-rQjQRGMdB-Cq3egk%22%2C%22\
-                        referenceType%22%3A%22google_places%22%2C%22type%22%3A%22google_places%22%2C%22source%22%3A%22rev_geo_reference%22%2C%22address\
-                            Components%22%3A%7B%22countryCode%22%3A%22TW%22%2C%22firstLevelSubdivisionCode%22%3A%22%E5%8F%B0%E5%8C%97%E5%B8%82%22%2C%22city%22%3A%22%E4%BF%A1%E7%BE%A9%E5%8D%80%22%2C%22postalCode%22%3A%22110%22%7D%2C%22originType\
-                                %22%3A%22user_autocomplete%22%7D; \
-                            marketing_vistor_id=e7bb83ce-2281-4977-84f9-49dfc81b2362; jwt-session=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjEzMDY5MjAsImV4cCI6MTYyMTM5MzMyMH0.CHH25X2_6qekvumwvZJOahyJcMK6SGolb8YbPTJuD74; \
-                                uev2.gg=true; utm_medium=undefined;utag_main=v_id:01797d6c5f5800037ed1404bc5cc0207801a307000bd0$_sn:1$_se:4$_ss:0$_st:{order_time}$ses_id:1621306924897%3Bexp-session$_pn:2%3Bexp-session; _userUuid=undefined'
-    }
-    ue_deatil_url = 'https://www.ubereats.com/api/getStoreV1?localeCode=tw'
-    target = targets[0]
+    target = TARGETS[0]
 
     if running['list']:
         data_range = data_ranges['list']
         list_crawler = UEDinerListCrawler(target,
                                           db,
-                                          write_collection='ue_list',
-                                          log_collection='trigger_log',
-                                          driver_path=driver_path,
+                                          write_collection=LIST_COLLECTION,
+                                          log_collection=LOG_COLLECTION,
+                                          w_triggered_by=GET_UE_LIST,
+                                          driver_path=DRIVER_PATH,
                                           headless=True,
                                           auto_close=True,
                                           inspect=False)
         diners_count_op = list_crawler.main()
         print('This time crawled ', diners_count_op, ' diners.')
         time.sleep(5)
-        dispatcher = UEDinerDispatcher(db,
-                                       read_collection='ue_list',
-                                       write_collection='ue_list_temp',
-                                       log_collection='trigger_log',
-                                       triggered_by='get_ue_list',
-                                       limit=data_range)
+        dispatcher = utils.DinerDispatcher(
+            db,
+            read_collection=LIST_COLLECTION,
+            write_collection=LIST_TEMP_COLLECTION,
+            log_collection=LOG_COLLECTION,
+            r_triggered_by=GET_UE_LIST,
+            limit=data_range)
         diners_count_ip = dispatcher.main()
         print('There are ', diners_count_ip,
               ' were latest triggered on ue_list.')
@@ -1026,28 +726,32 @@ if __name__ == '__main__':
     if running['detail']:
         start = time.time()
         data_range = data_ranges['detail']
-        detail_crawler = UEDinerDetailCrawler(target,
-                                              headers,
-                                              ue_deatil_url,
-                                              db,
-                                              read_collection='ue_list',
-                                              write_collection='ue_list_temp',
-                                              log_collection='trigger_log',
-                                              triggered_by='get_ue_list',
-                                              limit=data_range)
+        detail_crawler = UEDinerDetailCrawler(
+            target,
+            HEADERS,
+            DETAIL_URL,
+            db,
+            read_collection=LIST_TEMP_COLLECTION,
+            write_collection=DETAIL_COLLECTION,
+            log_collection=LOG_COLLECTION,
+            r_triggered_by=GET_UE_LIST,
+            w_triggered_by=GET_UE_DETAIL,
+            limit=data_range)
         diners, error_logs = detail_crawler.main()
         stop = time.time()
         pprint.pprint(stop - start)
 
     if running['check']:
         data_range = data_ranges['check']
-        checker = UEChecker(db, check_collection, check_triggered_by)
-        latest_records = checker.get_latest_records(data_range)
-        # checker.check_duplicate(latest_records)
-        latest_records_count = checker.get_latest_records_count()
+        checker = utils.Checker(db,
+                                read_collection=check_collection,
+                                log_collection=LOG_COLLECTION,
+                                r_triggered_by=check_triggered_by)
+        cursor = checker.get_latest_records_cursor(data_range)
+        # latest_records_count = checker.get_latest_records_count()
+        # print(latest_records_count)
         errorlogs = checker.get_latest_errorlogs()
-        checker.check_records(latest_records,
+        pprint.pprint(list(errorlogs))
+        checker.check_records(cursor,
                               ['title', 'deliver_time', 'triggered_at'],
                               data_range)
-        pprint.pprint(list(errorlogs))
-        print(latest_records_count)
