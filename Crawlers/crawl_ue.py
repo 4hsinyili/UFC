@@ -368,7 +368,6 @@ class UEDinerListCrawler():
 
 class UEDinerDetailCrawler():
     def __init__(self,
-                 target,
                  headers,
                  ue_detail_url,
                  db,
@@ -379,7 +378,6 @@ class UEDinerDetailCrawler():
                  w_triggered_by,
                  offset=0,
                  limit=0):
-        self.target = target
         self.headers = headers
         self.ue_detail_url = ue_detail_url
         self.db = db
