@@ -6,6 +6,8 @@ file_path = '.conf'
 CONFIG = configparser.ConfigParser()
 if os.getcwd().endswith('/Web'):
     file_path = 'Diner_app/' + file_path
+elif os.getcwd().endswith('/UFC'):
+    file_path = 'Web/Diner_app/' + file_path
 
 print('--------------------')
 print(os.getcwd())
