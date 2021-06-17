@@ -152,7 +152,7 @@ def save_triggered_at(instance, **kwargs):
     elif w_triggered_by == 'match':
         record['records_count'] = kwargs['records_count']
         record['matched_count'] = kwargs['matched_count']
-    elif w_triggered_by == 'match':
+    elif w_triggered_by == 'place':
         record['update_found_count'] = kwargs['update_found_count']
         record['update_not_found_count'] = kwargs['update_not_found_count']
         record['api_found'] = kwargs['api_found']
@@ -234,6 +234,30 @@ class Checker():
         }]
         cursor = db[log_collection].aggregate(pipeline=pipeline)
         result = next(cursor)['triggered_at']
+        cursor.close()
+        return result
+
+    def get_batch_id(self):
+        db = self.db
+        log_collection = self.log_collection
+        pipeline = [{
+            '$match': {
+                'triggered_by': self.r_triggered_by
+            }
+        }, {
+            '$sort': {
+                'triggered_at': 1
+            }
+        }, {
+            '$group': {
+                '_id': None,
+                'batch_id': {
+                    '$last': '$batch_id'
+                }
+            }
+        }]
+        cursor = db[log_collection].aggregate(pipeline=pipeline)
+        result = next(cursor)['batch_id']
         cursor.close()
         return result
 

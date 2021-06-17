@@ -18,7 +18,7 @@ from datetime import datetime
 import pprint
 
 # home-made modules
-from Crawlers import utils
+import utils
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
 

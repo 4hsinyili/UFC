@@ -1,4 +1,4 @@
-from Crawlers import utils
+import utils
 from datetime import datetime  # , timedelta
 from pymongo import MongoClient, UpdateOne
 import env

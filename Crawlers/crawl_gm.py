@@ -18,7 +18,7 @@ import requests
 from urllib.parse import urlencode
 
 # home-made module
-from Crawlers import utils
+import utils
 
 API_KEY = env.PLACE_API_KEY
 MONGO_EC2_URI = env.MONGO_EC2_URI

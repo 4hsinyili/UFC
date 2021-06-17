@@ -1,5 +1,5 @@
 import configparser
-from Crawlers import utils
+import utils
 
 
 config = configparser.ConfigParser()
