@@ -6,7 +6,9 @@ file_path = '.conf'
 CONFIG = configparser.ConfigParser()
 if os.getcwd() == '/var/task':
     file_path = 'src/' + file_path
+
 CONFIG.read(file_path)
+
 DB_NAME = CONFIG['Local']['db_prod_name']
 
 UE_LIST_COLLECTION = CONFIG['Collections']['ue_list']
