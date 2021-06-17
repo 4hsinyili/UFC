@@ -432,14 +432,14 @@ class FPDinerDetailCrawler():
 
 
 if __name__ == '__main__':
-    running = {'list': False, 'detail': False, 'check': True}
-    data_ranges = {'list': 15, 'detail': 10, 'check': 10}
+    running = {'list': True, 'detail': True, 'check': True}
+    limits = {'list': 0, 'detail': 0, 'check': 10}
     check_collection = DETAIL_COLLECTION
     check_triggered_by = 'get_' + check_collection
 
     if running['list']:
         start = time.time()
-        data_range = data_ranges['list']
+        limit = limits['list']
         list_crawler = FPDinerListCrawler(TARGET,
                                           LIST_URL,
                                           HEADERS,
@@ -458,7 +458,7 @@ if __name__ == '__main__':
             write_collection=LIST_TEMP_COLLECTION,
             log_collection=LOG_COLLECTION,
             r_triggered_by=GET_FP_LIST,
-            limit=data_range)
+            limit=limit)
         diners_count_ip = dispatcher.main()
         print('There are ', diners_count_ip,
               ' were latest triggered on fp_list.')
@@ -467,7 +467,7 @@ if __name__ == '__main__':
 
     if running['detail']:
         start = time.time()
-        data_range = data_ranges['detail']
+        limit = limits['detail']
         detail_crawler = FPDinerDetailCrawler(
             TARGET,
             DETAIL_URL,
@@ -480,20 +480,20 @@ if __name__ == '__main__':
             r_triggered_by=GET_FP_LIST,
             w_triggered_by=GET_FP_DETAIL,
             offset=0,
-            limit=data_range)
+            limit=limit)
         diners, error_logs = detail_crawler.main()
         stop = time.time()
         time.sleep(5)
         pprint.pprint(stop - start)
 
     if running['check']:
-        data_range = data_ranges['check']
+        limit = limits['check']
         checker = utils.Checker(db, read_collection=check_collection, log_collection=LOG_COLLECTION, r_triggered_by=check_triggered_by)
         latest_records_count = checker.get_latest_records_count()
         print(latest_records_count)
-        cursor = checker.get_latest_records_cursor(data_range)
+        cursor = checker.get_latest_records_cursor(limit)
         errorlogs = checker.get_latest_errorlogs()
         pprint.pprint(list(errorlogs))
         checker.check_records(cursor,
                               ['title', 'deliver_time', 'triggered_at'],
-                              data_range)
+                              limit)
