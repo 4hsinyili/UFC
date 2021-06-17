@@ -56,7 +56,6 @@ def main():
 
     triggered_at = record['ue_triggered_at']
     matcher = match_uf.Match(db,
-                             db,
                              read_collection_ue=UE_DETAIL_COLLECTION,
                              read_collection_fp=FP_DETAIL_COLLECTION,
                              write_collection=MATCHED_COLLECTION,
