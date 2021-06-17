@@ -1,11 +1,5 @@
 from Diner_app.models import Favorites
 from collections import defaultdict
-from Diner_app import conf
-
-DB_NAME = conf.DB_NAME
-LOG_COLLECTION = conf.LOG_COLLECTION
-MATCHED_COLLECTION = conf.MATCHED_COLLECTION
-TRIGGERED_BY_LIST = conf.TRIGGERED_BY_LIST
 
 
 class DashBoardQuery():
