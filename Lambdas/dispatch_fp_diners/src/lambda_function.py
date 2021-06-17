@@ -3,28 +3,28 @@ from pymongo import MongoClient
 
 # for file handling
 import env
-
-from dispatch_fp_diners import FPDinerDispatcher
+import conf
+import utils
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
+
+DB_NAME = conf.DB_NAME
+LIST_COLLECTION = conf.FP_LIST_COLLECTION
+LIST_TEMP_COLLECTION = conf.FP_LIST_TEMP_COLLECTION
+LOG_COLLECTION = conf.LOG_COLLECTION
+GET_FP_LIST = conf.GET_FP_LIST
 admin_client = MongoClient(MONGO_EC2_URI)
-db = admin_client['ufc']
+db = admin_client[DB_NAME]
 
 
 def lambda_handler(event, context):
-    lamdas_count = 14
-
-    dispatcher = FPDinerDispatcher(db, 'fp_list')
+    dispatcher = utils.DinerDispatcher(db,
+                                       read_collection=LIST_COLLECTION,
+                                       write_collection=LIST_TEMP_COLLECTION,
+                                       log_collection=LOG_COLLECTION,
+                                       r_triggered_by=GET_FP_LIST)
     diners_count = dispatcher.main()
-    print('There are ', diners_count, ' diners in fp_list_temp.')
 
-    divider = diners_count // lamdas_count
-    print('Now each get_fp_detail will fetch ', divider, ' results.')
-    offsets = [i * divider for i in range(lamdas_count)]
-    limits = [divider for i in range(lamdas_count - 1)]
-    remainder = diners_count - offsets[-1]
-    limits.append(remainder)
-    sleep_list = [i for i in range(lamdas_count)]
-    indexes = [{'offset': offsets[i], 'limit': limits[i], 'sleep': sleep_list[i]} for i in range(lamdas_count)]
+    indexes = utils.dispatch_diners_lambda(diners_count)
 
     return indexes
