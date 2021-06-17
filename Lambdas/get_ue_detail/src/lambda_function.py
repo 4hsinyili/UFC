@@ -47,5 +47,5 @@ def lambda_handler(event, context, *args, **kwargs):
             w_triggered_by=GET_UE_DETAIL,
             offset=offset,
             limit=limit)
-    diners, error_logs = detail_crawler.main(collection='ue_detail')
+    diners, error_logs = detail_crawler.main()
     return len(diners)

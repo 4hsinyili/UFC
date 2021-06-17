@@ -235,8 +235,11 @@ class FPDinerDetailCrawler():
             error_log = {'error': 'vendor_api wrong', 'diner': diner['uuid']}
             return False, error_log
 
-        if detail['is_active']:
-            detail = self.get_diner_fee_from_api(detail, uuid)
+        try:
+            if detail['is_active']:
+                detail = self.get_diner_fee_from_api(detail, uuid)
+        except Exception:
+            return False, error_log
 
         if detail:
             diner, error_log = self.clean_detail_response(detail, diner)
