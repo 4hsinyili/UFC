@@ -1,16 +1,22 @@
 #  for db control
 from pymongo import MongoClient, UpdateOne
 
-# for crawling from js-website
-from seleniumwire import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
+
+try:
+    # for crawling from js-website
+    from seleniumwire import webdriver
+    from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.common.by import By
+
+    # for html parsing
+    from lxml import etree
+
+except Exception:
+    pass
 
 # for crawling from API
 import requests
 
-# for html parsing
-from lxml import etree
 
 # for file handling
 import os
