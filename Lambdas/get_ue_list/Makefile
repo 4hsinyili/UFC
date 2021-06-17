@@ -48,9 +48,9 @@ build-lambda-package:		## prepares zip archive for AWS Lambda deploy (-> build/b
 	cp -r bin build/.
 	cp -r lib build/.
 	pip install -r requirements.txt -t build/lib/.
-	cd build; zip -9qr get_ue_list_build.zip .
+	cd build; zip -9qr build.zip .
 	cd ..
-	cp build/get_ue_list_build.zip .
+	cp build/build.zip .
 	rm -rf build
 	
-## scp -i appworks_school_hsin_yi.pem ec2-user@54.179.123.235:UFC/Lambdas/get_ue_list/get_ue_list_build.zip Documents/GitHub/UFC/Lambdas/get_ue_list/
+## scp -i appworks_school_hsin_yi.pem ec2-user@54.179.123.235:UFC/Lambdas/get_ue_list/build.zip Documents/GitHub/UFC/Lambdas/get_ue_list/
