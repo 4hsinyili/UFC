@@ -42,6 +42,7 @@ docker-run:			## run `src.lambda_function.lambda_handler` with docker-compose
 	docker-compose run lambda src.lambda_function.lambda_handler
 
 build-lambda-package:		## prepares zip archive for AWS Lambda deploy (-> build/build.zip)
+	$(CONDA_ACTIVATE) python36 && $(CONDA_SHOW)
 	mkdir build
 	cp -r src build/.
 	cp -r bin build/.
@@ -56,3 +57,4 @@ build-lambda-package:		## prepares zip archive for AWS Lambda deploy (-> build/b
 
 test:		## prepares zip archive for AWS Lambda deploy (-> build/build.zip)	
 	$(CONDA_ACTIVATE) python36 && $(CONDA_SHOW)
+	$(CONDA_SHOW)
