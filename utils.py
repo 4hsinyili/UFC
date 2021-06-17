@@ -220,6 +220,7 @@ class DinerDispatcher():
             records.append(record)
             diners_count += 1
         db[write_collection].bulk_write(records)
+        print('There are ', diners_count, ' diners in ', write_collection, '.')
         return diners_count
 
 
