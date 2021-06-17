@@ -35,6 +35,7 @@ HEADERS = API_JSON['headers']
 LIST_URL = API_JSON['list_url']
 DETAIL_URL = API_JSON['detail_url']
 DELIVER_FEE_URL = API_JSON['deliver_fee_url']
+API_LIMIT = API_JSON['API_LIMIT']
 TARGET = utils.read_json('target_fp.json')
 
 admin_client = MongoClient(MONGO_EC2_URI)
@@ -447,7 +448,7 @@ if __name__ == '__main__':
                                           log_collection=LOG_COLLECTION,
                                           w_triggered_by=GET_FP_LIST,
                                           offset=0,
-                                          limit=data_range)
+                                          limit=API_LIMIT)
         diners_count_op = list_crawler.main()
         print('This time crawled ', diners_count_op, ' diners.')
         time.sleep(5)

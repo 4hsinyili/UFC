@@ -5,5 +5,6 @@
     },
     "list_url": "https://disco.deliveryhero.io/listing/api/v1/pandora/vendors?latitude={latitude}&longitude={longitude}&language_id=6&include=characteristics&dynamic_pricing=0&configuration=Original&country=tw&customer_id=&customer_hash=&budgets=&cuisine=&sort=&food_characteristic=&use_free_delivery_label=false&vertical=restaurants&limit={limit}&offset={offset}&customer_type=regular",
     "detail_url": "https://tw.fd-api.com/api/v5/vendors/{uuid}?include=menus&language_id=6&dynamic_pricing=0&opening_type=delivery&order_time={order_time}%2B0800&latitude={latitude}&longitude={longitude}",
-    "deliver_fee_url": "https://tw.fd-api.com/api/v5/vendors/{uuid}/delivery-fee?&latitude={latitude}&longitude={longitude}&order_time={order_time}&basket_size=0&basket_currency=$&dynamic_pricing=0"
+    "deliver_fee_url": "https://tw.fd-api.com/api/v5/vendors/{uuid}/delivery-fee?&latitude={latitude}&longitude={longitude}&order_time={order_time}&basket_size=0&basket_currency=$&dynamic_pricing=0",
+    "API_LIMIT": 20000
 }
