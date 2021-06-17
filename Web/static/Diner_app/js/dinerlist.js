@@ -79,11 +79,15 @@ function renderDinerInfo(dinerInfo, dinerNode, source){
     } else {
         dinerNode.querySelector('.rating_value_'.concat(source)).innerText = `${rating}(${viewCount})`
     }
-    if (deliver_fee == 0){
-        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `無資料`
+    if ((deliver_fee == 0) && (deliver_time == 0)){
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `NaN`
+    } else if (deliver_fee == 0){
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `NaN(${deliver_time} 分鐘)`
+    } else if (deliver_time == 0){
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(NaN)`
     } else {
-        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time} 分鐘)`
-    }
+        dinerNode.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time})`
+    } 
     dinerNode.querySelector('#link_'.concat(source)).setAttribute('href', link)
     let tagsText = dinerNode.querySelector('.tags_'.concat(source)).innerText
     for (let i = 0; i < tags.length; i++){
