@@ -173,6 +173,24 @@ def selenium_wait_btn_show(driver, locator):
     return WebDriverWait(driver, 40, 0.5).until(EC.presence_of_element_located(locator))
 
 
+def dispatch_diners_lambda(diners_count):
+    lamdas_count = 14
+    divider = diners_count // lamdas_count
+    print('Now each get_detail will fetch ', divider, ' results.')
+    offsets = [i * divider for i in range(lamdas_count)]
+    limits = [divider for i in range(lamdas_count - 1)]
+    remainder = diners_count - offsets[-1]
+    limits.append(remainder)
+    sleep_list = [i for i in range(lamdas_count)]
+    indexes = [{
+        'offset': offsets[i],
+        'limit': limits[i],
+        'sleep': sleep_list[i]
+    } for i in range(lamdas_count)]
+
+    return indexes
+
+
 class DinerDispatcher():
     def __init__(self,
                  db,
