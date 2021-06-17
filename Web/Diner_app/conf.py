@@ -9,8 +9,6 @@ if os.getcwd().endswith('/Web'):
 elif os.getcwd().endswith('/UFC'):
     file_path = 'Web/Diner_app/' + file_path
 
-print('--------------------')
-print(os.getcwd())
 CONFIG.read(file_path)
 
 DB_NAME = CONFIG['Local']['db_prod_name']
