@@ -4,70 +4,103 @@ import time
 from datetime import datetime
 
 try:
-    from Crawlers import UF_match, GM_crawl
+    from Crawlers import match_uf, crawl_gm
 except Exception:
     print('Import Error at: ', datetime.utcnow())
 
 # for file handling
 import env
+import conf
 
 API_KEY = env.PLACE_API_KEY
 MONGO_EC2_URI = env.MONGO_EC2_URI
+
+DB_NAME = conf.DB_NAME
+UE_DETAIL_COLLECTION = conf.UE_DETAIL_COLLECTION
+FP_DETAIL_COLLECTION = conf.FP_DETAIL_COLLECTION
+MATCHED_COLLECTION = conf.MATCHED_COLLECTION
+STEPFUNCTION_LOG_COLLECTION = conf.STEPFUNCTION_LOG_COLLECTION
+
+LOG_COLLECTION = conf.LOG_COLLECTION
+GET_UE_DETAIL = conf.GET_UE_DETAIL
+GET_FP_DETAIL = conf.GET_FP_DETAIL
+MATCH = conf.MATCH
+PLACE = conf.PLACE
+
 admin_client = MongoClient(MONGO_EC2_URI)
-db = admin_client['ufc']
+db = admin_client[DB_NAME]
+
 print('Listen Starts at: ', datetime.utcnow())
 
 
 def listen():
-    pipeline = [
-        {
-            '$match': {'matched': False}
-        },
-        {
-            '$sort': {'_id': 1}
-        }
-    ]
-    cursor = db['stepfunction_log'].aggregate(pipeline=pipeline)
-    result = list(cursor)
+    pipeline = [{'$match': {'matched': False}}, {'$sort': {'_id': 1}}]
+    cursor = db[STEPFUNCTION_LOG_COLLECTION].aggregate(pipeline=pipeline)
+    results = list(cursor)
     cursor.close()
-    if result == []:
+    if results == []:
         return False
     else:
-        return result[-1]
+        return results[-1]
 
 
-def main(matcher):
-    result = listen()
-    if result:
-        print('Start match.')
-        time.sleep(10)
-        matcher.main(data_range)
-        db['stepfunction_log'].update_one(
-            {'_id': result['_id']},
-            {'$set': {'matched': True}}
-            )
-        time.sleep(10)
-        matched_checker = UF_match.MatchedChecker(db, 'matched', 'match')
-        crawler = GM_crawl.GMCrawler(db, 'matched', matched_checker)
-        crawler.main(db, API_KEY, 0)
-        return True
-    else:
+def main():
+    record = listen()
+
+    if not record:
         return False
+
+    print('Start match.')
+
+    time.sleep(mongo_write_buffer)
+
+    triggered_at = record['ue_triggered_at']
+    matcher = match_uf.Match(db,
+                             db,
+                             read_collection_ue=UE_DETAIL_COLLECTION,
+                             read_collection_fp=FP_DETAIL_COLLECTION,
+                             write_collection=MATCHED_COLLECTION,
+                             log_collection=LOG_COLLECTION,
+                             w_triggered_by=MATCH,
+                             triggered_by_ue=GET_UE_DETAIL,
+                             triggered_by_fp=GET_FP_DETAIL,
+                             triggered_at=triggered_at,
+                             limit=limit)
+    matcher.main()
+
+    db['stepfunction_log'].update_one({'_id': record['_id']},
+                                      {'$set': {
+                                          'matched': True
+                                      }})
+    time.sleep(mongo_write_buffer)
+
+    crawler = crawl_gm.GMCrawler(db,
+                                 r_w_collection=MATCHED_COLLECTION,
+                                 log_collection=LOG_COLLECTION,
+                                 r_triggered_by=MATCH,
+                                 w_triggered_by=PLACE,
+                                 api_key=API_KEY,
+                                 limit=limit)
+    crawler.main()
+
+    return True
 
 
 if __name__ == '__main__':
-    collection = 'matched'
-    data_range = 0
-    loop_count = 0
+    limit = 0
+    execute_count = 0
+    execute_limit = 12
+    mongo_write_buffer = 10
+    till_next_execute = 600
     while True:
-        macther = UF_match.Match(db, collection)
-        check_break = main(macther)
+        check_break = main()
         if check_break:
             break
         else:
             pass
-        print('Sleep now')
-        loop_count += 1
-        if loop_count > 12:
+        execute_count += 1
+        if execute_count > execute_limit:
+            print('Break now.')
             break
-        time.sleep(600)
+        print('Sleep now.')
+        time.sleep(till_next_execute)

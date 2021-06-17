@@ -1,6 +1,5 @@
-from datetime import datetime, timedelta  # , timedelta
-from Crawlers.crawl_fp import FPChecker
-from Crawlers.crawl_ue import UEChecker
+from Crawlers import utils
+from datetime import datetime  # , timedelta
 from pymongo import MongoClient, UpdateOne
 import env
 from itertools import product
@@ -9,32 +8,57 @@ from geopy import distance
 import time
 import pprint
 import gc
+import conf
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
+DB_NAME = conf.DB_NAME
+
+UE_DETAIL_COLLECTION = conf.UE_DETAIL_COLLECTION
+FP_DETAIL_COLLECTION = conf.FP_DETAIL_COLLECTION
+MATCHED_COLLECTION = conf.MATCHED_COLLECTION
+
+LOG_COLLECTION = conf.LOG_COLLECTION
+GET_UE_DETAIL = conf.GET_UE_DETAIL
+GET_FP_DETAIL = conf.GET_FP_DETAIL
+MATCH = conf.MATCH
+
 admin_client = MongoClient(MONGO_EC2_URI)
 
-db = admin_client['ufc']
+db = admin_client[DB_NAME]
 
 
 class Match():
-    def __init__(self, db, read_collection_ue, read_collection_fp,
-                 write_collection, triggered_by_ue, triggered_by_fp):
+    def __init__(self,
+                 db,
+                 read_collection_ue,
+                 read_collection_fp,
+                 write_collection,
+                 log_collection,
+                 w_triggered_by,
+                 triggered_by_ue,
+                 triggered_by_fp,
+                 triggered_at,
+                 limit=0):
         self.db = db
         self.read_collection_ue = read_collection_ue
         self.read_collection_fp = read_collection_fp
         self.write_collection = write_collection
+        self.log_collection = log_collection
+        self.w_triggered_by = w_triggered_by
         self.triggered_by_ue = triggered_by_ue
         self.triggered_by_fp = triggered_by_fp
+        self.triggered_at = triggered_at
+        self.limit = limit
 
     def get_records(self):
-        uechecker = UEChecker(self.db, self.read_collection_ue,
-                              self.triggered_by_ue)
-        ue_cursor = uechecker.get_latest_records()
+        uechecker = utils.Checker(self.db, self.read_collection_ue,
+                                  self.log_collection, self.triggered_by_ue)
+        ue_cursor = uechecker.get_latest_records_cursor()
         records_ue = list(ue_cursor)
         ue_cursor.close()
-        fpchecker = FPChecker(self.db, self.read_collection_fp,
-                              self.triggered_by_fp)
-        fp_cursor = fpchecker.get_latest_records()
+        fpchecker = utils.Checker(self.db, self.read_collection_fp,
+                                  self.log_collection, self.triggered_by_fp)
+        fp_cursor = fpchecker.get_latest_records_cursor()
         records_fp = list(fp_cursor)
         fp_cursor.close()
         return records_ue, records_fp
@@ -293,30 +317,6 @@ class Match():
         pprint.pprint('write into matched successed')
         return len(records)
 
-    def save_triggered_at(self, triggered_at, records_count, matched_count,
-                          batch_id):
-        db = self.db
-        trigger_log = 'trigger_log'
-        db[trigger_log].insert_one({
-            'triggered_at': triggered_at,
-            'records_count': records_count,
-            'matched_count': matched_count,
-            'batch_id': batch_id,
-            'triggered_by': 'match'
-        })
-
-    def save_start_at(self, triggered_at):
-        db = self.db
-        now = datetime.utcnow()
-        batch_id = now.timestamp()
-        trigger_log = 'trigger_log'
-        db[trigger_log].insert_one({
-            'triggered_at': triggered_at,
-            'triggered_by': 'match_start',
-            'batch_id': batch_id,
-        })
-        return batch_id
-
     # def remove_old_records(self):
     #     db = self.db
     #     triggered_at = self.triggered_at
@@ -325,18 +325,18 @@ class Match():
     #     db.fp_detail.delete_many({"triggered_at": {"$lt": last_week}})
     #     db.matched.delete_many({"triggered_at": {"$lt": last_week}})
 
-    def main(self, triggered_at, data_range=0):
+    def main(self):
         print('Start comparsion, using', triggered_at, "'s records.")
 
         p_start = time.time()
-        batch_id = self.save_start_at(triggered_at)
+        self.batch_id = utils.save_start_at(self)
         records_ue, records_fp = self.get_records()
-
-        if data_range == 0:
+        limit = self.limit
+        if limit == 0:
             pass
         else:
-            records_ue = records_ue[:data_range]
-            records_fp = records_fp[:data_range]
+            records_ue = records_ue[:limit]
+            records_fp = records_fp[:limit]
 
         c_start = time.time()
         similarities, matched_count = self.compare(records_ue, records_fp)
@@ -354,106 +354,36 @@ class Match():
 
         s_start = time.time()
         records_count = self.save_to_matched(triggered_at, records_dict)
-        self.save_triggered_at(triggered_at, records_count, matched_count,
-                               batch_id)
+        utils.save_triggered_at(self,
+                                records_count=records_count,
+                                matched_count=matched_count)
         s_stop = time.time()
         print('save to db took: ', s_stop - s_start)
         # self.remove_old_records()
 
 
-class MatchedChecker():
-    def __init__(self, db, read_collection, log_collection, triggered_by):
-        self.db = db
-        self.read_collection = read_collection
-        self.log_collection = log_collection
-        self.triggered_by = triggered_by
-        self.triggered_at = self.get_triggered_at()
-
-    def get_triggered_at(self):
-        db = self.db
-        log_collection = self.log_collection
-        pipeline = [{
-            '$match': {
-                'triggered_by': self.triggered_by
-            }
-        }, {
-            '$sort': {
-                'triggered_at': 1
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'triggered_at': {
-                    '$last': '$triggered_at'
-                }
-            }
-        }]
-        cursor = db[log_collection].aggregate(pipeline=pipeline)
-        result = next(cursor)['triggered_at']
-        cursor.close()
-        return result
-
-    def get_batch_id(self):
-        db = self.db
-        log_collection = self.log_collection
-        pipeline = [{
-            '$match': {
-                'triggered_by': self.triggered_by
-            }
-        }, {
-            '$sort': {
-                'triggered_at': 1
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'batch_id': {
-                    '$last': '$batch_id'
-                }
-            }
-        }]
-        cursor = db[log_collection].aggregate(pipeline=pipeline)
-        result = next(cursor)['batch_id']
-        cursor.close()
-        return result
-
-    def get_latest_records(self, limit=0):
-        db = self.db
-        read_collection = self.read_collection
-        triggered_at = self.get_triggered_at()
-        pipeline = [{
-            '$match': {
-                'triggered_at': triggered_at,
-                'uuid_gm': {
-                    '$exists': True
-                },
-            }
-        }]
-        if limit > 0:
-            pipeline.append({'$limit': limit})
-        cursor = db[read_collection].aggregate(pipeline=pipeline,
-                                               allowDiskUse=True)
-        return cursor
-
-
 if __name__ == '__main__':
-    read_collection_ue = 'ue_detail'
-    read_collection_fp = 'fp_detail'
-    write_collection = 'matched'
-    log_collection = 'trigger_log'
-    triggered_by_ue = 'get_ue_detail'
-    triggered_by_fp = 'get_fp_detail'
-    triggered_at = datetime.now().replace(hour=2, minute=0, second=0, microsecond=0) - timedelta(days=1)
-
-    data_range = 400
-    matcher = Match(db, read_collection_ue, read_collection_fp,
-                    write_collection, triggered_by_ue, triggered_by_fp)
-    matcher.main(triggered_at, data_range)
+    limit = 400
+    triggered_at = datetime(2021, 6, 16, 12, 0)
+    matcher = Match(db,
+                    read_collection_ue=UE_DETAIL_COLLECTION,
+                    read_collection_fp=FP_DETAIL_COLLECTION,
+                    write_collection=MATCHED_COLLECTION,
+                    log_collection=LOG_COLLECTION,
+                    w_triggered_by=MATCH,
+                    triggered_by_ue=GET_UE_DETAIL,
+                    triggered_by_fp=GET_FP_DETAIL,
+                    triggered_at=triggered_at,
+                    limit=limit)
+    matcher.main()
 
     read_collection = 'matched'
     triggered_by = 'match'
-    checker = MatchedChecker(db, read_collection, log_collection, triggered_by)
-    cursor = checker.get_latest_records(1)
+    checker = utils.Checker(db,
+                            read_collection=MATCHED_COLLECTION,
+                            log_collection=LOG_COLLECTION,
+                            r_triggered_by=MATCH)
+    cursor = checker.get_latest_records_cursor(1)
     for record in cursor:
         pprint.pprint(record)
         pprint.pprint(record.keys())
