@@ -13,11 +13,11 @@ lambdas-pre-deploy:
 
 	tee Lambdas/get_fp_detail/src/crawl_fp.py Lambdas/get_fp_list/src/crawl_fp.py  < Crawlers/crawl_fp.py >/dev/null
 
-	tee Lambdas/get_ue_detail/src/api_ue.json < Crawlers/api_ue.json >/dev/null
+	tee Lambdas/get_ue_list/src/api_ue.json Lambdas/get_ue_detail/src/api_ue.json < Crawlers/api_ue.json >/dev/null
 
 	tee Lambdas/get_fp_detail/src/api_fp.json Lambdas/get_fp_list/src/api_fp.json < Crawlers/api_fp.json >/dev/null
 
-	tee Lambdas/dispatch_ue_targets/targets_ue.json < Crawlers/targets_ue.json >/dev/null
+	tee Lambdas/get_ue_list/src/targets_ue.json Lambdas/dispatch_ue_targets/targets_ue.json < Crawlers/targets_ue.json >/dev/null
 
 	tee Lambdas/get_fp_list/src/target_fp.json < Crawlers/target_fp.json >/dev/null
 
