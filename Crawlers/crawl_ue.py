@@ -377,8 +377,8 @@ class UEDinerDetailCrawler():
                  log_collection,
                  r_triggered_by,
                  w_triggered_by,
-                 offset=False,
-                 limit=False):
+                 offset=0,
+                 limit=0):
         self.target = target
         self.headers = headers
         self.ue_detail_url = ue_detail_url
