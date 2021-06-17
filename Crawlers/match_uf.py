@@ -326,7 +326,7 @@ class Match():
     #     db.matched.delete_many({"triggered_at": {"$lt": last_week}})
 
     def main(self):
-        print('Start comparsion, using', triggered_at, "'s records.")
+        print('Start comparsion, using', self.triggered_at, "'s records.")
 
         p_start = time.time()
         self.batch_id = utils.save_start_at(self)
