@@ -17,7 +17,6 @@ MATCHED_COLLECTION = conf.MATCHED_COLLECTION
 LOG_COLLECTION = conf.LOG_COLLECTION
 GET_UE_DETAIL = conf.GET_UE_DETAIL
 GET_FP_DETAIL = conf.GET_FP_DETAIL
-TARGETS = utils.read_json('targets_ue.json')
 
 admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client[DB_NAME]
