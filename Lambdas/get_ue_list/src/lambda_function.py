@@ -43,7 +43,6 @@ def lambda_handler(event, context, *args, **kwargs):
                                       write_collection=LIST_COLLECTION,
                                       log_collection=LOG_COLLECTION,
                                       w_triggered_by=GET_UE_LIST,
-                                      driver_path=DRIVER_PATH,
                                       headless=True,
                                       auto_close=True,
                                       inspect=False)
