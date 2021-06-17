@@ -3,11 +3,19 @@ from datetime import datetime
 from pymongo import InsertOne
 import pprint
 import time
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import os
+try:
+    from selenium.webdriver.support.wait import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+except Exception:
+    pass
 
 
 def read_json(file_path):
+
+    if os.getcwd() == '/var/task':
+        file_path = 'src/' + file_path
+    
     with open(file_path) as json_file:
         json_object = json.load(json_file)
     return json_object

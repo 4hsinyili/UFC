@@ -1,8 +1,13 @@
 import configparser
+import os
+
+file_path = '.conf'
 
 CONFIG = configparser.ConfigParser()
-CONFIG.read('.conf')
-DB_NAME = CONFIG['Local']['db_test_name']
+if os.getcwd() == '/var/task':
+    file_path = 'src/' + file_path
+CONFIG.read(file_path)
+DB_NAME = CONFIG['Local']['db_prod_name']
 
 UE_LIST_COLLECTION = CONFIG['Collections']['ue_list']
 UE_LIST_TEMP_COLLECTION = CONFIG['Collections']['ue_list_temp']
