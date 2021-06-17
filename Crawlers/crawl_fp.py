@@ -7,7 +7,7 @@ import requests
 # for file handling
 import json
 import env
-import configparser
+import conf
 
 # for timing and not to get caught
 import time
@@ -22,15 +22,13 @@ from Crawlers import utils
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
 
-CONFIG = configparser.ConfigParser()
-CONFIG.read('crawler.conf')
-DB_NAME = CONFIG['Local']['db_name']
-LIST_COLLECTION = CONFIG['Collections']['fp_list']
-LIST_TEMP_COLLECTION = CONFIG['Collections']['fp_list_temp']
-DETAIL_COLLECTION = CONFIG['Collections']['fp_detail']
-LOG_COLLECTION = CONFIG['Collections']['trigger_log']
-GET_FP_LIST = CONFIG['TriggeredBy']['get_fp_list']
-GET_FP_DETAIL = CONFIG['TriggeredBy']['get_fp_detail']
+DB_NAME = conf.DB_NAME
+LIST_COLLECTION = conf.FP_LIST_COLLECTION
+LIST_TEMP_COLLECTION = conf.FP_LIST_TEMP_COLLECTION
+DETAIL_COLLECTION = conf.FP_DETAIL_COLLECTION
+LOG_COLLECTION = conf.LOG_COLLECTION
+GET_FP_LIST = conf.GET_FP_LIST
+GET_FP_DETAIL = conf.GET_FP_DETAIL
 
 API_JSON = utils.read_json('api_fp.json')
 HEADERS = API_JSON['headers']

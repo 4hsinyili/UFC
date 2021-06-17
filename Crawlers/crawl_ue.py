@@ -16,7 +16,7 @@ from lxml import etree
 import os
 import json
 import env
-import configparser
+import conf
 
 # for timing and not to get caught
 import time
@@ -31,16 +31,14 @@ from Crawlers import utils
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
 DRIVER_PATH = env.DRIVER_PATH
-CONFIG = configparser.ConfigParser()
-CONFIG.read('crawler.conf')
-DB_NAME = CONFIG['Local']['db_name']
+DB_NAME = conf.DB_NAME
 
-LIST_COLLECTION = CONFIG['Collections']['ue_list']
-LIST_TEMP_COLLECTION = CONFIG['Collections']['ue_list_temp']
-DETAIL_COLLECTION = CONFIG['Collections']['ue_detail']
-LOG_COLLECTION = CONFIG['Collections']['trigger_log']
-GET_UE_LIST = CONFIG['TriggeredBy']['get_ue_list']
-GET_UE_DETAIL = CONFIG['TriggeredBy']['get_ue_detail']
+LIST_COLLECTION = conf.UE_LIST_COLLECTION
+LIST_TEMP_COLLECTION = conf.UE_LIST_TEMP_COLLECTION
+DETAIL_COLLECTION = conf.UE_DETAIL_COLLECTION
+LOG_COLLECTION = conf.LOG_COLLECTION
+GET_UE_LIST = conf.GET_UE_LIST
+GET_UE_DETAIL = conf.GET_UE_DETAIL
 
 API_JSON = utils.read_json('api_ue.json')
 HEADERS = API_JSON['headers']
