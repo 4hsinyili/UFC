@@ -3,8 +3,8 @@
 
 SHELL=/bin/zsh
 # Note that the extra activate is needed to ensure that the activate floats env to the front of PATH
-CONDA_ACTIVATE=source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate
-CONDA_SHOW=source $$(conda info --base)/etc/profile.d/conda.sh ; conda env list
+CONDA_ACTIVATE=source /home/ec2-user/miniconda3/etc/profile.d/conda.sh ; conda activate
+CONDA_SHOW=source /home/ec2-user/miniconda3/etc/profile.d/conda.sh ; conda env list
 
 
 help:
