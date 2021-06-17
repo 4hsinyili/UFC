@@ -270,9 +270,10 @@ class Match():
 
         return records_dict
 
-    def save_to_matched(self, triggered_at, records_dict):
+    def save_to_matched(self, records_dict):
         db = self.db
         write_collection = self.write_collection
+        triggered_at = self.triggered_at
         records = []
 
         for key in records_dict:
@@ -353,7 +354,7 @@ class Match():
         print('process took: ', p_stop - p_start)
 
         s_start = time.time()
-        records_count = self.save_to_matched(triggered_at, records_dict)
+        records_count = self.save_to_matched(records_dict)
         utils.save_triggered_at(self,
                                 records_count=records_count,
                                 matched_count=matched_count)

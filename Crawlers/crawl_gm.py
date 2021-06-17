@@ -266,7 +266,8 @@ class GMCrawler():
         places = r.json()
         return places
 
-    def parse_places(self, places, target, triggered_at_gm):
+    def parse_places(self, places, target):
+        triggered_at_gm = self.triggered_at_gm
         if (places['status'] == 'OK') and (places['candidates'] != []):
             try:
                 place = places['candidates'][0]
@@ -325,19 +326,20 @@ class GMCrawler():
             records.append(record)
         return records
 
-    def save_to_matched(self, db, r_w_collection, records):
+    def save_to_matched(self, records):
+        db = self.db
+        r_w_collection = self.r_w_collection
         db[r_w_collection].bulk_write(records)
 
-    def get_places(self, targets, triggered_at_gm):
+    def get_places(self, targets):
         api_key = self.api_key
-
         diners = []
         api_found = 0
         api_not_found = 0
         for target in targets:
             url = self.get_url(target, api_key)
             places = self.find_places(url)
-            diner, found = self.parse_places(places, target, triggered_at_gm)
+            diner, found = self.parse_places(places, target)
             if found:
                 api_found += 1
             else:
@@ -350,9 +352,7 @@ class GMCrawler():
 
     def main(self):
         utils.save_start_at(self)
-        db = self.db
         limit = self.limit
-        triggered_at_gm = utils.generate_triggered_at()
         update_found_count = self.update_from_previous_found()
         update_not_found_count = self.update_from_previous_not_found()
 
@@ -360,11 +360,11 @@ class GMCrawler():
         cursor = self.get_targets(limit)
         targets = self.parse_targets(cursor)
         diners, api_found, api_not_found = self.get_places(
-            targets, triggered_at_gm)
+            targets)
         records = self.transfer_diners_to_records(diners)
 
         try:
-            self.save_to_matched(db, 'matched', records)
+            self.save_to_matched(records)
             print('Saved to db.')
         except Exception:
             pprint.pprint('No new diner need to send to GM.')
