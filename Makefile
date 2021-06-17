@@ -19,7 +19,7 @@ lambdas-pre-deploy:
 
 	tee Lambdas/get_ue_list/src/targets_ue.json Lambdas/dispatch_ue_targets/targets_ue.json < Crawlers/targets_ue.json >/dev/null
 
-	tee Lambdas/get_fp_list/src/target_fp.json < Crawlers/target_fp.json >/dev/null
+	tee Lambdas/get_fp_detail/src/target_fp.json Lambdas/get_fp_list/src/target_fp.json < Crawlers/target_fp.json >/dev/null
 
 build-all-lambdas-package:
 	cd Lambdas/dispatch_fp_diners && $(MAKE) build-lambda-package
