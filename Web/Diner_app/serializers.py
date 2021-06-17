@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-class MatchSerializer(serializers.Serializer):
+class DinerSerializer(serializers.Serializer):
     """Your data serializer, define your fields here."""
     title_ue = serializers.CharField(max_length=3000, required=False)
     link_ue = serializers.CharField(max_length=3000, required=False)
@@ -56,4 +56,13 @@ class FilterSerializer(serializers.Serializer):
 
 
 class DashBoardSerializer(serializers.Serializer):
-    trigger_log_data = serializers.DictField()
+    get_ue_list_start = serializers.DictField()
+    get_fp_list_start = serializers.DictField()
+    get_ue_list = serializers.DictField()
+    get_fp_list = serializers.DictField()
+    get_ue_detail = serializers.DictField()
+    get_fp_detail = serializers.DictField()
+    match_start = serializers.DictField()
+    place_start = serializers.DictField()
+    match = serializers.DictField()
+    place = serializers.DictField()

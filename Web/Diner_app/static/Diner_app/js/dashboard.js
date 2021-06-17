@@ -84,7 +84,7 @@ function autoUpadte(){
 
 function renderDashBoard(response){
     
-    let data = response.data.trigger_log_data
+    let data = response.data
     try{
         let ueListStartData = data.get_ue_list_start
         let ueListData = data.get_ue_list
