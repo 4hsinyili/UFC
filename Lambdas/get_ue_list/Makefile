@@ -1,4 +1,11 @@
+.ONESHELL:
 .PHONY: help check clean fetch-dependencies docker-build build-lambda-package
+
+SHELL=/bin/zsh
+# Note that the extra activate is needed to ensure that the activate floats env to the front of PATH
+CONDA_ACTIVATE=source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate
+CONDA_SHOW=source $$(conda info --base)/etc/profile.d/conda.sh ; conda env list
+
 
 help:
 	@python -c 'import fileinput,re; \
@@ -46,3 +53,6 @@ build-lambda-package:		## prepares zip archive for AWS Lambda deploy (-> build/b
 	rm -rf build
 	
 ## scp -i appworks_school_hsin_yi.pem ec2-user@54.179.123.235:UFC/Lambdas/get_ue_list/build.zip Documents/GitHub/UFC/Lambdas/get_ue_list/
+
+test:		## prepares zip archive for AWS Lambda deploy (-> build/build.zip)	
+	$(CONDA_ACTIVATE) python36 && $(CONDA_SHOW)
