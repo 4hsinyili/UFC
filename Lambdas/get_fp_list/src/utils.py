@@ -155,7 +155,7 @@ def save_triggered_at(instance, **kwargs):
     if w_triggered_by.endswith('_list'):
         record['records_count'] = kwargs['records_count']
         record['target'] = instance.target
-    elif w_triggered_by.endswith('_deatil'):
+    elif w_triggered_by.endswith('_detail'):
         record['records_count'] = kwargs['records_count']
     elif w_triggered_by == 'match':
         record['records_count'] = kwargs['records_count']
