@@ -7,6 +7,8 @@
 {% block js_and_css %}
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'Diner_app/css/dinerlist.css' %}">
+    {% load static %}
+    <script type="text/javascript" src="{% static 'Diner_app/js/render.diners.js' %}"></script>
 {% endblock %}
 
 {% block content %}
