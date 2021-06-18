@@ -38,8 +38,45 @@ LOG_COLLECTION = conf.LOG_COLLECTION
 MATCHED_COLLECTION = conf.MATCHED_COLLECTION
 MATCH = conf.MATCH
 TRIGGERED_BY_LIST = conf.TRIGGERED_BY_LIST
+PAGE_LIMIT = conf.PAGE_LIMIT
+
 admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client[DB_NAME]
+checker = utils.Checker(db, MATCHED_COLLECTION, LOG_COLLECTION, r_triggered_by=MATCH)
+searcher = SearcherQuery(db, MATCHED_COLLECTION)
+
+
+def assemble_diners_response(diners, offset, limit, diners_count):
+    if not diners:
+        return Response({
+            'no_data': 1
+        })
+    if offset + limit < diners_count:
+        has_more = True
+    else:
+        has_more = False
+    if has_more:
+        next_offset = offset + limit
+    else:
+        next_offset = 0
+    data = DinerSerializer(diners, many=True).data
+    response = Response({
+            'next_offset': next_offset,
+            'has_more': has_more,
+            'max_page': diners_count // limit,
+            'data_count': len(diners),
+            'data': data,
+            'no_data': 0
+            })
+    return response
+
+
+def check_user_authenticated(user):
+    if user.is_authenticated:
+        user = user
+    else:
+        user = False
+    return user
 
 
 class DashBoardAPI(views.APIView):
@@ -48,12 +85,9 @@ class DashBoardAPI(views.APIView):
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         dashboard_waiter = DashBoardQuery(db, LOG_COLLECTION, TRIGGERED_BY_LIST)
-        end_date = datetime.datetime.strptime(request.data['end_date'], '%Y-%m-%d %H:%M')
-        start_date = datetime.datetime.strptime(request.data['start_date'], '%Y-%m-%d %H:%M')
-        end_time = datetime.datetime.combine(end_date, datetime.time.max)
-        start_time = datetime.datetime.combine(start_date, datetime.time.min)
-        # start_time = datetime.datetime.combine(start_date, datetime.time(12, 30, 0))
-        result = dashboard_waiter.main(end_time, start_time)
+        end_date_time = datetime.datetime.strptime(request.data['end_date_time'], '%Y-%m-%d %H:%M')
+        start_date_time = datetime.datetime.strptime(request.data['start_date_time'], '%Y-%m-%d %H:%M')
+        result = dashboard_waiter.main(end_date_time, start_date_time)
         data = DashBoardSerializer(result, many=False).data
         return Response({
             'data': data
@@ -67,46 +101,14 @@ class DinerSearchAPI(views.APIView):
     def post(self, request):
         # start = time.time()
         condition = request.data['condition']
-        if request.user.is_authenticated:
-            user_id = request.user.id
-        else:
-            user_id = 0
-        # print('User id is: ', user_id)
+        user = check_user_authenticated(request.user)
         offset = request.data['offset']
-        checker = utils.Checker(db, MATCHED_COLLECTION, LOG_COLLECTION, r_triggered_by=MATCH)
-        triggered_at = checker.triggered_at
-
-        searcher = SearcherQuery(db, MATCHED_COLLECTION)
-        if user_id > 0:
-            diners, diners_count = searcher.get_search_result(condition, triggered_at, offset, request.user)
-        else:
-            diners, diners_count = searcher.get_search_result(condition, triggered_at, offset)
-
-        if not diners:
-            return Response({
-                'no_data': 1
-            })
-
-        if offset + 6 < diners_count:
-            has_more = True
-        else:
-            has_more = False
-        if has_more:
-            next_offset = offset + 6
-        else:
-            next_offset = 0
-        diners = diners
-        data = DinerSerializer(diners, many=True).data
+        triggered_at = checker.get_triggered_at()
+        diners, diners_count = searcher.get_search_result(condition, triggered_at, offset, user)
+        response = assemble_diners_response(diners, offset, PAGE_LIMIT, diners_count)
         # stop = time.time()
         # print('post DinerSearch took: ', stop - start, 's.')
-        return Response({
-            'next_offset': next_offset,
-            'has_more': has_more,
-            'max_page': diners_count // 6,
-            'data_count': len(diners),
-            'data': data,
-            'no_data': 0
-            })
+        return response
 
 
 class DinerShuffleAPI(views.APIView):
@@ -115,30 +117,13 @@ class DinerShuffleAPI(views.APIView):
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         # start = time.time()
-        if request.user.is_authenticated:
-            user_id = request.user.id
-        else:
-            user_id = 0
-        checker = utils.Checker(db, MATCHED_COLLECTION, LOG_COLLECTION, r_triggered_by=MATCH)
-        triggered_at = checker.triggered_at
-        searcher = SearcherQuery(db, MATCHED_COLLECTION)
-        if user_id > 0:
-            diners = searcher.get_random(triggered_at, request.user)
-        else:
-            diners = searcher.get_random(triggered_at)
-        has_more = False
-        next_offset = 0
-        diners = diners
-        data = DinerSerializer(diners, many=True).data
+        user = check_user_authenticated(request.user)
+        triggered_at = checker.get_triggered_at()
+        diners = searcher.get_random(triggered_at, user)
+        response = assemble_diners_response(diners, 0, PAGE_LIMIT, 6)
         # stop = time.time()
         # print('post DinerSearch took: ', stop - start, 's.')
-        return Response({
-            'next_offset': next_offset,
-            'has_more': has_more,
-            'max_page': 1,
-            'data_count': len(diners),
-            'data': data
-            })
+        return response
 
 
 class DinerInfoAPI(views.APIView):
@@ -147,27 +132,19 @@ class DinerInfoAPI(views.APIView):
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
         # start = time.time()
-        uuid_ue = self.request.query_params.get('uuid_ue', None)
-        uuid_fp = self.request.query_params.get('uuid_fp', None)
-        if request.user.is_authenticated:
-            user_id = request.user.id
-        else:
-            user_id = 0
-        if uuid_ue is None:
-            uuid_ue = ''
-        if uuid_fp is None:
-            uuid_fp = ''
+
+        uuid_ue = self.request.query_params.get('uuid_ue', '')
+        uuid_fp = self.request.query_params.get('uuid_fp', '')
+
+        user = check_user_authenticated(request.user)
         info_waiter = DinerInfoQuery(db, MATCHED_COLLECTION)
-        if user_id == 0:
-            diner = info_waiter.get_diner(uuid_ue, uuid_fp)
-        else:
-            diner = info_waiter.get_diner(uuid_ue, uuid_fp, request.user)
+        diner = info_waiter.get_diner(uuid_ue, uuid_fp, user)
         if not diner:
             return Response({'data': '404'})
-        results = DinerSerializer(diner, many=False).data
+        data = DinerSerializer(diner, many=False).data
         # stop = time.time()
         # print('get DinerInfo took: ', stop - start, 's.')
-        return Response({'data': results})
+        return Response({'data': data})
 
 
 class FiltersAPI(views.APIView):
@@ -189,68 +166,41 @@ class FavoritesAPI(views.APIView):
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
-        request_data = request.data
-        if request.user.is_authenticated:
-            pass
-        else:
+        user = check_user_authenticated(request.user)
+        if not user:
             return Response({'message': 'need login'})
+        request_data = request.data
         uuid_ue = request_data['uuid_ue']
         uuid_fp = request_data['uuid_fp']
         activate = request_data['activate']
-        favorite_sqlrecord = Favorites.manager.update_favorite(request.user, uuid_ue, uuid_fp, activate)
-        favorites_count = Favorites.manager.count_favorites(request.user)
-        # print(favorite_sqlrecord)
+        favorite_sqlrecord = Favorites.manager.update_favorite(user, uuid_ue, uuid_fp, activate)
+        favorites_count = Favorites.manager.count_favorites(user)
         response = Response({'message': 'update favorite success', 'result': str(favorite_sqlrecord)})
         response.set_cookie('ufc_favorites_count', favorites_count)
         return response
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='GET'))
     def get(self, request):
-        if request.user.is_authenticated:
-            pass
-        else:
+        user = check_user_authenticated(request.user)
+        if not user:
             return Response({'message': 'need login'})
 
-        user = request.user
         offset = int(self.request.query_params.get('offset', None))
         favorites_count = request.COOKIES.get('ufc_favorites_count')
         if favorites_count is None:
             favorites_count = Favorites.manager.count_favorites(request.user)
         else:
             favorites_count = int(favorites_count)
-
         if favorites_count == 0:
             response = Response({
-                'is_data': False
+                'no_data': 1
             })
             response.set_cookie('ufc_favorites_count', favorites_count)
             return response
 
         favorites_waiter = FavoritesQuery(db, MATCHED_COLLECTION)
         diners = favorites_waiter.get_favorites_diners(user, offset)
-        if not diners:
-            return Response({
-                'is_data': False
-            })
-
-        if offset + 6 < favorites_count:
-            has_more = True
-        else:
-            has_more = False
-        if has_more:
-            next_offset = offset + 6
-        else:
-            next_offset = 0
-
-        data = DinerSerializer(diners, many=True).data
-        response = Response({
-            'is_data': True,
-            'next_offset': next_offset,
-            'has_more': has_more,
-            'max_page': favorites_count // 6,
-            'data_count': len(diners),
-            'data': data
-            })
+        response = assemble_diners_response(diners, offset, PAGE_LIMIT, favorites_count)
         response.set_cookie('ufc_favorites_count', favorites_count)
         return response
 
@@ -259,11 +209,10 @@ class NoteqAPI(views.APIView):
 
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
-        request_data = request.data
-        if request.user.is_authenticated:
-            pass
-        else:
+        user = check_user_authenticated(request.user)
+        if not user:
             return Response({'message': 'need login'})
+        request_data = request.data
         uuid_ue = request_data['uuid_ue']
         uuid_fp = request_data['uuid_fp']
         uuid_gm = request_data['uuid_gm']
@@ -274,7 +223,6 @@ class NoteqAPI(views.APIView):
 
 def dinerlist_view(request):
     if request.user.is_authenticated:
-        pprint.pprint(request.user)
         return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': True, 'current_page': '店家列表'})
     else:
         return render(request, 'Diner_app/dinerlist.html', {'user_is_authenticated': False, 'current_page': '店家列表'})
