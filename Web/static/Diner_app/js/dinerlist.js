@@ -150,19 +150,19 @@ function renderFilter(dataNumber){
 
     if (sourceFilter.val() =='ue'){sourceFilter.attr('data-source-css', 'ue')}
     else if (sourceFilter.val() =='fp'){sourceFilter.attr('data-source-css', 'fp')}
-    else if (sourceFilter.val() =='gm'){eachFilterSource.attr('data-source-css', 'gm')}
+    else if (sourceFilter.val() =='gm'){sourceFilter.attr('data-source-css', 'gm')}
 
-    let chosedType = $(`select[name*="filter-type"][data-number=${dataNumber}][class*="${eachFilterSource.val()}"]`)
+    let chosedType = $(`select[name*="filter-type"][data-number=${dataNumber}][class*="${sourceFilter.val()}"]`)
     if (chosedType.length == 1){
         $(typeFilter[0]).hide()
         $(chosedType).show().prop('disabled', false)
     };
-    let chosedOperator = $(`select[name="filter-operator"][data-number=${dataNumber}].${chosedType.val()}.${eachFilterSource.val()}`)
+    let chosedOperator = $(`select[name="filter-operator"][data-number=${dataNumber}].${chosedType.val()}.${sourceFilter.val()}`)
     if (chosedOperator.length == 1){
         $(operatorFilter[0]).hide()
         $(chosedOperator).show().prop('disabled', false)
     };
-    let chosedValue = $(`select[name="filter-value"][data-number=${dataNumber}].${chosedType.val()}.${eachFilterSource.val()}`);
+    let chosedValue = $(`select[name="filter-value"][data-number=${dataNumber}].${chosedType.val()}.${sourceFilter.val()}`);
     if (chosedValue.length == 1){
         $(valueFilter[0]).hide()
         $(chosedValue).show().prop('disabled', false)
