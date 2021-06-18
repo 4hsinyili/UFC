@@ -476,11 +476,11 @@ function renderLambdaDinerCountGraph(infoArray, source){
           },
         legend: {
             "orientation": "h",
-            "y" : 1.05
+            "y" : 1.16
         },
         margin: {
-            t: 40,
-            b: 30
+            t: 70,
+            b: 70
         }
     }
     let graph = document.getElementById(source.concat('-lambda-bar-graph'))
@@ -528,11 +528,11 @@ function renderLambdaRunTimeGraph(infoArray, source){
           },
         legend: {
             "orientation": "h",
-            "y" : 1.05
+            "y" : 1.16
         },
         margin: { 
-            t: 40,
-            b: 30
+            t: 70,
+            b: 70
         }
     }
     let graph = document.getElementById(source.concat('-lambda-line-graph'))
@@ -579,11 +579,11 @@ function renderMDinerCountGraph(infoArray, source){
           },
         legend: {
             "orientation": "h",
-            "y" : 1.12
+            "y" : 1.16
         },
         margin: { 
-            t: 60,
-            b: 30
+            t: 70,
+            b: 70
         },
         barmode: 'stack'
     }
@@ -656,11 +656,11 @@ function renderPDinerCountGraph(infoArray, source){
           },
         legend: {
             "orientation": "h",
-            "y" : 1.12
+            "y" : 1.16
         },
         margin: { 
-            t: 60,
-            b: 30
+            t: 70,
+            b: 70
         },
         barmode: 'stack'
     }
@@ -693,8 +693,8 @@ function renderMRunTimeGraph(infoArray, source){
             showlegend: false
         },
         margin: { 
-            t: 35,
-            b: 30
+            t: 70,
+            b: 70
         }
     }
     Plotly.newPlot(graph, data, layout);
@@ -726,8 +726,8 @@ function renderPRunTimeGraph(infoArray, source){
             showlegend: false
         },
         margin: { 
-            t: 35,
-            b: 30
+            t: 70,
+            b: 70
         }
     }
     Plotly.newPlot(graph, data, layout);
