@@ -6,8 +6,7 @@ import requests
 
 # for file handling
 import json
-import env
-import conf
+
 
 # for timing and not to get caught
 import time
@@ -18,6 +17,11 @@ from datetime import datetime
 import pprint
 
 # home-made modules
+# for file handling
+import env
+import conf
+
+# my utility belt
 import utils
 
 MONGO_EC2_URI = env.MONGO_EC2_URI

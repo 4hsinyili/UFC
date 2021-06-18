@@ -9,7 +9,7 @@ if os.getcwd() == '/var/task':
 
 CONFIG.read(file_path)
 
-DB_NAME = CONFIG['Local']['db_prod_name']
+DB_NAME = CONFIG['DB_Control']['db_prod_name']
 
 UE_LIST_COLLECTION = CONFIG['Collections']['ue_list']
 UE_LIST_TEMP_COLLECTION = CONFIG['Collections']['ue_list_temp']
