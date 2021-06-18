@@ -11,7 +11,7 @@ elif os.getcwd().endswith('/UFC'):
 
 CONFIG.read(file_path)
 
-DB_NAME = CONFIG['Local']['db_prod_name']
+DB_NAME = CONFIG['DB_Control']['db_prod_name']
 
 UE_LIST_COLLECTION = CONFIG['Collections']['ue_list']
 UE_LIST_TEMP_COLLECTION = CONFIG['Collections']['ue_list_temp']
@@ -39,3 +39,5 @@ TRIGGERED_BY_LIST = [
     GET_UE_LIST_START, GET_FP_LIST_START, GET_UE_LIST, GET_FP_LIST,
     GET_UE_DETAIL, GET_FP_DETAIL, MATCH_START, PLACE_START, MATCH, PLACE
 ]
+
+PAGE_LIMIT = int(CONFIG['Diner_API']['page_limit'])
