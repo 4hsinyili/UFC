@@ -1,16 +1,16 @@
-let today = moment();
-let startDateDom = document.querySelector('#start-date')
-let endDateDom = document.querySelector('#end-date')
-let startTimeDom = document.querySelector('#start-time')
-let endTimeDom = document.querySelector('#end-time')
-let todayDate = today.format('YYYY-MM-DD')
-let nowTime = today.format('HH:mm')
-let utcOffset = moment().utcOffset()
-let utcNow = moment().utcOffset(-(utcOffset))
-let todayStartRefresh = moment().set({'hour': 2 + (utcOffset /60), 'minutes': 30, 'second': 0}).utcOffset(-(utcOffset))
-let todayEndRefresh = moment().set({'hour': 3 + (utcOffset /60), 'minutes': 10, 'second': 0}).utcOffset(-(utcOffset))
+const today = moment();
+const startDateDom = document.querySelector('#start-date')
+const endDateDom = document.querySelector('#end-date')
+const startTimeDom = document.querySelector('#start-time')
+const endTimeDom = document.querySelector('#end-time')
+const todayDate = today.format('YYYY-MM-DD')
+const nowTime = today.format('HH:mm')
+const utcOffset = moment().utcOffset()
+const utcNow = moment().utcOffset(-(utcOffset))
+const todayStartRefresh = moment().set({'hour': 2 + (utcOffset /60), 'minutes': 30, 'second': 0}).utcOffset(-(utcOffset))
+const todayEndRefresh = moment().set({'hour': 3 + (utcOffset /60), 'minutes': 10, 'second': 0}).utcOffset(-(utcOffset))
 
-let weekAgo = moment().subtract(7, 'days');
+const weekAgo = moment().subtract(7, 'days');
 let initMoment = today
 if (weekAgo.isAfter(moment('2021-06-13'))){
     initMoment = weekAgo
@@ -18,7 +18,7 @@ if (weekAgo.isAfter(moment('2021-06-13'))){
     initMoment = moment('2021-06-13')
 }
 
-let initDate = initMoment.format('YYYY-MM-DD')
+const initDate = initMoment.format('YYYY-MM-DD')
 
 startDateDom.value = initDate
 endDateDom.value = todayDate
@@ -31,13 +31,13 @@ endTimeDom.value = nowTime
 
 const initData = {"start_date_time": `${initDate} ${startTimeDom.value}`, "end_date_time": `${todayDate} ${endTimeDom.value}`}
 
-let ueLambdaDinerCountGraph = document.getElementById('ue-lambda-bar-graph');
-let fpLambdaDinerCountGraph = document.getElementById('fp-lambda-bar-graph');
-let lambdaRuntimeGraph = document.getElementById('lambda-line-graph');
-let mDinerCountGraph = document.getElementById('m-bar-graph');
-let pDinerCountGraph = document.getElementById('p-bar-graph');
-let mpRunTimeGraph = document.getElementById('mp-line-graph');
-let dashboardApi = 'api/v1/dashboard';
+const ueLambdaDinerCountGraph = document.getElementById('ue-lambda-bar-graph');
+const fpLambdaDinerCountGraph = document.getElementById('fp-lambda-bar-graph');
+const lambdaRuntimeGraph = document.getElementById('lambda-line-graph');
+const mDinerCountGraph = document.getElementById('m-bar-graph');
+const pDinerCountGraph = document.getElementById('p-bar-graph');
+const mpRunTimeGraph = document.getElementById('mp-line-graph');
+const dashboardApi = 'api/v1/dashboard';
 
 const csrftoken = getCookie('csrftoken');
 
