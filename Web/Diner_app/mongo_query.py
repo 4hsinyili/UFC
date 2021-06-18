@@ -69,7 +69,6 @@ class DashBoardQuery():
         for triggered_by in triggered_by_list:
             result.update(
                 self.parse_data(data, triggered_by))
-
         # return data
         return result
 
@@ -368,10 +367,16 @@ class FavoritesQuery():
                         "link_ue": "$link_ue",
                         "rating_ue": "$rating_ue",
                         "view_count_ue": "$view_count_ue",
+                        "tags_ue": "$tags_ue",
+                        "deliver_fee_ue": "$deliver_fee_ue",
+                        "deliver_time_ue": "$deliver_time_ue",
                         "image_fp": "$image_fp",
                         "link_fp": "$link_fp",
                         "rating_fp": "$rating_fp",
                         "view_count_fp": "$view_count_fp",
+                        "tags_fp": "$tags_fp",
+                        "deliver_fee_fp": "$deliver_fee_fp",
+                        "deliver_time_fp": "$deliver_time_fp",
                         "uuid_gm": "$uuid_gm",
                         "link_gm": "$link_gm",
                         "rating_gm": "$rating_gm",
