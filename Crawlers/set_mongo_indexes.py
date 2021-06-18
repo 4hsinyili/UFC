@@ -4,12 +4,10 @@ from pymongo import MongoClient, ASCENDING
 # home-made modules
 # for file handling
 import env
-import configparser
+import conf
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
-CONFIG = configparser.ConfigParser()
-CONFIG.read('crawler.conf')
-DB_NAME = CONFIG['Local']['db_name']
+DB_NAME = conf.DB_NAME
 admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client[DB_NAME]
 
