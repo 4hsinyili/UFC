@@ -1,6 +1,13 @@
+# for connect to aws
 import boto3
+
+# for timing
 import datetime
+
+# for preview
 import pprint
+
+# for datastruvture
 from collections import defaultdict
 
 

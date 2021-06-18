@@ -1,14 +1,28 @@
-import utils
-from datetime import datetime  # , timedelta
+# for db control
 from pymongo import MongoClient, UpdateOne
-import env
+
+# for timing
+import time
+from datetime import datetime
+
+# for compare
 from itertools import product
 from difflib import SequenceMatcher
 from geopy import distance
-import time
+
+# for preview
 import pprint
+
+# for garbage collect, to avoid memory error
 import gc
+
+# home-made modules
+# for file handling
+import env
 import conf
+
+# my utility belt
+import utils
 
 MONGO_EC2_URI = env.MONGO_EC2_URI
 DB_NAME = conf.DB_NAME

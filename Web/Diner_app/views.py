@@ -1,22 +1,34 @@
-# from django.http.response import HttpResponse
+# for django
 from django.shortcuts import render, redirect
+
+# for django api rate limiter
 from django.utils.decorators import method_decorator
-# from django.http import HttpResponse
 from ratelimit.decorators import ratelimit
+
+# for django restful api
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from .serializers import DinerSerializer, FilterSerializer, DashBoardSerializer
-# from django.db import transaction
-# from rest_framework.generics import GenericAPIView
+
+# for mongo db control
+from pymongo import MongoClient
+
+# for timing
+import datetime
+
+# home-made modules
+# for mysql and mongo query
 from .models import Favorites, Noteq
 from .mongo_query import DashBoardQuery, FavoritesQuery, FiltersQuery, SearcherQuery, DinerInfoQuery
+
+# for return data to frontend
+from .serializers import DinerSerializer, FilterSerializer, DashBoardSerializer
+
+# for gile handling
 import env
-from pymongo import MongoClient
-# import time
-import pprint
-import datetime
 from Diner_app import conf
+
+# my utility belt
 import utils
 
 # Create your views here.

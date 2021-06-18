@@ -1,4 +1,8 @@
+# for db control
 from pymongo import MongoClient, ASCENDING
+
+# home-made modules
+# for file handling
 import env
 import configparser
 

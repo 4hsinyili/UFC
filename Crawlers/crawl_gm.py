@@ -1,15 +1,8 @@
 # for db control
 from pymongo import MongoClient, UpdateOne
 
-# for file handling
-import env
-import conf
-
 # for timing and not to get caught
-# import time
-# import random
 from datetime import timedelta
-# from dateutil.relativedelta import relativedelta
 
 # for preview
 import pprint
@@ -18,6 +11,11 @@ import requests
 from urllib.parse import urlencode
 
 # home-made module
+# for file handling
+import env
+import conf
+
+# my utility belt
 import utils
 
 API_KEY = env.PLACE_API_KEY

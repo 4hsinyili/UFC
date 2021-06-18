@@ -1,12 +1,13 @@
 #  for db control
 from pymongo import MongoClient
+
+# for timing
 import time
 from datetime import datetime
 
-try:
-    from Crawlers import match_uf, crawl_gm
-except Exception:
-    print('Import Error at: ', datetime.utcnow())
+# home-made modules
+# match and crawl
+from Crawlers import match_uf, crawl_gm
 
 # for file handling
 import env
