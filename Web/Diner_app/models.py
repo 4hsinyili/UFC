@@ -1,5 +1,3 @@
-# import pprint
-# import time
 from django.db import models
 from User_app.models import CustomUser
 # Create your models here.
