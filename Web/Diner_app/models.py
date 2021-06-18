@@ -58,12 +58,12 @@ class FavoritesManager(models.Manager):
 
     def count_favorites(self, user):
         if user.id is None:
-            return False
+            return 0
         record_count = self.filter(user=user, activate=1).count()
         if record_count > 0:
             return record_count
         else:
-            return False
+            return 0
 
     def check_favorite(self, user, uuid_ue, uuid_fp):
         favorite_records = self.filter(user=user, uuid_ue=uuid_ue, uuid_fp=uuid_fp).order_by('-updated_at')
