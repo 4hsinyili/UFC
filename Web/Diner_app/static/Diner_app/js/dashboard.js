@@ -29,7 +29,7 @@ endDateDom.max = todayDate
 startTimeDom.value = '00:00'
 endTimeDom.value = nowTime
 
-let initData = {"start_date": `${initDate} ${startTimeDom.value}`, "end_date": `${todayDate} ${endTimeDom.value}`}
+const initData = {"start_date_time": `${initDate} ${startTimeDom.value}`, "end_date_time": `${todayDate} ${endTimeDom.value}`}
 
 let ueLambdaDinerCountGraph = document.getElementById('ue-lambda-bar-graph');
 let fpLambdaDinerCountGraph = document.getElementById('fp-lambda-bar-graph');
@@ -70,7 +70,7 @@ function autoUpadte(){
     let endDate = endDateDom.value
     let startTime = startTimeDom.value
     let endTime = endTimeDom.value
-    let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
+    let data = {"start_date_time": `${startDate} ${startTime}`, "end_date_time": `${endDate} ${endTime}`}
     ajaxPost(dashboardApi, data, function(response){
         console.log(response)
         resetTableS()
@@ -752,7 +752,7 @@ document.getElementById('select-dates').addEventListener('change', (e)=>{
     if (moment(endDate).isBefore(moment(startDate))){
         endGTStartWarn()
     } else {
-    let data = {"start_date": `${startDate} ${startTime}`, "end_date": `${endDate} ${endTime}`}
+    let data = {"start_date_time": `${startDate} ${startTime}`, "end_date_time": `${endDate} ${endTime}`}
     showLoading()
     ajaxPost(dashboardApi, data, function(response){
         resetTableS()
