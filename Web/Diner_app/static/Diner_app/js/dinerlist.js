@@ -56,7 +56,7 @@ function createConditions(keyWord){
 function appendFilter(){
     let filterArray = $('div[name="filter"]')
     let newFilter = firstFilter.cloneNode(true)
-    $(newFilter).firstSorter()
+    $(newFilter).show()
 
     let newNumber = filterArray.length
     newFilter.setAttribute('data-number', newNumber)
@@ -69,7 +69,7 @@ function appendFilter(){
     filters.appendChild(newFilter)
     let removeButton = document.querySelector(`[name="clear-filter"][data-number="${newNumber}"]`)
     removeButton.classList.add('remove-filter')
-    removeButton.innerHTML = `<img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter_wide.svg" data-number=${newFilterNumber}><img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_filter.svg" data-number=${newFilterNumber}>`
+    removeButton.innerHTML = `<img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/filter_wide.svg" data-number=${newNumber}><img class="button-smaller" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/remove_filter.svg" data-number=${newNumber}>`
     renderFilters()
     removeButton.addEventListener('click', (e)=>{
         removeFilter(e.target)
@@ -179,12 +179,12 @@ function renderFilters(){
 
 function turnFIltersToConditions(conditions, filterArray){
     conditions['filter'] = []
-    for (let filter of filterArray.length){
+    for (let filter of filterArray){
         tFSelects = $(filter).find('select')
         conditions['filter'].push({})
         let last = conditions['filter'].length - 1
 
-        for (let tFSelect of tFSelects.length){
+        for (let tFSelect of tFSelects){
 
             if ($(tFSelect).css('display') != 'none'){
 
@@ -303,12 +303,12 @@ function renderSorters(){
 function turnSortersToConditions(conditions, sorterArray){
     conditions['sorter'] = []
 
-    for (let sorter of sorterArray.length){
+    for (let sorter of sorterArray){
         tFSelects = $(sorter).find('select')
         conditions['sorter'].push({})
         let last = conditions['sorter'].length - 1
 
-        for (let tFSelect of tFSelects.length){
+        for (let tFSelect of tFSelects){
 
             if ($(tFSelect).css('display') != 'none'){
 
