@@ -4,9 +4,12 @@ import os
 file_path = '.conf'
 
 CONFIG = configparser.ConfigParser()
-if os.getcwd().endswith('/UFC'):
-    file_path = 'Web/' + file_path
-print(os.getcwd())
+
+if os.getcwd().startswith('/home'):
+    file_path = '/home/ec2-user/UFC/Web/' + file_path
+elif os.getcwd().startswith('/Users'):
+    file_path = '/Users/4hsinyili/Documents/GitHub/UFC/Web/' + file_path
+
 CONFIG.read(file_path)
 
 DB_NAME = CONFIG['DB_Control']['db_prod_name']

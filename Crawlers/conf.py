@@ -4,10 +4,12 @@ import os
 file_path = '.conf'
 
 CONFIG = configparser.ConfigParser()
-if os.getcwd() == '/var/task':
+if os.getcwd().startswith('/var'):
     file_path = 'src/' + file_path
-elif os.getcwd().endswith('/ec2-user'):
-    file_path = 'UFC/Crawlers/' + file_path
+elif os.getcwd().startswith('/home'):
+    file_path = '/home/ec2-user/UFC/Crawlers/' + file_path
+elif os.getcwd().startswith('/Users'):
+    file_path = '/Users/4hsinyili/Documents/GitHub/UFC/Crawlers/' + file_path
 
 CONFIG.read(file_path)
 
