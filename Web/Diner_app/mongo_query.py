@@ -79,7 +79,7 @@ class FiltersQuery():
         self.read_collection = read_collection
 
     def get_filters(self, triggered_at):
-        db = db = self.db
+        db = self.db
         read_collection = self.read_collection
         pipeline = [{
             "$match": {
