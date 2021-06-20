@@ -85,9 +85,15 @@ class FiltersQuery():
                 "triggered_at": triggered_at
             }
         }, {
-            "$unwind": "$tags_ue"
+            "$unwind": {
+                "path": "$tags_ue",
+                "preserveNullAndEmptyArrays": True
+            }
         }, {
-            "$unwind": "$tags_fp"
+            "$unwind": {
+                "path": "$tags_fp",
+                "preserveNullAndEmptyArrays": True
+            }
         }, {
             '$group': {
                 '_id': None,
