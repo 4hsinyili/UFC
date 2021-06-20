@@ -67,8 +67,7 @@ class DashBoardQuery():
         triggered_by_list = self.triggered_by_list
         result = {}
         for triggered_by in triggered_by_list:
-            result.update(
-                self.parse_data(data, triggered_by))
+            result.update(self.parse_data(data, triggered_by))
         # return data
         return result
 
