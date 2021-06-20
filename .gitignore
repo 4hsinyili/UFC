@@ -33,4 +33,4 @@ sql.txt
 *.ico
 
 *.icns
-Crawlers/experiment.py
+experiment.py
