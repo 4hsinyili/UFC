@@ -26,7 +26,7 @@ from .serializers import DinerSerializer, FilterSerializer, DashBoardSerializer
 
 # for gile handling
 import env
-from Diner_app import conf
+import conf
 
 # my utility belt
 import utils

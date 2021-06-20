@@ -4,14 +4,15 @@ import os
 file_path = '.conf'
 
 CONFIG = configparser.ConfigParser()
-if os.getcwd().endswith('/Web'):
-    file_path = 'Diner_app/' + file_path
-elif os.getcwd().endswith('/UFC'):
-    file_path = 'Web/Diner_app/' + file_path
-
+# if os.getcwd().endswith('/Web'):
+#     file_path = 'Diner_app/' + file_path
+# elif os.getcwd().endswith('/UFC'):
+#     file_path = file_path
+print(os.getcwd())
 CONFIG.read(file_path)
 
 DB_NAME = CONFIG['DB_Control']['db_prod_name']
+
 
 UE_LIST_COLLECTION = CONFIG['Collections']['ue_list']
 UE_LIST_TEMP_COLLECTION = CONFIG['Collections']['ue_list_temp']
