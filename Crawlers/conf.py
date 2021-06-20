@@ -6,7 +6,8 @@ file_path = '.conf'
 CONFIG = configparser.ConfigParser()
 if os.getcwd() == '/var/task':
     file_path = 'src/' + file_path
-print(os.getcwd())
+elif os.getcwd() == '/ec2-user':
+    file_path = 'UFC/Crawlers/' + file_path
 
 CONFIG.read(file_path)
 
