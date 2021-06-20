@@ -12,19 +12,19 @@ const todayEndRefresh = moment().set({'hour': 3 + (utcOffset /60), 'minutes': 10
 
 const weekAgo = moment().subtract(7, 'days');
 let initMoment = today
-if (weekAgo.isAfter(moment('2021-06-13'))){
+if (weekAgo.isAfter(moment('2021-06-21'))){
     initMoment = weekAgo
 } else {
-    initMoment = moment('2021-06-13')
+    initMoment = moment('2021-06-21')
 }
 
 const initDate = initMoment.format('YYYY-MM-DD')
 
 startDateDom.value = initDate
 endDateDom.value = todayDate
-startDateDom.min = '2021-06-13'
+startDateDom.min = '2021-06-21'
 startDateDom.max = todayDate
-endDateDom.min = '2021-06-13'
+endDateDom.min = '2021-06-21'
 endDateDom.max = todayDate
 startTimeDom.value = '00:00'
 endTimeDom.value = nowTime
