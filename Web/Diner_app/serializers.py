@@ -56,13 +56,13 @@ class FilterSerializer(serializers.Serializer):
 
 
 class DashBoardSerializer(serializers.Serializer):
-    get_ue_list_start = serializers.DictField()
-    get_fp_list_start = serializers.DictField()
-    get_ue_list = serializers.DictField()
-    get_fp_list = serializers.DictField()
-    get_ue_detail = serializers.DictField()
-    get_fp_detail = serializers.DictField()
-    match_start = serializers.DictField()
-    place_start = serializers.DictField()
-    match = serializers.DictField()
-    place = serializers.DictField()
+    get_ue_list_start = serializers.DictField(required=False)
+    get_fp_list_start = serializers.DictField(required=False)
+    get_ue_list = serializers.DictField(required=False)
+    get_fp_list = serializers.DictField(required=False)
+    get_ue_detail = serializers.DictField(required=False)
+    get_fp_detail = serializers.DictField(required=False)
+    match_start = serializers.DictField(required=False)
+    place_start = serializers.DictField(required=False)
+    match = serializers.DictField(required=False)
+    place = serializers.DictField(required=False)
