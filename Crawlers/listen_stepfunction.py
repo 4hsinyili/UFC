@@ -5,6 +5,10 @@ from pymongo import MongoClient
 import time
 from datetime import datetime
 
+# for email error
+import logging
+import logging.handlers
+
 # home-made modules
 # match and crawl
 from Crawlers import match_uf, crawl_gm
@@ -12,6 +16,7 @@ from Crawlers import match_uf, crawl_gm
 # for file handling
 import env
 import conf
+
 
 API_KEY = env.PLACE_API_KEY
 MONGO_EC2_URI = env.MONGO_EC2_URI
@@ -32,6 +37,28 @@ admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client[DB_NAME]
 
 print('Listen Starts at: ', datetime.utcnow())
+
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
+    filename='log.log')
+
+logger = logging.getLogger(__name__)
+
+smtp_handler = logging.handlers.SMTPHandler(mailhost=('smtp.gmail.com', 587),
+                                            fromaddr=env.ERROR_EMAIL,
+                                            toaddrs=[env.MY_GMAIL],
+                                            subject='Error',
+                                            credentials=(env.ERROR_EMAIL,
+                                                         env.ERROR_PWD),
+                                            secure=())
+logger.addHandler(smtp_handler)
+
+
+def error(err_name, err):
+    """Log Errors"""
+
+    logger.warning('error "%s" caused error "%s"', err_name, err)
 
 
 def listen():
@@ -93,14 +120,18 @@ if __name__ == '__main__':
     mongo_write_buffer = 10
     till_next_execute = 600
     while True:
-        check_break = main()
-        if check_break:
+        try:
+            check_break = main()
+            if check_break:
+                break
+            else:
+                pass
+            execute_count += 1
+            if execute_count > execute_limit:
+                print('Break now.')
+                break
+            print('Sleep now.')
+            time.sleep(till_next_execute)
+        except Exception as err:
+            error('match uf error:', err)
             break
-        else:
-            pass
-        execute_count += 1
-        if execute_count > execute_limit:
-            print('Break now.')
-            break
-        print('Sleep now.')
-        time.sleep(till_next_execute)
