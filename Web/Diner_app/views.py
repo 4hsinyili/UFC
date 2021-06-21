@@ -268,8 +268,9 @@ def test_lambda_ip_view(request):
         return ip
     ip = get_client_ip(request)
     now = datetime.datetime.utcnow()
+    result = {now: ip}
     print('------------ IP --------------')
-    print('{', f'"{now}": "{ip}"', '}')
+    print(result)
     print('++++++++++++ IP ++++++++++++++')
     return render(request, 'Diner_app/base.html', {})
 
