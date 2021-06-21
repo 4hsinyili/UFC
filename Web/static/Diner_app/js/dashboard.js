@@ -784,7 +784,7 @@ if (utcNow.isBetween(todayStartRefresh, todayEndRefresh)){
 
 } else if (utcNow.isBefore(todayStartRefresh)){
     console.log('too early')
-    let startTimer = moment.duration(utcNow.diff(todayStartRefresh)).asMilliseconds()
+    let startTimer = moment.duration(todayStartRefresh.diff(utcNow)).asMilliseconds()
     let endTimer = moment.duration(utcNow.diff(todayEndRefresh)).asMilliseconds()
     setTimeout(function(){
         setIntervalAndExecute(autoUpadte, startTimer, endTimer) 
