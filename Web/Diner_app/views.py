@@ -270,7 +270,7 @@ def test_lambda_ip_view(request):
     print('------------ IP --------------')
     print(ip)
     print('++++++++++++ IP ++++++++++++++')
-    return redirect('/')
+    return render(request, 'Diner_app/base.html', {})
 
 # def forSSL(request):
 #     file_content = env.VERIFY_DOMAIN
