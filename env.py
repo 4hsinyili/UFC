@@ -25,3 +25,7 @@ if DEVELOP == 'True':
     DEVELOP = True
 else:
     DEVELOP = False
+
+ERROR_EMAIL = os.getenv('ERROR_EMAIL')
+ERROR_PWD = os.getenv('ERROR_PWD')
+MY_GMAIL = os.getenv('MY_GMAIL')
