@@ -54,7 +54,7 @@ function renderDeliverFeeTime(dinerInfo, dinerDom, source){
     } else if (deliver_time == 0){
         dinerDom.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(NaN)`
     } else {
-        dinerDom.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time})`
+        dinerDom.querySelector('.deliver_fee_time_'.concat(source)).innerText = `$${deliver_fee}(${deliver_time} 分鐘)`
     } 
 }
 
