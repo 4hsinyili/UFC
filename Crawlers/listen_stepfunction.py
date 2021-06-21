@@ -57,7 +57,7 @@ logger.addHandler(smtp_handler)
 
 def error(err_name, err):
     """Log Errors"""
-
+    print("Something's wrong, check your mail.")
     logger.warning('error "%s" caused error "%s"', err_name, err)
 
 
@@ -73,7 +73,6 @@ def listen():
 
 
 def main():
-    record
     record = listen()
 
     if not record:
