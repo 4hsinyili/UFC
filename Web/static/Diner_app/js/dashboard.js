@@ -47,7 +47,6 @@ function initPost(dashboardApi, intData){
     resetGraphS()
     showLoading()
     ajaxPost(dashboardApi, intData, function(response){
-        console.log(response)
         renderDashBoard(response)
         endLoading()
     })
@@ -72,7 +71,6 @@ function autoUpadte(){
     let endTime = endTimeDom.value
     let data = {"start_date_time": `${startDate} ${startTime}`, "end_date_time": `${endDate} ${endTime}`}
     ajaxPost(dashboardApi, data, function(response){
-        console.log(response)
         resetTableS()
         renderDashBoard(response)
         Toast.fire({
@@ -775,7 +773,6 @@ function setIntervalAndExecute(fn, startTimeout, stopTimeout){
 }
 
 if (utcNow.isBetween(todayStartRefresh, todayEndRefresh)){
-    console.log('start interval')
     let startTimer = 0
     let endTimer = moment.duration(utcNow.diff(todayEndRefresh)).asMilliseconds()
     setTimeout(function(){
@@ -783,12 +780,9 @@ if (utcNow.isBetween(todayStartRefresh, todayEndRefresh)){
     }, startTimer)
 
 } else if (utcNow.isBefore(todayStartRefresh)){
-    console.log('too early')
     let startTimer = moment.duration(todayStartRefresh.diff(utcNow)).asMilliseconds()
     let endTimer = moment.duration(utcNow.diff(todayEndRefresh)).asMilliseconds()
     setTimeout(function(){
         setIntervalAndExecute(autoUpadte, startTimer, endTimer) 
     }, startTimer)
-} else{
-    console.log('too late')
 }
