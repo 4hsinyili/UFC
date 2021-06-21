@@ -73,6 +73,7 @@ def listen():
 
 
 def main():
+    record
     record = listen()
 
     if not record:
