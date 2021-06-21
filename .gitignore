@@ -34,3 +34,6 @@ sql.txt
 
 *.icns
 experiment.py
+
+log.log
+Crawlers/log.log
