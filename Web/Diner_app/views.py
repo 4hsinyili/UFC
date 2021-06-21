@@ -267,7 +267,7 @@ def test_lambda_ip_view(request):
             ip = request.META.get('REMOTE_ADDR')
         return ip
     ip = get_client_ip(request)
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     result = {now: ip}
     print('------------ IP --------------')
     print(result)
