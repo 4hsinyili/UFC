@@ -1,0 +1,20 @@
+{% extends "Diner_app/base.html" %}
+
+{% block website_title %}
+    <title>Not Found</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Helper_app/css/404.css' %}">
+{% endblock %}
+{% block content %}
+    <div id='top-margin'></div>
+    <div class="container">
+        <div class="row justify-content-center" style="text-align: center;">伺服器似乎發生了一些問題，如果這個錯誤持續發生，請聯絡開發者</div>
+        <div class="row justify-content-center" style="text-align: center;">4hsinyili@gmail.com</div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

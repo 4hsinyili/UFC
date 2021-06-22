@@ -1,0 +1,31 @@
+{% extends "Diner_app/base.html" %}
+
+{% block website_title %}
+    <title>Login</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet"  type="text/css" href="{% static 'User_app/css/form.css' %}">
+{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div id='margin-before-form'></div>
+    <div class="container d-flex justify-content-center">
+        <div id="form-container">
+            <form method="POST" class="form-group" id='form'>
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="row justify-content-center">
+                    <div class="col-6 d-flex justify-content-around">
+                        <button type="submit" class="btn btn-success">登入</button>
+                        <a class="btn btn-light" href="/user/register">註冊</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

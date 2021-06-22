@@ -1,0 +1,1 @@
+This folder contains lib-files, it's unnecessary for my remote machine since I will use my local machine to deploy lambda, so I let git ignore them

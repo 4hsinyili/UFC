@@ -1,0 +1,86 @@
+
+
+#content{
+    margin-bottom: 4rem;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.button{
+    height: 24px;
+    width: 24px;
+}
+
+.button-smaller{
+    height: 22px;
+}
+
+.button-wider{
+    height: 24px;
+}
+
+.page-title{
+    margin: 1rem;
+}
+
+[data-hover=yes]{
+    cursor: pointer;
+}
+
+[name=nav-link-no-padding]{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    text-align: end;
+}
+
+
+[name=bread-crumb-line-no-padding]{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 6px !important;
+}
+
+[name=bread-crumb-no-padding]{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.nav-bar-end-padding{
+    width:10px !important;;
+}
+
+#brand{
+    text-align: end;
+}
+
+#current-page{
+    text-align: center;
+}
+
+[data-fix-content]{
+    width: fit-content !important;
+}
+
+[data-source-css=ue]{
+    color: #00a32c !important;
+}
+
+[data-source-css=fp]{
+    color: #b11b64 !important;
+}
+
+[data-source-css=gm]{
+    color: #0A58CA !important;
+}
+
+.btn-light{
+    background-color: #ebebeb !important;
+    border-color: #ebebeb !important;
+}
+
+.btn-light:hover{
+    background-color: #343A40 !important;
+    color: white !important;
+}

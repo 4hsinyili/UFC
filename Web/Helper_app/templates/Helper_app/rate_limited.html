@@ -1,0 +1,20 @@
+{% extends "Diner_app/base.html" %}
+
+{% block website_title %}
+    <title>Not Found</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Helper_app/css/404.css' %}">
+{% endblock %}
+{% block content %}
+    <div id='top-margin'></div>
+    <div class="container">
+        <div class="row justify-content-center" style="text-align: center;">訪問伺服器的頻率似乎超過了限制，由於開發成本低，因此我將頻率也設定的很低，如果這造成了你的困擾，請聯絡開發者</div>
+        <div class="row justify-content-center" style="text-align: center;">4hsinyili@gmail.com</div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

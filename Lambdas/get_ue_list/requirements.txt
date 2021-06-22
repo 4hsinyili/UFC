@@ -1,0 +1,10 @@
+selenium==3.141
+chromedriver-binary==2.37.0
+lxml == 4.6.1
+pymongo == 3.11.3
+python_dotenv == 0.17.0
+selenium_wire == 4.0.4
+requests == 2.24.0
+chardet == 3.0.4
+urllib3 == 1.25.11
+dnspython == 2.1.0

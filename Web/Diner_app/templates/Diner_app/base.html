@@ -1,0 +1,95 @@
+<html>
+    <head>
+        {% block website_title %}
+        {% endblock %}
+        <link rel="icon" type="image/png" href="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/favicon.png" />
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'Diner_app/css/styles.css' %}">
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'Diner_app/css/bootstrap.css' %}">
+        {% load static %}
+        <script type="text/javascript" src="{% static 'Diner_app/js/bootstrap.bundle.js' %}"></script>
+        {% block js_and_css %}
+        {% endblock %}
+        {% load static %}
+        <script type="text/javascript" src="{% static 'Diner_app/js/jquery.js' %}"></script>
+        {% load static %}
+        <script type="text/javascript" src="{% static 'Diner_app/js/sweetalert2.all.min.js' %}"></script>
+        {% load static %}
+        <script type="text/javascript" src="{% static 'Diner_app/js/js.cookie.js' %}"></script>
+        {% load static %}
+        <script type="text/javascript" src="{% static 'Diner_app/js/base.js' %}"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-light">
+            <div class="col">
+                <div class="row justify-content-start">
+                    <div class="nav-item nav-bar-end-padding"></div>
+                    <div class="nav-item col-1" data-fix-content>
+                        <a id='brand' name="bread-crumb-no-padding" class="nav-link disabled" href="">UFC</a>
+                    </div>
+                    <div name="bread-crumb-line-no-padding" class="nav-item col-1" data-fix-content>
+                        <a name="bread-crumb-line-no-padding" class="nav-link disabled" href="">/</a>
+                    </div>
+                    <div class="nav-item col-2" data-fix-content>
+                        <a id='current-page' name="bread-crumb-no-padding" class="nav-link disabled" href="">{{current_page}}</a>
+                    </div>
+                    {% if current_page == '店家資訊' or current_page == '店家列表'  or current_page == '收藏' or current_page == '儀表板' %}
+                    <div name="bread-crumb-line-no-padding" class="nav-item col-1" data-fix-content>
+                        <a name="bread-crumb-line-no-padding" class="nav-link disabled" href="">/</a>
+                    </div>
+                    <div class="nav-item col-2" data-fix-content>
+                        <a id='back-to-top' name="bread-crumb-no-padding" class="nav-link" href="#top">回到頂端</a>
+                    </div>
+                    {% endif %}
+                    {% if current_page == '店家資訊' %}
+                    <div name="bread-crumb-line-no-padding" class="nav-item col-1" data-fix-content>
+                        <a name="bread-crumb-line-no-padding" class="nav-link disabled" href="">|</a>
+                    </div>
+                    <div class="nav-item col-2" data-fix-content>
+                        <a id='update-favorite' name="bread-crumb-no-padding" class="nav-link"></a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col">
+                <div class="row justify-content-end">
+                    {% if current_page != '店家列表' %}
+                    <div class="nav-item col-2" data-fix-content>
+                        <a name="nav-link-no-padding" class="nav-link" href="/">店家列表</a>
+                    </div>
+                    {% endif %}
+                    {% if user_is_authenticated and current_page != '收藏' %}
+                    <div class="nav-item col-1" data-fix-content>
+                        <a name="nav-link-no-padding" class="nav-link" href="/favorites">收藏</a>
+                    </div>
+                    {% endif %}
+                    {% if current_page != '儀表板' %}
+                    <div class="nav-item col-2" data-fix-content>
+                        <a name="nav-link-no-padding" class="nav-link" href="/dashboard">儀表板</a>
+                    </div>
+                    {% endif %}
+                    {% if user_is_authenticated%}
+                    <div class="nav-item col-1" data-fix-content>
+                        <a name="nav-link-no-padding" class="nav-link" href="/user/logout">登出</a>
+                    </div>
+                    {% endif %}
+                    {% if not user_is_authenticated and current_page != '登入'%}
+                    <div class="nav-item col-1" data-fix-content>
+                        <a name="nav-link-no-padding" class="nav-link" href="/user/login" class="login-link">登入</a>
+                    </div>
+                    {% endif %}
+                    <div class="nav-item nav-bar-end-padding"></div>
+                </div>
+            </div>
+        </nav>
+        <div id="content" name="content" class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    {% block javascript %}
+    {% endblock %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'Diner_app/js/back.to.top.js' %}"></script>
+    </body>
+</html>

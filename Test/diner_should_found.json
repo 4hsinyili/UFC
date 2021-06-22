@@ -1,0 +1,88 @@
+{
+    "title_ue": "Watsons屈臣氏 統領門市 S0031",
+    "link_ue": "https://www.ubereats.com/tw/store/watsons%E5%B1%88%E8%87%A3%E6%B0%8F-%E7%B5%B1%E9%A0%98%E9%96%80%E5%B8%82-s0031/CNukTq_KQcW3lXTs8CIYdg",
+    "deliver_fee_ue": 0,
+    "deliver_time_ue": 0,
+    "choice_ue": false,
+    "uuid_ue": "08dba44e-afca-41c5-b795-74ecf0221876",
+    "triggered_at_ue": "2021-06-17T08:00:00Z",
+    "budget_ue": 1,
+    "rating_ue": 4.7,
+    "menu_ue": "",
+    "menu_fp": "",
+    "item_pair_ue": "",
+    "item_pair_fp": "",
+    "cheaper_ue": "",
+    "cheaper_fp": "",
+    "view_count_ue": 92,
+    "image_ue": "https://d1ralsognjng37.cloudfront.net/48b4ebb2-e94a-46df-9f9a-225c2cbc39c2.jpeg",
+    "tags_ue": [
+        "生鮮雜貨",
+        "美妝母嬰"
+    ],
+    "address_ue": "台北市大安區忠孝東路四段209號",
+    "gps_ue": [
+        25.04172,
+        121.55201
+    ],
+    "open_hours_ue": [
+        [
+            1,
+            "10:00",
+            "21:30"
+        ],
+        [
+            2,
+            "10:00",
+            "21:30"
+        ],
+        [
+            3,
+            "10:00",
+            "21:30"
+        ],
+        [
+            4,
+            "10:00",
+            "21:30"
+        ],
+        [
+            5,
+            "10:00",
+            "21:30"
+        ],
+        [
+            6,
+            "10:00",
+            "21:30"
+        ],
+        [
+            7,
+            "10:00",
+            "21:30"
+        ]
+    ],
+    "title_fp": "",
+    "link_fp": "",
+    "deliver_fee_fp": 0,
+    "deliver_time_fp": 0,
+    "choice_fp": false,
+    "uuid_fp": "",
+    "triggered_at_fp": "0001-01-01T00:00:00Z",
+    "budget_fp": 0,
+    "rating_fp": 0,
+    "view_count_fp": 0,
+    "image_fp": "",
+    "tags_fp": [],
+    "address_fp": "",
+    "gps_fp": [],
+    "open_hours_fp": [],
+    "favorite": false,
+    "title_gm": "屈臣氏",
+    "rating_gm": 2.7,
+    "view_count_gm": 116,
+    "uuid_gm": "ChIJE8I2usWrQjQR7I-RASLmR60",
+    "link_gm": "https://www.google.com/maps/place/?q=place_id:ChIJE8I2usWrQjQR7I-RASLmR60",
+    "similarity": 0,
+    "triggered_at": "2021-06-17T08:00:00Z"
+}

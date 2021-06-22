@@ -1,0 +1,127 @@
+{% extends "Diner_app/base.html" %}
+
+{% block website_title %}
+    <title>UFC | 收藏</title>
+{% endblock %}
+
+{% block js_and_css %}
+    {% load static %}
+    <link rel="stylesheet"  type="text/css" href="{% static 'Diner_app/css/dinerlist.css' %}">
+    {% load static %}
+    <script type="text/javascript" src="{% static 'Diner_app/js/render.diners.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <div id='no-diners' style="display: none;">
+        <div class="row" style="text-align: start;text-indent: 2rem;">
+            <blockquote>由於系統會每天自動爬取顯示在 Uber Eats 及 Food Panda 於 Appworks 周邊的餐廳，所以如果你已經有收藏卻還是看到此提示，代表它今天沒有出現在那兩個平台上。</blockquote>
+            <blockquote>可能是沒有營業、附近沒有外送夥伴，或是被演算法排擠了，或許明天就會出現了，在那之前，來看看今天有出現的餐廳吧！</blockquote>
+        </div>
+        <div class="row">
+            <a class="btn btn-md btn-success" href="/">返回店家列表</a>
+        </div>
+    </div>
+    <div id="top-margin"></div>
+    <div id='diners' class="container justify-content-center">
+        <div id='diner-template' class="row diner" style="display: none;">
+            <div class="col">
+                <div class="row" name="diner-title-row">
+                    <div class="col-9">
+                        <div class="row">
+                            <a class="redirect-href_ue col" href="" target="_blank" rel="noopener noreferrer">
+                                <h4 class="title_ue"></h4>
+                            </a>
+                            <a class="redirect-href_fp col" href="" target="_blank" rel="noopener noreferrer">
+                                <h4 class="title_fp"></h4>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="row">
+                            {% if user_is_authenticated %}
+                                <div class="col d-flex justify-content-end">
+                                    <img title="收藏" name="favorite" class="col-2 icon" data-hover="yes" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/heart.svg" data-uuid-ue="" data-uuid-fp="">
+                                </div>
+                            {% else %}
+                                <div class="col d-flex justify-content-end">
+                                    <div id='empty-favorite' name="favorite" class="col-2 icon"></div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row" name="diner-info-row">
+                    <div class="col-9">
+                        <div class="images row">
+                            <a class="redirect-href_ue" href="" target="_blank" rel="noopener noreferrer">
+                                <img class="image_ue image img-responsive" loading="lazy" src="">
+                            </a>
+                            <a class="redirect-href_fp" href="" target="_blank" rel="noopener noreferrer">
+                                <img class="image_fp image img-responsive" loading="lazy" src="">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="row align-self-center text-align-center" name="column_names">
+                            <div class="col-2 align-self-center"></div>
+                            <div title="評價" class="col-5 align-self-center">
+                                <img name="rating_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/rating.svg" data-number=0>
+                            </div>
+                            <div title="外送資訊" class="col-5 align-self-center">
+                                <img name="deliver_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/deliver.svg" data-number=0>
+                            </div>
+                        </div>
+                        <div class="info_ue align-self-center text-align-center row">
+                            <a id='link_ue' name="source-link" class="icon_ue col-2 align-self-center align-items-center" target="_blank" rel="noopener noreferrer">
+                                <img name="logo_svg" class="icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/ubereats.svg">
+                            </a>
+                            <div class="rating_value_ue col-5 align-self-center"></div>
+                            <div class="deliver_fee_time_ue col-5 align-self-center"></div>
+                            <div class="col-12 justify-content-center">
+                                <div class="line"></div>
+                            </div>
+                        </div>  
+                        <div class="info_fp align-self-center text-align-center row">
+                            <a id='link_fp' name="source-link" class="icon_fp col-2 align-self-center" target="_blank" rel="noopener noreferrer">
+                                <img name="logo_svg" class="icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/foodpanda.svg">
+                            </a>
+                            <div class="rating_value_fp col-5 align-self-center"></div>
+                            <div class="deliver_fee_time_fp col-5 align-self-center"></div>
+                            <div class="col-12 justify-content-center">
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                        <div class="info_gm align-self-center text-align-center row">
+                            <a id='link_gm' name="source-link" class="icon_gm col-2 align-self-center" target="_blank" rel="noopener noreferrer">
+                                <img name="logo_svg" class="icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/googlemap.svg">
+                            </a>
+                            <div class="rating_value_gm col-5 align-self-center"></div>
+                            <div class="col-12 justify-content-center">
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                        <div class="tags align-self-start text-align-start row" data-source-css=ue>
+                            <div class="tags_ue col align-self-center"></div>
+                        </div>
+                        <div class="tags align-self-start text-align-start row" data-source-css=fp>
+                            <div class="tags_fp col align-self-center"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div name="divider-row" class="row justify-content-center" style="display: none;">
+        <img name="divider" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/divider.svg" data-number=0>
+    </div>
+    <div class="d-grid gap-2" data-padding-12>
+        <div id='show-more' class="btn btn-light btn-lg" data-offset=0 style="display: none;">顯示更多</div>
+    </div>
+    <img name="rating_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/rating.svg" data-number=0 style="display: none;">
+    <img name="view_count_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/view_count.svg" data-number=0  style="display: none;">
+    <img name="budget_svg" class="col-6 icon" src="https://appworks-school-hsinyili.s3-ap-northeast-1.amazonaws.com/budget.svg" data-number=0  style="display: none;">
+{% endblock %}
+
+{% block javascript %}
+    {% load static %}
+    <script type="text/javascript" src="{% static 'Diner_app/js/favorites.js' %}"></script>
+{% endblock %}
