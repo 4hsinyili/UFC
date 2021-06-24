@@ -135,7 +135,7 @@ if __name__ == '__main__':
             execute_count += 1
             if execute_count > execute_limit:
                 print('Break now.')
-                break
+                raise TimeoutError
             print('Sleep now.')
             time.sleep(till_next_execute)
         except Exception as err:
