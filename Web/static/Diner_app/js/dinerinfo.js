@@ -452,6 +452,7 @@ ajaxGet(dinerInfoAPI, function(response){
     if (uuidUE && uuidFP && uuidGM){
         renderDiner(response, 'ue')
         renderDiner(response, 'fp')
+        renderGMInfo(response)
         $('#info_ue').show()
         $('#info_fp').show()
 

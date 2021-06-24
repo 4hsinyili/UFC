@@ -492,7 +492,7 @@ function renderLambdaRunTimeGraph(infoArray, source){
     let trace1 = {
         x: x,
         y: listRunTime,
-        name: '遍歷候選餐廳花費時間',
+        name: '遍歷候選餐廳花費時間（秒）',
         type: 'scatter',
         marker: {
             color: '#5999d4',
@@ -503,7 +503,7 @@ function renderLambdaRunTimeGraph(infoArray, source){
     let trace2 = {
         x: x,
         y: detailRunTime,
-        name: '爬取可外送餐廳資訊花費時間',
+        name: '爬取可外送餐廳資訊花費時間（秒）',
         type: 'scatter',
         marker: {
             color: '#003585',
@@ -671,13 +671,13 @@ function renderMRunTimeGraph(infoArray, source){
     let trace1 = {
         x: x,
         y: mRunTime,
-        name: '花費時間',
+        name: '花費時間（秒）',
         type: 'scatter'
       };
       
     let data = [trace1];
     let graph = document.getElementById(source.concat('-line-graph'))
-    let plotTitle = 'Uber Eats, Food Panda 餐廳比對花費時間'
+    let plotTitle = 'Uber Eats, Food Panda 餐廳比對花費時間（秒）'
     let layout = {
         title: {
             text: plotTitle,
@@ -710,7 +710,7 @@ function renderPRunTimeGraph(infoArray, source){
       
     let data = [trace1];
     let graph = document.getElementById(source.concat('-line-graph'))
-    let plotTitle = 'Google Map 資料查詢花費時間'
+    let plotTitle = 'Google Map 資料查詢花費時間（秒）'
     let layout = {
         title: {
             text: plotTitle,
