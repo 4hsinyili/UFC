@@ -69,7 +69,13 @@ def listen():
     if results == []:
         return False
     else:
-        return results[-1]
+        result = results[-1]
+        _id = result['ue_triggered_at'].strftime('%Y-%m-%d')
+        now = datetime.utcnow().strftime('%Y-%m-%d')
+        if _id != now:
+            return False
+        else:
+            return results[-1]
 
 
 def main():
