@@ -464,7 +464,13 @@ function bringKeywordBack(cookieKeyword){
 
 function shuffle(){
     showLoading()
-    data = {}
+    let keyWord = document.getElementById('search-box')
+    let filterArray = $('div[name="filter"]')
+    let sorterArray = $('div[name="sorter"]')
+    conditions = createConditions($(keyWord).val())
+    conditions = turnFIltersToConditions(conditions, filterArray)
+    conditions = turnSortersToConditions(conditions, sorterArray)
+    data = {'condition': conditions}
     ajaxPost(dinerShuffleAPI, data, function(response){
         renderList(response)
         endLoading()
@@ -548,7 +554,6 @@ $(searchBox).keydown(function(e){
 $(shuffleButton).click(function(){
     clearDIners()
     $(showMoreDom).hide()
-    $(fsSection).hide()
     shuffle()
 })
 
