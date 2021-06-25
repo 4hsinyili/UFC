@@ -184,7 +184,7 @@ class SearcherQuery():
                 if sorter['field'].endswith('_ue'):
                     match_condition['$match']['uuid_ue'] = {'$ne': ""}
                 elif sorter['field'].endswith('_fp'):
-                    match_condition['$match']['uuid_ue'] = {'$ne': ""}
+                    match_condition['$match']['uuid_fp'] = {'$ne': ""}
             if sort_conditions != {"$sort": {}}:
                 conditions.append(sort_conditions)
         except Exception:
