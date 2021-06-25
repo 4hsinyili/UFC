@@ -43,7 +43,7 @@ PAGE_LIMIT = conf.PAGE_LIMIT
 admin_client = MongoClient(MONGO_EC2_URI)
 db = admin_client[DB_NAME]
 checker = utils.Checker(db, MATCHED_COLLECTION, LOG_COLLECTION, r_triggered_by=MATCH)
-searcher = SearcherQuery(db, MATCHED_COLLECTION)
+searcher = SearcherQuery(db, MATCHED_COLLECTION, PAGE_LIMIT)
 
 
 def assemble_diners_response(diners, offset, limit, diners_count):
