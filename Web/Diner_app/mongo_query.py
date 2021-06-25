@@ -116,9 +116,10 @@ class FiltersQuery():
 
 
 class SearcherQuery():
-    def __init__(self, db, read_collection):
+    def __init__(self, db, read_collection, limit):
         self.db = db
         self.read_collection = read_collection
+        self.limit = limit
 
     def assemble_pipeline(self, condition, triggered_at, offset):
         match_condition = {"$match": {"triggered_at": triggered_at}}
@@ -206,7 +207,7 @@ class SearcherQuery():
                 "data": [{
                     "$skip": offset
                 }, {
-                    "$limit": 12
+                    "$limit": self.limit
                 }],
                 "count": [{
                     "$count": "uuid_ue"
@@ -275,7 +276,7 @@ class SearcherQuery():
             }
         }, {
             "$sample": {
-                "size": 6
+                "size": self.limit
             }
         }]
         cursor = db[read_collection].aggregate(pipeline)
