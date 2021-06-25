@@ -184,7 +184,7 @@ class SearcherQuery():
                 if sorter['field'].endswith('_ue'):
                     match_condition['$match']['uuid_ue'] = {'$ne': ""}
                 elif sorter['field'].endswith('_fp'):
-                    match_condition['$match']['uuid_ue'] = {'$ne': ""}
+                    match_condition['$match']['uuid_fp'] = {'$ne': ""}
             if sort_conditions != {"$sort": {}}:
                 conditions.append(sort_conditions)
         except Exception:
@@ -317,10 +317,9 @@ class SearcherQuery():
         raw_count = raw['count']
         if len(raw_count) == 0:
             return False
-        result_count = raw_count[0]['uuid_ue']
         diners = self.check_whether_favorite(raw_diners, user)
         cursor.close()
-        return diners, result_count
+        return diners, self.limit
 
 
 class DinerInfoQuery():
