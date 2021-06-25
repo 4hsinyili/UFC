@@ -45,10 +45,21 @@ def lambda_handler(event, context):
 
     collection = 'stepfunction_log'
 
-    db[collection].insert_one({
+    record = {
         'ue_triggered_at': ue_triggered_at,
         'ue_detail_count': ue_detail_count,
         'fp_triggered_at': fp_triggered_at,
         'fp_detail_count': fp_detail_count,
         'matched': False
-    })
+    }
+
+    db[collection].insert_one(record)
+
+    result = {
+        'ue_triggered_at': str(ue_triggered_at),
+        'ue_detail_count': ue_detail_count,
+        'fp_triggered_at': str(fp_triggered_at),
+        'fp_detail_count': fp_detail_count,
+    }
+
+    return result
