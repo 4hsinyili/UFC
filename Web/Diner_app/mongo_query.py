@@ -121,7 +121,7 @@ class SearcherQuery():
         self.read_collection = read_collection
         self.limit = limit
 
-    def assemble_pipeline(self, condition, triggered_at, offset):
+    def assemble_condition(self, condition, triggered_at):
         match_condition = {"$match": {"triggered_at": triggered_at}}
         conditions = [match_condition]
         try:
@@ -202,6 +202,9 @@ class SearcherQuery():
             }
         }
         pipeline.append(project_stage)
+        return pipeline
+
+    def assemble_search_pipeline(self, pipeline, offset):
         facet_stage = {
             "$facet": {
                 "data": [{
@@ -216,6 +219,41 @@ class SearcherQuery():
         }
         pipeline.append(facet_stage)
         return pipeline
+
+    def assemble_shuffle_pipeline(self, condition, pipeline):
+        sort_conditions = {"$sort": {}}
+        try:
+            sort_conditions = {"$sort": {}}
+            for sorter in condition['sorter']:
+                if (sorter == {}) or (sorter['field'] is
+                                      None) or (sorter['sorter'] is None):
+                    continue
+                sort_conditions['$sort'][sorter['field']] = sorter['sorter']
+        except Exception:
+            pass
+        facet_stage = {
+            "$facet": {
+                "data": [
+                    {
+                        "$sample": {
+                            "size": self.limit
+                        }
+                    }
+                ],
+                "count": [
+                    {
+                        "$count": "uuid_ue"
+                    }
+                ]
+            }
+        }
+        if sort_conditions == {"$sort": {}}:
+            pipeline.append(facet_stage)
+            return pipeline
+        else:
+            facet_stage["$facet"]["data"].append(sort_conditions)
+            pipeline.append(facet_stage)
+            return pipeline
 
     def get_user_favorites(self, user):
         if user:
@@ -247,12 +285,13 @@ class SearcherQuery():
     def get_search_result(self, condition, triggered_at, offset=0, user=False):
         db = self.db
         read_collection = self.read_collection
-        pipeline = self.assemble_pipeline(condition, triggered_at, offset)
+        pipeline = self.assemble_condition(condition, triggered_at)
+        pipeline = self.assemble_search_pipeline(pipeline, offset)
         # print("====================================================")
         # print("now is using SearcherQuery's get_search_result function")
         # print("below is the pipeline")
         # pprint.pprint(pipeline)
-        # start = time.time()
+        # start = time.time(
         cursor = db[read_collection].aggregate(pipeline=pipeline,
                                                allowDiskUse=True)
         raw = next(cursor)
@@ -267,22 +306,21 @@ class SearcherQuery():
         # print('mongodb query took: ', stop - start, 's.')
         return diners, result_count
 
-    def get_random(self, triggered_at, user=False):
+    def get_random(self, condition, triggered_at, user=False):
         db = self.db
         read_collection = self.read_collection
-        pipeline = [{
-            "$match": {
-                "triggered_at": triggered_at
-            }
-        }, {
-            "$sample": {
-                "size": self.limit
-            }
-        }]
+        pipeline = self.assemble_condition(condition, triggered_at)
+        pipeline = self.assemble_shuffle_pipeline(condition, pipeline)
         cursor = db[read_collection].aggregate(pipeline)
-        diners = self.check_whether_favorite(cursor, user)
+        raw = next(cursor)
+        raw_diners = raw['data']
+        raw_count = raw['count']
+        if len(raw_count) == 0:
+            return False
+        result_count = raw_count[0]['uuid_ue']
+        diners = self.check_whether_favorite(raw_diners, user)
         cursor.close()
-        return diners
+        return diners, result_count
 
 
 class DinerInfoQuery():

@@ -117,10 +117,11 @@ class DinerShuffleAPI(views.APIView):
     @method_decorator(ratelimit(key='ip', rate='5/s', block=True, method='POST'))
     def post(self, request):
         # start = time.time()
+        condition = request.data['condition']
         user = check_user_authenticated(request.user)
         triggered_at = checker.get_triggered_at()
-        diners = searcher.get_random(triggered_at, user)
-        response = assemble_diners_response(diners, 0, PAGE_LIMIT, 6)
+        diners, diners_count = searcher.get_random(condition, triggered_at, user)
+        response = assemble_diners_response(diners, 0, PAGE_LIMIT, diners_count)
         # stop = time.time()
         # print('post DinerSearch took: ', stop - start, 's.')
         return response
