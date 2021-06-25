@@ -317,10 +317,9 @@ class SearcherQuery():
         raw_count = raw['count']
         if len(raw_count) == 0:
             return False
-        result_count = raw_count[0]['uuid_ue']
         diners = self.check_whether_favorite(raw_diners, user)
         cursor.close()
-        return diners, result_count
+        return diners, self.limit
 
 
 class DinerInfoQuery():
