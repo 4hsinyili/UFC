@@ -48,7 +48,7 @@ You will need an account to add restaurant into favorites, here is a test accoun
 
 
 ## Data Pipeline
-For better resolution, please view [Original Image](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/UFC_Data_Pipeline.png).
+For better resolution, please view [UFC_Data_Pipeline.pdf](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/UFC_Data_Pipeline.pdf).
 
 ![](ReadmeMaterial/UFC_Data_Pipeline.png)
 
