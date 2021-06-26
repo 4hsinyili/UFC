@@ -89,6 +89,9 @@ You will need an account to add restaurant into favorites, here is a test accoun
 #### Shuffle restaurants if you can't decide what to eat:
 
 ![](ReadmeMaterial/dinerlist_shuffle.gif)
+
+#### Shuffle restaurants with conditions:
+![](ReadmeMaterial/dinerlist_shuffle_with_condition.gif)
 ### Favorite
 #### Add restaurants to your favorite:
 
