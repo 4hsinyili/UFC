@@ -340,7 +340,7 @@ function search(offset=0, showMore=false){
             window.scrollTo(0,(height - (200)));
             endLoading()
             if (!result){
-                noData()
+                noFit()
             }
         })
     }
@@ -350,7 +350,7 @@ function search(offset=0, showMore=false){
             result = renderList(response)
             endLoading()
             if (!result){
-                noData()
+                noFit()
             }
         })
     }
@@ -393,8 +393,11 @@ function bringConditionBack(){
     } else {
         $(fsSection).hide()
         ajaxPost(dinerSearchAPI, initData, function(response){
-            renderList(response)
+            result = renderList(response)
             endLoading()
+            if (!result){
+                noFit()
+            }
         })
     }
 }
@@ -472,8 +475,11 @@ function shuffle(){
     conditions = turnSortersToConditions(conditions, sorterArray)
     data = {'condition': conditions}
     ajaxPost(dinerShuffleAPI, data, function(response){
-        renderList(response)
+        result = renderList(response)
         endLoading()
+        if (!result){
+            noFit()
+        }
     })
 }
 
