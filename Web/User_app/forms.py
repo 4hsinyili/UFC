@@ -22,6 +22,7 @@ class RegisterForm(UserCreationForm):
     password1 = forms.CharField(
         label="密碼",
         required=True,
+        help_text='密碼應為 8 個以上的英數混合字元',
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '密碼'}),
         )
     password2 = forms.CharField(

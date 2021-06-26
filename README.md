@@ -9,36 +9,36 @@ You will need an account to add restaurant into favorites, here is a test accoun
 * Password: comparethem2021
 
 ## Table of Contents
-* Technologies
-* Data Pipeline
-* Server Structure
-* MySQL Schema
-* Features
+* [Technologies](##Technologies)
+* [Data Pipeline](#Data-Pipeline)
+* [Server Structure](#Server-Structure)
+* [MySQL Schema](#MySQL-Schema)
+* [Features](#Features)
 
 ## Technologies
-### Data Pipeline
+**Data Pipeline**
 * AWS Cloud Watch
 * AWS Lambda
 * AWS Step Function
 * crontab
 
-### Backend
+**Backend**
 * Django
 
-### Database
+**Database**
 * MongoDB
 * MySQL
 
-### Frontend
+**Frontend**
 * HTML
 * CSS
 * JavaScript
 
-### Networking
+**Networking**
 * Nginx
 * SSL Certificate(ZeroSSL)
 
-### Others
+**Others**
 * AWS EC2
 * AWS RDS
 * AWS S3
@@ -89,6 +89,9 @@ You will need an account to add restaurant into favorites, here is a test accoun
 #### Shuffle restaurants if you can't decide what to eat:
 
 ![](ReadmeMaterial/dinerlist_shuffle.gif)
+
+#### Shuffle restaurants with conditions:
+![](ReadmeMaterial/dinerlist_shuffle_with_condition.gif)
 ### Favorite
 #### Add restaurants to your favorite:
 
