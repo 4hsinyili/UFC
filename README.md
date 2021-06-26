@@ -9,7 +9,6 @@ You will need an account to add restaurant into favorites, here is a test accoun
 * Password: comparethem2021
 
 ## Table of Contents
----
 * [Technologies](##Technologies)
 * [Data Pipeline](#Data-Pipeline)
 * [Server Structure](#Server-Structure)
@@ -17,7 +16,6 @@ You will need an account to add restaurant into favorites, here is a test accoun
 * [Features](#Features)
 
 ## Technologies
----
 > Data Pipeline
 * AWS Cloud Watch
 * AWS Lambda
@@ -50,7 +48,6 @@ You will need an account to add restaurant into favorites, here is a test accoun
 
 
 ## Data Pipeline
----
 For better resolution, please view [UFC_Data_Pipeline.pdf](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/UFC_Data_Pipeline.pdf).
 
 ![](ReadmeMaterial/UFC_Data_Pipeline.png)
@@ -61,13 +58,10 @@ For better resolution, please view [Stepfunctions_Graph.pdf](https://appworks-sc
 ![](ReadmeMaterial/Stepfunctions_Graph.png)
 
 ## Server Structure
----
 ![](ReadmeMaterial/Server_Structure.png)
 ## MySQL Schema
----
 ![](ReadmeMaterial/MySQL_DB_Schema.png)
 ## Features
----
 ### Dashboard
 #### Diagrams:
 
