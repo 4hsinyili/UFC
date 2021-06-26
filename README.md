@@ -52,6 +52,11 @@ For better resolution, please view [UFC_Data_Pipeline.pdf](https://appworks-scho
 
 ![](ReadmeMaterial/UFC_Data_Pipeline.png)
 
+#### Step Function flowchart
+For better resolution, please view [Stepfunctions_Graph.pdf](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/Stepfunctions_Graph.pdf).
+
+![](ReadmeMaterial/Stepfunctions_Graph.png)
+
 ## Server Structure
 ![](ReadmeMaterial/Server_Structure.png)
 ## MySQL Schema
