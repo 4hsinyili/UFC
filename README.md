@@ -96,3 +96,9 @@ For better resolution, please view [Original Image](https://appworks-school-hsin
 #### Add restaurants to your favorite:
 
 ![](ReadmeMaterial/favorite.gif)
+
+----
+
+## Author
+
+HsinYi Li 4hsinyili@gmail.com
