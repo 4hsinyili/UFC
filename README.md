@@ -16,29 +16,29 @@ You will need an account to add restaurant into favorites, here is a test accoun
 * [Features](#Features)
 
 ## Technologies
-**Data Pipeline**
+> Data Pipeline
 * AWS Cloud Watch
 * AWS Lambda
 * AWS Step Function
 * crontab
 
-**Backend**
+> Backend
 * Django
 
-**Database**
+> Database
 * MongoDB
 * MySQL
 
-**Frontend**
+> Frontend
 * HTML
 * CSS
 * JavaScript
 
-**Networking**
+> Networking
 * Nginx
 * SSL Certificate(ZeroSSL)
 
-**Others**
+> Others
 * AWS EC2
 * AWS RDS
 * AWS S3
@@ -48,7 +48,7 @@ You will need an account to add restaurant into favorites, here is a test accoun
 
 
 ## Data Pipeline
-* For better resolution, please view [Original Image](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/UFC_Data_Pipeline.png).
+For better resolution, please view [Original Image](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/UFC_Data_Pipeline.png).
 
 ![](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/UFC_Data_Pipeline.png)
 
