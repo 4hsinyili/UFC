@@ -162,6 +162,14 @@ function favoriteListener(favoriteDom){
     }
 }
 
+function noFit(){
+    Swal.fire({
+        title: "找不到符合條件的餐廳",
+        text: "請嘗試看看其他的搜尋條件",
+    });
+}
+
+
 function renderList(data){
     if (data.no_data == 1){
         return false

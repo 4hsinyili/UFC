@@ -155,7 +155,7 @@ class SearcherQuery():
             for filter in condition['filter']:
                 if (filter['filter'] is None) or (filter['value'] is None):
                     continue
-                elif filter['field'] not in ['tags', 'open_days']:
+                elif filter['field'] not in ['tags_ue', 'open_days_ue', 'tags_fp', 'open_days_fp']:
                     match_condition['$match'][filter['field']] = {
                         filter['filter']: filter['value']
                     }
