@@ -1,6 +1,6 @@
 # UberEats & FoodPanda Comparison (UFC)
 
-UFC is a website where you could find restaurants that could deliver to AppWorks School and you could view their information crawled from UberEats, Food Panda and Google Map.
+One stop restaurants rating comparison website for AppWorks School using information crawled from Uber Eats, Food Panda and Google Map.
 
 Website url: https://4hsinyili-ufc.xyz
 
