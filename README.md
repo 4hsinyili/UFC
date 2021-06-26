@@ -55,7 +55,7 @@ For better resolution, please view [Original Image](https://appworks-school-hsin
 ## Server Structure
 ![](ReadmeMaterial/Server_Structure.png)
 ## MySQL Schema
-![](ReadmeMaterial/MySQL_Schema.png)
+![](ReadmeMaterial/MySQL_DB_Schema.png)
 ## Features
 ### Dashboard
 #### Diagrams:
