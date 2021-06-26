@@ -9,6 +9,7 @@ You will need an account to add restaurant into favorites, here is a test accoun
 * Password: comparethem2021
 
 ## Table of Contents
+---
 * [Technologies](##Technologies)
 * [Data Pipeline](#Data-Pipeline)
 * [Server Structure](#Server-Structure)
@@ -16,6 +17,7 @@ You will need an account to add restaurant into favorites, here is a test accoun
 * [Features](#Features)
 
 ## Technologies
+---
 > Data Pipeline
 * AWS Cloud Watch
 * AWS Lambda
@@ -48,6 +50,7 @@ You will need an account to add restaurant into favorites, here is a test accoun
 
 
 ## Data Pipeline
+---
 For better resolution, please view [UFC_Data_Pipeline.pdf](https://appworks-school-hsinyili.s3.ap-northeast-1.amazonaws.com/UFC_Data_Pipeline.pdf).
 
 ![](ReadmeMaterial/UFC_Data_Pipeline.png)
@@ -58,10 +61,13 @@ For better resolution, please view [Stepfunctions_Graph.pdf](https://appworks-sc
 ![](ReadmeMaterial/Stepfunctions_Graph.png)
 
 ## Server Structure
+---
 ![](ReadmeMaterial/Server_Structure.png)
 ## MySQL Schema
+---
 ![](ReadmeMaterial/MySQL_DB_Schema.png)
 ## Features
+---
 ### Dashboard
 #### Diagrams:
 
@@ -70,6 +76,8 @@ For better resolution, please view [Stepfunctions_Graph.pdf](https://appworks-sc
 #### Pick a range you like to see:
 
 ![](ReadmeMaterial/dashboard_pick_date_range.gif)
+
+---
 
 ### Search with custom conditions
 
@@ -85,10 +93,14 @@ For better resolution, please view [Stepfunctions_Graph.pdf](https://appworks-sc
 
 ![](ReadmeMaterial/dinerlist_sort.gif)
 
+---
+
 ### Find Cheaper Items
 #### Show items thar are cheaper on UberEats or FoodPanda.
 
 ![](ReadmeMaterial/dinerinfo_cheaper.gif)
+
+---
 
 ### Shuffle
 #### Shuffle restaurants if you can't decide what to eat:
@@ -97,12 +109,15 @@ For better resolution, please view [Stepfunctions_Graph.pdf](https://appworks-sc
 
 #### Shuffle restaurants with conditions:
 ![](ReadmeMaterial/dinerlist_shuffle_with_condition.gif)
+
+---
+
 ### Favorite
 #### Add restaurants to your favorite:
 
 ![](ReadmeMaterial/favorite.gif)
 
-----
+---
 
 ## Author
 
