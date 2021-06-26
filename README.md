@@ -9,7 +9,7 @@ You will need an account to add restaurant into favorites, here is a test accoun
 * Password: comparethem2021
 
 ## Table of Contents
-* [Technologies](##Technologies)
+* [Technologies](#Technologies)
 * [Data Pipeline](#Data-Pipeline)
 * [Server Structure](#Server-Structure)
 * [MySQL Schema](#MySQL-Schema)
