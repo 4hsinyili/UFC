@@ -111,8 +111,6 @@ For better resolution, please view [Stepfunctions_Graph.pdf](https://appworks-sc
 
 ![](ReadmeMaterial/favorite.gif)
 
----
-
 ## Author
 
 HsinYi Li 4hsinyili@gmail.com
