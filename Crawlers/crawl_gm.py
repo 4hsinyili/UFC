@@ -378,7 +378,7 @@ class GMCrawler():
 
 
 if __name__ == '__main__':
-    limit = 5
+    limit = 0
     crawler = GMCrawler(db,
                         r_w_collection=MATCHED_COLLECTION,
                         log_collection=LOG_COLLECTION,
