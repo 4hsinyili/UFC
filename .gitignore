@@ -43,3 +43,5 @@ ip_log_2.txt
 
 !ReadmeMaterial/*.svg
 !ReadmeMaterial/*.png
+interview.md
+tree.py
