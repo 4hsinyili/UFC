@@ -317,9 +317,9 @@ class GMCrawler():
         for diner in diners:
             record = UpdateOne(
                 {
+                    'triggered_at': diner['triggered_at'],
                     'uuid_ue': diner['uuid_ue'],
                     'uuid_fp': diner['uuid_fp'],
-                    'triggered_at': diner['triggered_at']
                 }, {'$set': diner})
             records.append(record)
         return records

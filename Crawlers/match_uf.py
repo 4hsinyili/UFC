@@ -317,11 +317,9 @@ class Match():
             for diner in record_slice:
                 record = UpdateOne(
                     {
+                        'triggered_at': triggered_at,
                         'uuid_ue': diner['uuid_ue'],
                         'uuid_fp': diner['uuid_fp'],
-                        'triggered_at_ue': diner['triggered_at_ue'],
-                        'triggered_at_fp': diner['triggered_at_fp'],
-                        'triggered_at': triggered_at
                     }, {'$set': diner},
                     upsert=True)
                 upsert_records.append(record)
@@ -374,7 +372,7 @@ class Match():
                                 matched_count=matched_count)
         s_stop = time.time()
         print('save to db took: ', s_stop - s_start)
-        self.remove_old_records()
+        # self.remove_old_records()
 
 
 if __name__ == '__main__':
