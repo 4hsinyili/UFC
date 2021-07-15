@@ -3,7 +3,7 @@ from pymongo import MongoClient, UpdateOne
 
 # for timing
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # for compare
 from itertools import product
@@ -332,13 +332,13 @@ class Match():
         pprint.pprint('write into matched successed')
         return len(records)
 
-    # def remove_old_records(self):
-    #     db = self.db
-    #     triggered_at = self.triggered_at
-    #     last_week = triggered_at - timedelta(weeks=1)
-    #     db.ue_detail.delete_many({"triggered_at": {"$lt": last_week}})
-    #     db.fp_detail.delete_many({"triggered_at": {"$lt": last_week}})
-    #     db.matched.delete_many({"triggered_at": {"$lt": last_week}})
+    def remove_old_records(self):
+        db = self.db
+        triggered_at = self.triggered_at
+        last_week = triggered_at - timedelta(weeks=2)
+        db.ue_detail.delete_many({"triggered_at": {"$lt": last_week}})
+        db.fp_detail.delete_many({"triggered_at": {"$lt": last_week}})
+        db.matched.delete_many({"triggered_at": {"$lt": last_week}})
 
     def main(self):
         print('Start comparsion, using', self.triggered_at, "'s records.")
@@ -374,7 +374,7 @@ class Match():
                                 matched_count=matched_count)
         s_stop = time.time()
         print('save to db took: ', s_stop - s_start)
-        # self.remove_old_records()
+        self.remove_old_records()
 
 
 if __name__ == '__main__':
