@@ -350,7 +350,7 @@ class GMCrawler():
     def main(self):
         utils.save_start_at(self)
         limit = self.limit
-        update_not_found_count = self.update_from_previous_not_found()
+        update_not_found_count = 0  # self.update_from_previous_not_found()
         update_found_count = self.update_from_previous_found()
 
         start = time.time()
