@@ -159,7 +159,6 @@ class GMCrawler():
                         "rating_gm": "$rating_gm",
                         "view_count_gm": "$view_count_gm",
                         "link_gm": "$link_gm",
-                        'not_found_gm': "$not_found_gm"
                     }
                 }
             }
